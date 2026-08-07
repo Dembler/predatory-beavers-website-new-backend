@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: predatory_beavers
+      POSTGRES_USER: predatory_beavers
+      POSTGRES_PASSWORD: predatory_beavers
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U predatory_beavers -d predatory_beavers"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build: .
+    command: ["alembic", "upgrade", "head"]
+    environment: &backend_environment
+      APP_ENV: dev
+      APP_RELOAD: "false"
+      APP_DATABASE_URL: postgresql+asyncpg://predatory_beavers:predatory_beavers@db:5432/predatory_beavers
+      APP_COOKIE_SECURE: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: .
+    environment: *backend_environment
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build: .
+    command: ["python", "-m", "predatory_beavers.worker.main"]
+    environment: *backend_environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  postgres_data:
