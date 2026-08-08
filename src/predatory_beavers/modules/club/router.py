@@ -26,6 +26,52 @@ admin_router = APIRouter(
 )
 
 
+@admin_router.get("", response_model=PaginatedResponse[PlayerRead])
+async def list_admin_players(
+    request: Request,
+    service: FromDishka[PlayerService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    team: str | None = Query(None, min_length=1, max_length=64),
+    category: Annotated[TeamCategory | None, Query()] = None,
+    active: bool | None = Query(None),
+) -> PaginatedResponse[PlayerRead]:
+    await authorizer.require_editor_session(
+        request.cookies.get(settings.session_cookie_name),
+    )
+    players, total = await service.list(
+        page=page,
+        page_size=page_size,
+        team=team,
+        category=category,
+        active=active,
+        public_only=False,
+    )
+    return PaginatedResponse[PlayerRead].create(
+        items=[PlayerRead.model_validate(player) for player in players],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@admin_router.get("/{player_id}", response_model=ApiResponse[PlayerRead])
+async def get_admin_player(
+    player_id: UUID,
+    request: Request,
+    service: FromDishka[PlayerService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
+) -> ApiResponse[PlayerRead]:
+    await authorizer.require_editor_session(
+        request.cookies.get(settings.session_cookie_name),
+    )
+    player = await service.get(player_id)
+    return ApiResponse(message="Player retrieved", data=PlayerRead.model_validate(player))
+
+
 @public_router.get("/teams", response_model=PaginatedResponse[TeamRead])
 async def list_teams(
     service: FromDishka[TeamService],

@@ -30,3 +30,8 @@ class LoginData(BaseModel):
 
 class LogoutData(BaseModel):
     logged_out: bool = True
+
+
+class CsrfData(BaseModel):
+    csrf_token: str
+    expires_at: datetime

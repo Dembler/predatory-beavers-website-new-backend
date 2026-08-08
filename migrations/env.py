@@ -7,10 +7,15 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from predatory_beavers.db.base import Base
+from predatory_beavers.modules.achievements import models as achievements_models  # noqa: F401,E402
+from predatory_beavers.modules.audit import models as audit_models  # noqa: F401,E402
 
 # Import every ORM module so Alembic can discover its tables.
 from predatory_beavers.modules.auth import models as auth_models  # noqa: F401,E402
 from predatory_beavers.modules.club import models as club_models  # noqa: F401,E402
+from predatory_beavers.modules.imports import models as imports_models  # noqa: F401,E402
+from predatory_beavers.modules.matches import models as matches_models  # noqa: F401,E402
+from predatory_beavers.modules.standings import models as standings_models  # noqa: F401,E402
 from predatory_beavers.settings import get_settings
 
 config = context.config

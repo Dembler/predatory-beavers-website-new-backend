@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from predatory_beavers.api.errors import NotFoundError
 from predatory_beavers.db.base import Base
+from predatory_beavers.db.uow import SqlAlchemyUnitOfWork
 from predatory_beavers.modules.club.models import Player, Team, TeamCategory
 from predatory_beavers.modules.club.repository import PlayerRepository, TeamRepository
 from predatory_beavers.modules.club.schemas import PlayerCreate, PlayerUpdate
@@ -31,7 +32,7 @@ def services(session: AsyncSession) -> tuple[TeamService, PlayerService, TeamRep
     player_repository = PlayerRepository(session)
     return (
         TeamService(team_repository),
-        PlayerService(player_repository, team_repository),
+        PlayerService(player_repository, team_repository, SqlAlchemyUnitOfWork(session)),
         team_repository,
     )
 

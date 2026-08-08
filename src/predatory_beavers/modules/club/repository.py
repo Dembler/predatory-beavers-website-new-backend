@@ -44,6 +44,13 @@ class TeamRepository:
         statement = select(Team).where(Team.id == team_id, Team.is_deleted.is_(False))
         return cast(Team | None, await self._session.scalar(statement))
 
+    async def get_by_slug(self, slug: str) -> Team | None:
+        statement = select(Team).where(
+            Team.slug == slug,
+            Team.is_deleted.is_(False),
+        )
+        return cast(Team | None, await self._session.scalar(statement))
+
 
 class PlayerRepository:
     def __init__(self, session: AsyncSession) -> None:
@@ -61,12 +68,14 @@ class PlayerRepository:
         team: str | None = None,
         category: TeamCategory | None = None,
         active: bool | None = True,
+        public_only: bool = True,
     ) -> tuple[list[Player], int]:
         filters: list[ColumnElement[bool]] = [
             Player.is_deleted.is_(False),
             Team.is_deleted.is_(False),
-            Team.active.is_(True),
         ]
+        if public_only:
+            filters.append(Team.active.is_(True))
         if team is not None:
             filters.append(Team.slug == team)
         if category is not None:
@@ -110,18 +119,18 @@ class PlayerRepository:
 
     async def add(self, player: Player) -> Player:
         self._session.add(player)
-        await self._session.commit()
+        await self._session.flush()
         return await self._load_after_write(player.id)
 
     async def save(self, player: Player) -> Player:
-        await self._session.commit()
+        await self._session.flush()
         return await self._load_after_write(player.id)
 
     async def soft_delete(self, player: Player) -> None:
         player.is_deleted = True
         player.deleted_at = datetime.now(UTC)
         player.active = False
-        await self._session.commit()
+        await self._session.flush()
 
     async def _load_after_write(self, player_id: UUID) -> Player:
         # expire-on-commit may differ, so always reload a complete response graph.

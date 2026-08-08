@@ -17,6 +17,7 @@ COPY alembic.ini run.py ./
 COPY migrations ./migrations
 
 RUN addgroup --system app && adduser --system --ingroup app app \
+    && mkdir -p /app/data/media \
     && chown -R app:app /app
 USER app
 

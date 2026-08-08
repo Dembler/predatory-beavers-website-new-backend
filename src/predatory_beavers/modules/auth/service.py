@@ -10,6 +10,7 @@ from time import monotonic
 from pwdlib import PasswordHash
 
 from predatory_beavers.api.errors import ForbiddenError
+from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.auth.errors import (
     InvalidCredentialsError,
     InvalidCsrfTokenError,
@@ -101,17 +102,25 @@ class LoginResult:
     expires_at: datetime
 
 
+@dataclass(frozen=True, slots=True)
+class CsrfResult:
+    csrf_token: str
+    expires_at: datetime
+
+
 class AuthService:
     def __init__(
         self,
         repository: AuthRepository,
         password_security: PasswordSecurity,
         settings: Settings,
+        unit_of_work: UnitOfWork,
         login_guard: LoginGuard | None = None,
     ) -> None:
         self._repository = repository
         self._password_security = password_security
         self._settings = settings
+        self._unit_of_work = unit_of_work
         self._login_guard = login_guard or LoginGuard(settings)
 
     async def login(
@@ -144,12 +153,17 @@ class AuthService:
             last_seen_at=now,
             expires_at=expires_at,
         )
-        await self._repository.prune_user_sessions(
-            user.id,
-            now,
-            keep_active=self._settings.auth_max_active_sessions - 1,
-        )
-        await self._repository.create_session(auth_session)
+        try:
+            await self._repository.prune_user_sessions(
+                user.id,
+                now,
+                keep_active=self._settings.auth_max_active_sessions - 1,
+            )
+            await self._repository.create_session(auth_session)
+            await self._unit_of_work.commit()
+        except BaseException:
+            await self._unit_of_work.rollback()
+            raise
         return LoginResult(
             user=user,
             session_token=session_token,
@@ -164,7 +178,31 @@ class AuthService:
             raise InvalidSessionError
         if not hmac.compare_digest(auth_session.csrf_token_hash, hash_token(csrf_token)):
             raise InvalidCsrfTokenError
-        await self._repository.revoke_session(auth_session, now)
+        try:
+            await self._repository.revoke_session(auth_session, now)
+            await self._unit_of_work.commit()
+        except BaseException:
+            await self._unit_of_work.rollback()
+            raise
+
+    async def issue_csrf_token(self, session_token: str) -> CsrfResult:
+        auth_session = await self._active_session(session_token)
+        if auth_session is None:
+            raise InvalidSessionError
+
+        now = datetime.now(UTC)
+        csrf_token = secrets.token_urlsafe(32)
+        try:
+            await self._repository.rotate_csrf_token(
+                auth_session,
+                csrf_token_hash=hash_token(csrf_token),
+                seen_at=now,
+            )
+            await self._unit_of_work.commit()
+        except BaseException:
+            await self._unit_of_work.rollback()
+            raise
+        return CsrfResult(csrf_token=csrf_token, expires_at=auth_session.expires_at)
 
     async def me(self, session_token: str) -> User:
         auth_session = await self._active_session(session_token)
@@ -183,6 +221,18 @@ class AuthService:
             raise InvalidSessionError
         if not hmac.compare_digest(auth_session.csrf_token_hash, hash_token(csrf_token)):
             raise InvalidCsrfTokenError
+        if auth_session.user.role not in allowed_roles:
+            raise ForbiddenError("Insufficient permissions")
+        return auth_session.user
+
+    async def authorize_session(
+        self,
+        session_token: str,
+        allowed_roles: set[UserRole],
+    ) -> User:
+        auth_session = await self._active_session(session_token)
+        if auth_session is None:
+            raise InvalidSessionError
         if auth_session.user.role not in allowed_roles:
             raise ForbiddenError("Insufficient permissions")
         return auth_session.user

@@ -4,6 +4,7 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from predatory_beavers.db.session import create_engine, create_session_factory
+from predatory_beavers.db.uow import SqlAlchemyUnitOfWork, UnitOfWork
 from predatory_beavers.settings import Settings
 
 
@@ -32,6 +33,10 @@ class CoreProvider(Provider):
     ) -> AsyncIterator[AsyncSession]:
         async with session_factory() as session:
             yield session
+
+    @provide(scope=Scope.REQUEST)
+    def unit_of_work(self, session: AsyncSession) -> UnitOfWork:
+        return SqlAlchemyUnitOfWork(session)
 
 
 def build_container(settings: Settings, *providers: Provider) -> AsyncContainer:

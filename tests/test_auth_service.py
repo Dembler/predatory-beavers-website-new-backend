@@ -61,6 +61,28 @@ class FakeAuthRepository:
     async def revoke_session(self, auth_session: Session, revoked_at: datetime) -> None:
         auth_session.revoked_at = revoked_at
 
+    async def rotate_csrf_token(
+        self,
+        auth_session: Session,
+        *,
+        csrf_token_hash: str,
+        seen_at: datetime,
+    ) -> None:
+        auth_session.csrf_token_hash = csrf_token_hash
+        auth_session.last_seen_at = seen_at
+
+
+class FakeUnitOfWork:
+    def __init__(self) -> None:
+        self.commits = 0
+        self.rollbacks = 0
+
+    async def commit(self) -> None:
+        self.commits += 1
+
+    async def rollback(self) -> None:
+        self.rollbacks += 1
+
 
 @pytest.fixture(scope="module")
 def password_security() -> PasswordSecurity:
@@ -86,7 +108,12 @@ async def test_login_success_stores_only_hashed_session_token(
 ) -> None:
     user = build_user(password_security)
     repository = FakeAuthRepository([user])
-    service = AuthService(repository, password_security, Settings(env="test"))  # type: ignore[arg-type]
+    service = AuthService(
+        repository,  # type: ignore[arg-type]
+        password_security,
+        Settings(env="test"),
+        FakeUnitOfWork(),
+    )
 
     result = await service.login("COACH", "correct-password")
 
@@ -105,7 +132,12 @@ async def test_login_failure_is_identical_for_unknown_user_and_wrong_password(
 ) -> None:
     user = build_user(password_security)
     repository = FakeAuthRepository([user])
-    service = AuthService(repository, password_security, Settings(env="test"))  # type: ignore[arg-type]
+    service = AuthService(
+        repository,  # type: ignore[arg-type]
+        password_security,
+        Settings(env="test"),
+        FakeUnitOfWork(),
+    )
 
     errors = []
     for username, password in (
@@ -124,7 +156,12 @@ async def test_login_failure_is_identical_for_unknown_user_and_wrong_password(
 async def test_logout_revokes_session(password_security: PasswordSecurity) -> None:
     user = build_user(password_security)
     repository = FakeAuthRepository([user])
-    service = AuthService(repository, password_security, Settings(env="test"))  # type: ignore[arg-type]
+    service = AuthService(
+        repository,  # type: ignore[arg-type]
+        password_security,
+        Settings(env="test"),
+        FakeUnitOfWork(),
+    )
     login = await service.login("coach@example.com", "correct-password")
 
     await service.logout(login.session_token, login.csrf_token)
@@ -144,7 +181,12 @@ async def test_login_rate_limit_and_active_session_cap(
         auth_login_max_attempts=3,
         auth_max_active_sessions=2,
     )
-    service = AuthService(repository, password_security, settings)  # type: ignore[arg-type]
+    service = AuthService(
+        repository,  # type: ignore[arg-type]
+        password_security,
+        settings,
+        FakeUnitOfWork(),
+    )
 
     await service.login("coach", "correct-password", client_key="127.0.0.1")
     await service.login("coach", "correct-password", client_key="127.0.0.1")
@@ -154,3 +196,26 @@ async def test_login_rate_limit_and_active_session_cap(
     assert len(active_sessions) == 2
     with pytest.raises(LoginRateLimitError):
         await service.login("coach", "correct-password", client_key="127.0.0.1")
+
+
+@pytest.mark.asyncio
+async def test_csrf_token_can_be_rotated_after_session_restore(
+    password_security: PasswordSecurity,
+) -> None:
+    user = build_user(password_security)
+    repository = FakeAuthRepository([user])
+    unit_of_work = FakeUnitOfWork()
+    service = AuthService(
+        repository,  # type: ignore[arg-type]
+        password_security,
+        Settings(env="test"),
+        unit_of_work,
+    )
+    login = await service.login("coach", "correct-password")
+
+    restored = await service.issue_csrf_token(login.session_token)
+
+    assert restored.csrf_token != login.csrf_token
+    assert repository.sessions[0].csrf_token_hash == hash_token(restored.csrf_token)
+    assert restored.expires_at == login.expires_at
+    assert unit_of_work.commits == 2

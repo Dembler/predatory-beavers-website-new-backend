@@ -1,6 +1,7 @@
 from dishka import Provider, Scope, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.auth.authorization import SessionAdminAuthorizer
 from predatory_beavers.modules.auth.repository import AuthRepository
 from predatory_beavers.modules.auth.service import AuthService, LoginGuard, PasswordSecurity
@@ -27,9 +28,10 @@ class AuthProvider(Provider):
         repository: AuthRepository,
         password_security: PasswordSecurity,
         settings: Settings,
+        unit_of_work: UnitOfWork,
         login_guard: LoginGuard,
     ) -> AuthService:
-        return AuthService(repository, password_security, settings, login_guard)
+        return AuthService(repository, password_security, settings, unit_of_work, login_guard)
 
     @provide(scope=Scope.REQUEST)
     def admin_authorizer(

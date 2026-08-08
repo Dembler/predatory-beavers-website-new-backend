@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date
 from enum import StrEnum
 from uuid import UUID
 
@@ -6,38 +6,23 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     Date,
-    DateTime,
     Enum,
     ForeignKey,
     Index,
     Integer,
     String,
     Text,
-    false,
     text,
     true,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from predatory_beavers.db.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
+from predatory_beavers.db.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
 
 
 class TeamCategory(StrEnum):
     MEN = "men"
     WOMEN = "women"
-
-
-class SoftDeleteMixin:
-    """Shared, queryable marker for records removed from public views."""
-
-    is_deleted: Mapped[bool] = mapped_column(
-        Boolean,
-        default=False,
-        server_default=false(),
-        nullable=False,
-        index=True,
-    )
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class MediaAsset(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):

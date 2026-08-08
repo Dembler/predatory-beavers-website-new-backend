@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator, model_validator
 
 from predatory_beavers.modules.club.models import TeamCategory
 
@@ -12,13 +12,16 @@ class ClubSchema(BaseModel):
 
 class MediaAssetRead(ClubSchema):
     id: UUID
-    storage_key: str
     mime: str
     size: int
     width: int | None
     height: int | None
-    checksum: str
     alt_text: str | None
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def content_url(self) -> str:
+        return f"/media/{self.id}/content"
 
 
 class TeamSummary(ClubSchema):

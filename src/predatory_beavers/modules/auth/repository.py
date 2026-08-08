@@ -25,11 +25,7 @@ class AuthRepository:
 
     async def create_session(self, auth_session: Session) -> Session:
         self._db_session.add(auth_session)
-        try:
-            await self._db_session.commit()
-        except Exception:
-            await self._db_session.rollback()
-            raise
+        await self._db_session.flush()
         await self._db_session.refresh(auth_session)
         return auth_session
 
@@ -70,8 +66,15 @@ class AuthRepository:
 
     async def revoke_session(self, auth_session: Session, revoked_at: datetime) -> None:
         auth_session.revoked_at = revoked_at
-        try:
-            await self._db_session.commit()
-        except Exception:
-            await self._db_session.rollback()
-            raise
+        await self._db_session.flush()
+
+    async def rotate_csrf_token(
+        self,
+        auth_session: Session,
+        *,
+        csrf_token_hash: str,
+        seen_at: datetime,
+    ) -> None:
+        auth_session.csrf_token_hash = csrf_token_hash
+        auth_session.last_seen_at = seen_at
+        await self._db_session.flush()

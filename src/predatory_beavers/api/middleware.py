@@ -6,6 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.requests import Request
 from starlette.responses import Response
 
+from predatory_beavers.modules.audit.context import bind_audit_actor, reset_audit_actor
 from predatory_beavers.observability.logging import bind_request_id, reset_request_id
 
 logger = logging.getLogger("predatory_beavers.http")
@@ -13,9 +14,15 @@ logger = logging.getLogger("predatory_beavers.http")
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        request_id = request.headers.get("X-Request-ID") or str(uuid4())
+        supplied_request_id = request.headers.get("X-Request-ID")
+        request_id = (
+            supplied_request_id
+            if supplied_request_id and len(supplied_request_id) <= 128
+            else str(uuid4())
+        )
         request.state.request_id = request_id
         token = bind_request_id(request_id)
+        audit_actor_token = bind_audit_actor(None)
         started_at = perf_counter()
         try:
             response = await call_next(request)
@@ -38,6 +45,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             )
             raise
         finally:
+            reset_audit_actor(audit_actor_token)
             reset_request_id(token)
 
 

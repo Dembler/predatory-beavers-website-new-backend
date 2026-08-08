@@ -6,6 +6,7 @@ from fastapi import APIRouter, Header, Request, Response
 from predatory_beavers.api.responses import ApiResponse
 from predatory_beavers.modules.auth.errors import InvalidCsrfTokenError, InvalidSessionError
 from predatory_beavers.modules.auth.schemas import (
+    CsrfData,
     LoginData,
     LoginRequest,
     LogoutData,
@@ -79,6 +80,21 @@ async def logout(
         samesite="lax",
     )
     return ApiResponse(message="Logout successful", data=LogoutData())
+
+
+@router.get("/csrf", response_model=ApiResponse[CsrfData])
+async def issue_csrf_token(
+    request: Request,
+    response: Response,
+    service: FromDishka[AuthService],
+    settings: FromDishka[Settings],
+) -> ApiResponse[CsrfData]:
+    result = await service.issue_csrf_token(_session_token(request, settings))
+    response.headers["Cache-Control"] = "no-store"
+    return ApiResponse(
+        message="CSRF token issued",
+        data=CsrfData(csrf_token=result.csrf_token, expires_at=result.expires_at),
+    )
 
 
 @router.get("/me", response_model=ApiResponse[UserRead])

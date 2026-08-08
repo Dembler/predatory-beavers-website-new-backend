@@ -12,8 +12,16 @@ from predatory_beavers.api.errors import register_exception_handlers
 from predatory_beavers.api.health import router as health_router
 from predatory_beavers.api.middleware import RequestContextMiddleware, SecurityHeadersMiddleware
 from predatory_beavers.api.v1.router import api_v1_router
+from predatory_beavers.modules.achievements.provider import AchievementsProvider
+from predatory_beavers.modules.audit.provider import AuditProvider
 from predatory_beavers.modules.auth.provider import AuthProvider
 from predatory_beavers.modules.club.provider import ClubProvider
+from predatory_beavers.modules.home.provider import HomeProvider
+from predatory_beavers.modules.imports.provider import ImportsProvider
+from predatory_beavers.modules.matches.provider import MatchesProvider
+from predatory_beavers.modules.media.provider import MediaProvider
+from predatory_beavers.modules.media.router import content_router as media_content_router
+from predatory_beavers.modules.standings.provider import StandingsProvider
 from predatory_beavers.observability import configure_logging
 from predatory_beavers.settings import Settings, get_settings
 
@@ -23,7 +31,18 @@ logger = logging.getLogger(__name__)
 def create_app(settings: Settings | None = None) -> FastAPI:
     app_settings = settings or get_settings()
     configure_logging(level=app_settings.log_level, json_logs=app_settings.log_json)
-    container = build_container(app_settings, AuthProvider(), ClubProvider())
+    container = build_container(
+        app_settings,
+        AuthProvider(),
+        AuditProvider(),
+        ClubProvider(),
+        MatchesProvider(),
+        MediaProvider(),
+        AchievementsProvider(),
+        StandingsProvider(),
+        ImportsProvider(),
+        HomeProvider(),
+    )
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -59,6 +78,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     app.include_router(health_router)
+    app.include_router(media_content_router)
     app.include_router(api_v1_router, prefix=app_settings.api_prefix)
     register_exception_handlers(app)
     return app
