@@ -12,4 +12,5 @@ htmlcov/
 dist/
 build/
 data/*.db*
+!data/predatory_beavers.db
 data/media/

@@ -54,8 +54,9 @@ Copy-Item .env.example .env
 
 API: `http://localhost:8000`; Swagger: `http://localhost:8000/docs`.
 
-БД создаётся в `data/predatory_beavers.db`, изображения сохраняются в `data/media`;
-оба пути не попадают в Git. Для каждого SQLite-соединения backend включает foreign keys
+БД создаётся в `data/predatory_beavers.db`, изображения сохраняются в `data/media`.
+Текущий локальный снимок БД временно хранится в Git; каталог изображений и служебные
+SQLite-файлы по-прежнему игнорируются. Для каждого SQLite-соединения backend включает foreign keys
 и busy timeout. Перед развёртыванием нужно настроить резервное копирование общего каталога
 `data`; API рассчитан на один пишущий экземпляр приложения.
 
