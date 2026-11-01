@@ -156,6 +156,12 @@ class AsbImportApplier:
             ),
             "home_team_name": game.home_team_name.strip(),
             "away_team_name": game.away_team_name.strip(),
+            "home_logo_url": (
+                str(game.home_team_logo_url) if game.home_team_logo_url is not None else None
+            ),
+            "away_logo_url": (
+                str(game.away_team_logo_url) if game.away_team_logo_url is not None else None
+            ),
             "home_score": game.home_score if status is MatchStatus.FINISHED else None,
             "away_score": game.away_score if status is MatchStatus.FINISHED else None,
             "status": status,
@@ -173,6 +179,8 @@ class AsbImportApplier:
 
         changed = existing.is_deleted
         for field, value in values.items():
+            if field in {"home_logo_url", "away_logo_url"} and value is None:
+                continue
             if getattr(existing, field) != value:
                 setattr(existing, field, value)
                 changed = True
@@ -191,6 +199,14 @@ class AsbImportApplier:
         team: Team,
         competition: Competition,
     ) -> bool:
+        # The results endpoint has no logos; TeamGames supplies them for both sides.
+        team_logos = {}
+        for game in bundle.games:
+            if game.home_team_logo_url is not None:
+                team_logos[game.home_team_id] = game.home_team_logo_url
+            if game.away_team_logo_url is not None:
+                team_logos[game.away_team_id] = game.away_team_logo_url
+
         standings_payload = StandingsPublish(
             team_id=team.id,
             competition_id=competition.id,
@@ -199,6 +215,7 @@ class AsbImportApplier:
                     position=row.position,
                     team_name=row.team_name.name,
                     external_team_id=str(row.team_id),
+                    team_logo_url=team_logos.get(row.team_id),
                     played=row.stats.played,
                     wins=row.stats.wins,
                     losses=row.stats.losses,

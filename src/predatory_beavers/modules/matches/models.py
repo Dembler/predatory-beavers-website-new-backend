@@ -181,6 +181,8 @@ class Match(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
         ForeignKey("media_assets.id", ondelete="SET NULL"),
         nullable=True,
     )
+    home_logo_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    away_logo_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     featured: Mapped[bool] = mapped_column(
         Boolean,

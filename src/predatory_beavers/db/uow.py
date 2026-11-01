@@ -45,7 +45,13 @@ class SqlAlchemyUnitOfWork:
         del exc, traceback
         transaction = self._transaction
         self._transaction = None
-        if transaction is None or not transaction.is_active:
+        if transaction is None:
+            return
+        if not transaction.is_active:
+            if exc_type is not None or not self._committed:
+                # A failed ORM flush deactivates the transaction but leaves the
+                # session unusable until rollback clears its pending state.
+                await self._session.rollback()
             return
         if exc_type is not None or not self._committed:
             await transaction.rollback()
@@ -62,6 +68,6 @@ class SqlAlchemyUnitOfWork:
     async def rollback(self) -> None:
         if self._transaction is None:
             await self._session.rollback()
-        elif self._transaction.is_active:
-            await self._transaction.rollback()
+        else:
+            await self._session.rollback()
         self._committed = False

@@ -13,4 +13,12 @@ dist/
 build/
 data/*.db*
 !data/predatory_beavers.db
+data/*.log
 data/media/
+data/e2e-credentials.json
+data/local-admin-credentials.json
+data/e2e-media/
+data/test-run-*/
+data/mypy-work/
+data/pytest-*/
+data/pytest-*.log

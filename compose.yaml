@@ -5,7 +5,7 @@ services:
     environment: &backend_environment
       APP_ENV: dev
       APP_RELOAD: "false"
-      APP_DATABASE_URL: sqlite+aiosqlite:////app/data/predatory_beavers.db
+      APP_DATABASE_URL: sqlite+aiosqlite:////app/data/local.db
       APP_MEDIA_STORAGE_PATH: /app/data/media
       APP_COOKIE_SECURE: "false"
     volumes: &backend_volumes

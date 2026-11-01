@@ -274,6 +274,8 @@ def test_admin_match_crud_and_public_schedule(tmp_path: Path) -> None:
         assert public_matches.status_code == 200
         assert public_matches.json()["total"] == 1
         assert public_matches.json()["items"][0]["id"] == match_id
+        assert public_matches.json()["items"][0]["home_logo_url"] is None
+        assert public_matches.json()["items"][0]["away_logo_url"] is None
 
         finished = client.patch(
             f"/api/v1/admin/matches/{match_id}",

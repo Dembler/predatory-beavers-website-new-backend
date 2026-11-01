@@ -1,7 +1,15 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    computed_field,
+    field_validator,
+    model_validator,
+)
 
 from predatory_beavers.modules.club.schemas import TeamSummary
 from predatory_beavers.modules.matches.schemas import CompetitionRead
@@ -11,6 +19,7 @@ class StandingRow(BaseModel):
     position: int = Field(ge=1)
     team_name: str = Field(min_length=1, max_length=200)
     external_team_id: str | None = Field(default=None, max_length=128)
+    team_logo_url: HttpUrl | None = None
     played: int = Field(ge=0)
     wins: int = Field(ge=0)
     losses: int = Field(ge=0)
@@ -18,6 +27,11 @@ class StandingRow(BaseModel):
     table_points: int = Field(ge=0)
     points_for: int = Field(ge=0)
     points_against: int = Field(ge=0)
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def points_difference(self) -> int:
+        return self.points_for - self.points_against
 
     @field_validator("team_name")
     @classmethod

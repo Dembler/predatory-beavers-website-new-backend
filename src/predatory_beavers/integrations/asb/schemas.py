@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 
 class AsbSchema(BaseModel):
@@ -13,11 +13,20 @@ class AsbGame(AsbSchema):
     away_team_id: int = Field(alias="TeamBid", gt=0)
     home_team_name: str = Field(alias="TeamNameAru", min_length=1, max_length=200)
     away_team_name: str = Field(alias="TeamNameBru", min_length=1, max_length=200)
+    home_team_logo_url: HttpUrl | None = Field(default=None, alias="TeamLogoA")
+    away_team_logo_url: HttpUrl | None = Field(default=None, alias="TeamLogoB")
     home_score: int = Field(alias="ScoreA", ge=0)
     away_score: int = Field(alias="ScoreB", ge=0)
     arena_id: int | None = Field(default=None, alias="ArenaId", ge=0)
     arena_name: str | None = Field(default=None, alias="ArenaRu", max_length=200)
     phase_name: str | None = Field(default=None, alias="CompNameRu", max_length=200)
+
+    @field_validator("home_team_logo_url", "away_team_logo_url", mode="before")
+    @classmethod
+    def empty_logo_is_absent(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
 
 
 class AsbTeamName(AsbSchema):

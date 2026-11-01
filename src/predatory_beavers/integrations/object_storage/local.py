@@ -12,6 +12,9 @@ class LocalObjectStorage:
     """Filesystem adapter for development; keys remain portable to an S3 adapter."""
 
     def __init__(self, root: Path) -> None:
+        # Resolve an existing directory: on Windows, resolving a missing path while
+        # concurrent uploads create it can yield inconsistent canonical prefixes.
+        root.mkdir(parents=True, exist_ok=True)
         self._root = root.resolve()
 
     async def put(self, *, key: str, content: bytes, content_type: str) -> None:

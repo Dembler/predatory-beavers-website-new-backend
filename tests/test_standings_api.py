@@ -11,7 +11,7 @@ from predatory_beavers.db.session import create_engine, create_session_factory
 from predatory_beavers.modules.auth.models import User, UserRole
 from predatory_beavers.modules.auth.service import PasswordSecurity
 from predatory_beavers.modules.club.models import Team, TeamCategory
-from predatory_beavers.modules.standings.schemas import StandingsPublish
+from predatory_beavers.modules.standings.schemas import StandingRow, StandingsPublish
 from predatory_beavers.settings import Settings
 
 
@@ -117,10 +117,15 @@ def test_publish_standings_replaces_current_snapshot_and_keeps_history(
 
         public = client.get("/api/v1/standings?team=men&season=2026-2027")
         assert public.status_code == 200
+        public_rows = public.json()["data"]["rows"]
+        assert public_rows[0]["team_logo_url"] is None
+        assert public_rows[0]["points_difference"] == 25
+        assert public_rows[1]["points_difference"] == -2
         assert public.json()["data"]["id"] == first_data["id"]
         assert public.json()["data"]["competition"]["name"] == "Московская лига"
 
         payload["rows"] = _standing_rows(club_points=5)
+        payload["rows"][1]["team_logo_url"] = "https://files.infobasket.su/Logos/17024.png"
         second = client.post(
             "/api/v1/admin/standings",
             json=payload,
@@ -130,6 +135,9 @@ def test_publish_standings_replaces_current_snapshot_and_keeps_history(
         second_data = second.json()["data"]
         assert second_data["id"] != first_data["id"]
         assert second_data["rows"][0]["table_points"] == 5
+        assert second_data["rows"][0]["team_logo_url"] == (
+            "https://files.infobasket.su/Logos/17024.png"
+        )
 
         archived = client.get("/api/v1/admin/standings?current=false")
         assert archived.status_code == 200
@@ -171,3 +179,20 @@ def test_standings_payload_rejects_inconsistent_rows() -> None:
             competition_id="6ba7b810-9dad-11d1-80b4-00c04fd430c9",  # type: ignore[arg-type]
             rows=invalid_positions,  # type: ignore[arg-type]
         )
+
+
+@pytest.mark.parametrize(
+    "points_for,points_against,difference", [(164, 139, 25), (40, 43, -3), (50, 50, 0)]
+)
+def test_points_difference_is_derived_for_legacy_rows(
+    points_for: int, points_against: int, difference: int
+) -> None:
+    payload = _standing_rows()[0]
+    payload.update(
+        points_for=points_for,
+        points_against=points_against,
+        points_difference=999,
+    )
+    row = StandingRow.model_validate(payload)
+    assert row.team_logo_url is None
+    assert row.model_dump(mode="json")["points_difference"] == difference

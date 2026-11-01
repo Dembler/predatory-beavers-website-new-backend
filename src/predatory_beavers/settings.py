@@ -18,12 +18,13 @@ class Settings(BaseSettings):
     name: str = "Predatory Beavers API"
     version: str = "0.1.0"
     env: Literal["dev", "test", "prod"] = "dev"
+    e2e_runtime_token: str | None = None
     host: str = "0.0.0.0"
     port: int = Field(default=8000, ge=1, le=65535)
     reload: bool = True
     api_prefix: str = "/api/v1"
 
-    database_url: str = "sqlite+aiosqlite:///./data/predatory_beavers.db"
+    database_url: str = "sqlite+aiosqlite:///./data/local.db"
     database_echo: bool = False
     database_busy_timeout_ms: int = Field(default=5000, ge=100, le=60_000)
 
@@ -63,6 +64,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_production_security(self) -> "Settings":
+        if self.e2e_runtime_token and self.env != "test":
+            raise ValueError("APP_E2E_RUNTIME_TOKEN is available only in test environments")
         parsed_asb_url = urlsplit(self.asb_base_url)
         allowed_hosts = {host.strip().lower() for host in self.asb_allowed_hosts}
         if (

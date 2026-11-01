@@ -13,6 +13,7 @@ from predatory_beavers.modules.audit import models as audit_models  # noqa: F401
 # Import every ORM module so Alembic can discover its tables.
 from predatory_beavers.modules.auth import models as auth_models  # noqa: F401,E402
 from predatory_beavers.modules.club import models as club_models  # noqa: F401,E402
+from predatory_beavers.modules.content import models as content_models  # noqa: F401,E402
 from predatory_beavers.modules.imports import models as imports_models  # noqa: F401,E402
 from predatory_beavers.modules.matches import models as matches_models  # noqa: F401,E402
 from predatory_beavers.modules.standings import models as standings_models  # noqa: F401,E402

@@ -6,8 +6,9 @@ from io import BytesIO
 from uuid import UUID, uuid4
 
 from PIL import Image, ImageOps, UnidentifiedImageError
+from sqlalchemy.exc import IntegrityError
 
-from predatory_beavers.api.errors import NotFoundError, ServiceUnavailableError
+from predatory_beavers.api.errors import ConflictError, NotFoundError, ServiceUnavailableError
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.integrations.object_storage.client import ObjectStorage
 from predatory_beavers.integrations.object_storage.local import ObjectNotFoundError
@@ -21,6 +22,7 @@ from predatory_beavers.modules.media.errors import (
     UnsupportedImageError,
 )
 from predatory_beavers.modules.media.repository import MediaRepository
+from predatory_beavers.modules.media.schemas import MediaUpdate
 from predatory_beavers.settings import Settings
 
 SUPPORTED_FORMATS = frozenset({"JPEG", "PNG", "WEBP"})
@@ -79,6 +81,19 @@ class MediaService:
         async with self._unit_of_work:
             existing = await self._repository.get_by_checksum(processed.checksum)
             if existing is not None:
+                if existing.is_deleted:
+                    existing.is_deleted = False
+                    existing.deleted_at = None
+                    existing.alt_text = normalized_alt
+                    await self._repository.save(existing)
+                    if self._audit_service is not None:
+                        await self._audit_service.record(
+                            action=AuditAction.UPLOAD,
+                            entity_type="media_asset",
+                            entity_id=existing.id,
+                            after=MediaAssetRead.model_validate(existing).model_dump(mode="json"),
+                        )
+                await self._unit_of_work.commit()
                 return existing
 
         storage_key = f"images/{uuid4().hex}.webp"
@@ -108,6 +123,15 @@ class MediaService:
                     )
                 await self._unit_of_work.commit()
                 return created
+        except IntegrityError:
+            await self._storage.delete(key=storage_key)
+            # Two concurrent uploads may normalize to the same immutable checksum.
+            async with self._unit_of_work:
+                existing = await self._repository.get_by_checksum(processed.checksum)
+                if existing is None:
+                    raise
+                await self._unit_of_work.commit()
+                return existing
         except BaseException:
             await self._storage.delete(key=storage_key)
             raise
@@ -117,6 +141,46 @@ class MediaService:
         if asset is None:
             raise NotFoundError("Media asset not found")
         return asset
+
+    async def list(self, *, page: int, page_size: int) -> tuple[list[MediaAsset], int]:
+        return await self._repository.list(page=page, page_size=page_size)
+
+    async def update(self, asset_id: UUID, payload: MediaUpdate) -> MediaAsset:
+        async with self._unit_of_work:
+            asset = await self.get(asset_id)
+            before = MediaAssetRead.model_validate(asset).model_dump(mode="json")
+            if "alt_text" in payload.model_fields_set:
+                asset.alt_text = payload.alt_text
+            await self._repository.save(asset)
+            if self._audit_service is not None:
+                await self._audit_service.record(
+                    action=AuditAction.UPDATE,
+                    entity_type="media_asset",
+                    entity_id=asset.id,
+                    before=before,
+                    after=MediaAssetRead.model_validate(asset).model_dump(mode="json"),
+                )
+            await self._unit_of_work.commit()
+            return asset
+
+    async def delete(self, asset_id: UUID) -> None:
+        async with self._unit_of_work:
+            asset = await self.get(asset_id)
+            if await self._repository.is_referenced(asset_id):
+                raise ConflictError(
+                    "Image is in use; remove it from its player, team, match or achievement first"
+                )
+            before = MediaAssetRead.model_validate(asset).model_dump(mode="json")
+            await self._repository.soft_delete(asset)
+            if self._audit_service is not None:
+                await self._audit_service.record(
+                    action=AuditAction.DELETE,
+                    entity_type="media_asset",
+                    entity_id=asset.id,
+                    before=before,
+                )
+            # Keep the immutable file for safe restoration and already cached URLs.
+            await self._unit_of_work.commit()
 
     async def get_content(self, asset_id: UUID) -> MediaContent:
         asset = await self.get(asset_id)
@@ -145,7 +209,7 @@ def _process_image(content: bytes, max_dimension: int, quality: int) -> Processe
             source.load()
             normalized = ImageOps.exif_transpose(source)
             normalized.thumbnail((max_dimension, max_dimension), Image.Resampling.LANCZOS)
-            if "A" in normalized.getbands():
+            if "A" in normalized.getbands() or "transparency" in normalized.info:
                 normalized = normalized.convert("RGBA")
             else:
                 normalized = normalized.convert("RGB")

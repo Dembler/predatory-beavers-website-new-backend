@@ -64,7 +64,7 @@ class PlayerCreate(BaseModel):
     position: str | None = Field(default=None, max_length=100)
     fact: str | None = Field(default=None, max_length=5000)
     photo_asset_id: UUID | None = None
-    sort_order: int = Field(default=0, ge=0)
+    sort_order: int = Field(default=0, ge=0, le=2_147_483_647)
     active: bool = True
 
     @field_validator("full_name")
@@ -99,7 +99,7 @@ class PlayerUpdate(BaseModel):
     position: str | None = Field(default=None, max_length=100)
     fact: str | None = Field(default=None, max_length=5000)
     photo_asset_id: UUID | None = None
-    sort_order: int | None = Field(default=None, ge=0)
+    sort_order: int | None = Field(default=None, ge=0, le=2_147_483_647)
     active: bool | None = None
 
     @field_validator("team_id", "full_name", "sort_order", "active", mode="before")

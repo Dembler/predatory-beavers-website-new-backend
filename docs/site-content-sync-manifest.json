@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "repository": "https://github.com/Dembler/Web_AppSite_Predatory_Beavers",
+  "revision": "d106836c7b34cd3779edd78d4b5a33ddf4b54347",
+  "content": [
+    {
+      "key": "channel-1",
+      "section": "contact_channels",
+      "title": "Telegram-канал",
+      "body": "Результаты, новости и лучшие моменты «Хищных Бобров» — всё в одном канале!",
+      "subtitle": "TG",
+      "link_url": "https://t.me/bc_predatorybeaversvsu",
+      "link_label": "Открыть канал"
+    },
+    {
+      "key": "channel-2",
+      "section": "contact_channels",
+      "title": "Наш Telegram-бот",
+      "body": "Бот клуба для уведомлений о матчах. Доступные команды можно посмотреть в Telegram.",
+      "subtitle": "BOT",
+      "link_url": "https://t.me/Bc_Predatory_Beavers_bot",
+      "link_label": "Открыть бота"
+    },
+    {
+      "key": "channel-3",
+      "section": "contact_channels",
+      "title": "Группа ВКонтакте",
+      "body": "Следите за игрой и закулисьем «Хищных Бобров» во ВКонтакте!",
+      "subtitle": "VK",
+      "link_url": "https://vk.com/bc_predatorybeaversvsu",
+      "link_label": "Открыть группу"
+    },
+    {
+      "key": "captain-men",
+      "section": "captains",
+      "title": "Леонид Юдин",
+      "body": "Мужская команда"
+    },
+    {
+      "key": "captain-women",
+      "section": "captains",
+      "title": "Дарья Черевко",
+      "body": "Женская команда"
+    },
+    {
+      "key": "role-1",
+      "section": "player_roles",
+      "title": "Разыгрывающий",
+      "body": "Начинает атаки, задаёт темп и направляет движение мяча. Читает защиту, выбирает момент для передачи или прохода и помогает партнёрам получить удобный бросок. Его роль определяется решениями и владением мячом, а не ростом.",
+      "subtitle": "PG · Point Guard"
+    },
+    {
+      "key": "role-2",
+      "section": "player_roles",
+      "title": "Атакующий защитник",
+      "body": "Создаёт угрозу броском и открывается без мяча. Выбирает позицию для завершения, атакует проходом и помогает разыгрывающему создавать моменты. В защите работает против игроков периметра.",
+      "subtitle": "SG · Shooting Guard"
+    },
+    {
+      "key": "role-3",
+      "section": "player_roles",
+      "title": "Лёгкий форвард",
+      "body": "Связывает заднюю и переднюю линии. Атакует с разных дистанций, врывается под кольцо, участвует в быстрых отрывах и может защищаться против разных соперников. Для этой роли важны мобильность и умение находить свободное пространство.",
+      "subtitle": "SF · Small Forward"
+    },
+    {
+      "key": "role-4",
+      "section": "player_roles",
+      "title": "Тяжёлый форвард",
+      "body": "Борется за подбор, ставит заслоны и страхует партнёров в защите. Открывается рядом с кольцом и помогает создавать пространство для атаки. В современной игре может растягивать защиту дальним броском.",
+      "subtitle": "PF · Power Forward"
+    },
+    {
+      "key": "role-5",
+      "section": "player_roles",
+      "title": "Центровой",
+      "body": "Защищает пространство у кольца, мешает броскам и контролирует подбор. В нападении ставит заслоны, завершает атаки вблизи корзины и помогает передачами. Подвижность и чтение игры для него важны наряду с физическими данными.",
+      "subtitle": "C · Center"
+    },
+    {
+      "key": "tip-1",
+      "section": "viewing_tips",
+      "title": "Следите за разыгрывающим",
+      "body": "Заметьте, кто начинает атаки и направляет партнёров. Посмотрите, как он меняет темп, выбирает передачу или сам идёт к кольцу. Самый низкий игрок не обязательно выполняет эту роль."
+    },
+    {
+      "key": "tip-2",
+      "section": "viewing_tips",
+      "title": "Различайте три нарушения",
+      "body": "Пробежка связана с недопустимым перемещением ног с мячом; двойное ведение — с повторным началом уже законченного ведения; аут — с выходом мяча или игрока с мячом за границу площадки."
+    },
+    {
+      "key": "tip-3",
+      "section": "viewing_tips",
+      "title": "Следите за временем",
+      "body": "Различайте игровое время и счётчик атаки. На новую атаку обычно даётся 24 секунды. После касания кольца и подбора той же командой счётчик устанавливается на 14 секунд."
+    },
+    {
+      "key": "tip-4",
+      "section": "viewing_tips",
+      "title": "Смотрите на жесты судьи",
+      "body": "После свистка посмотрите, что показывает судья: фол, нарушение или другую остановку. Обратите внимание, кому достанется мяч и назначены ли штрафные броски."
+    },
+    {
+      "key": "tip-5",
+      "section": "viewing_tips",
+      "title": "Оценивайте ценность броска",
+      "body": "Штрафной приносит одно очко, бросок с игры внутри дуги — два, из-за дуги — три. Если игрок касается трёхочковой линии при броске, попадание оценивается в два очка."
+    },
+    {
+      "key": "tip-6",
+      "section": "viewing_tips",
+      "title": "Следите за сменой владения",
+      "body": "После промаха мяч может подобрать любая команда. Подбор в защите начинает атаку соперника, а подбор в нападении даёт прежней команде ещё один шанс. Сам промах не означает, что мяч обязательно перейдёт другой стороне."
+    },
+    {
+      "key": "tip-7",
+      "section": "viewing_tips",
+      "title": "Узнавайте роли по действиям",
+      "body": "Смотрите, кто разыгрывает мяч, ставит заслоны, борется за подбор и защищает кольцо. Рост помогает понять расстановку, но не определяет все задачи: игроки могут совмещать несколько ролей."
+    },
+    {
+      "key": "tip-8",
+      "section": "viewing_tips",
+      "title": "Читайте расстановку защиты",
+      "body": "При личной защите игрок в первую очередь опекает соперника, при зонной — отвечает за участок площадки. Следите и за теми, у кого нет мяча: их перемещения открывают пространство для атаки."
+    }
+  ],
+  "venues": [
+    {
+      "key": "vsu",
+      "external_id": "12371",
+      "name": "С/З \"ВГУ\"",
+      "address": "Воронеж, Университетская площадь, 1",
+      "latitude": 51.656495,
+      "longitude": 39.206117,
+      "aliases": [
+        "ВГУ"
+      ],
+      "source_url": "https://www.vsu.ru/sveden/objects/"
+    },
+    {
+      "key": "vgas-2",
+      "external_id": "11689",
+      "name": "УСК-2 ВГАС",
+      "address": "Воронеж, ул. Среднемосковская, 72",
+      "latitude": 51.673846,
+      "longitude": 39.191097,
+      "aliases": [
+        "ВГАС-2",
+        "ВГАС2"
+      ],
+      "source_url": "https://www.vgifk.ru/sites/default/files/news_docs/programma_kongress_7-8.04.2022.pdf"
+    },
+    {
+      "key": "vsuet",
+      "external_id": "12319",
+      "name": "С/З \"ВГУИТ\"",
+      "address": "Воронеж, проспект Революции, 19",
+      "aliases": [
+        "ВГУИТ"
+      ],
+      "source_url": "https://vsuet.ru/sveden/common/buildings"
+    },
+    {
+      "key": "vstu",
+      "external_id": "12372",
+      "name": "С/З \"ВГТУ\"",
+      "address": "Воронеж, ул. 20-летия Октября, 84",
+      "latitude": 51.652573,
+      "longitude": 39.19249,
+      "aliases": [
+        "ВГТУ"
+      ],
+      "source_url": "https://cchgeu.ru/upload/iblock/223/folc32j30e123jwxvbbv13iuikne6fnm/Tvorcheskiy-otchyet-2021.pdf"
+    },
+    {
+      "key": "vsau",
+      "external_id": "15014",
+      "name": "СК ВГАУ",
+      "address": "Воронеж, ул. Ломоносова, 81Д, корпус 15",
+      "aliases": [
+        "ВГАУ"
+      ],
+      "source_url": "https://www.vsau.ru/sveden/objects"
+    },
+    {
+      "key": "vgafk-volgograd",
+      "external_id": "12229",
+      "name": "С/З \"ВГАФК\"",
+      "address": "Волгоград, проспект В. И. Ленина, 78",
+      "aliases": [
+        "ВГАФК"
+      ],
+      "source_url": "https://www.vgafk.ru/sveden/document/u/Otchet_o_samoobsledovanii_2024_E.pdf"
+    },
+    {
+      "key": "vgas-1",
+      "name": "ВГАС-1",
+      "address": "Воронеж, Карла Маркса, 59",
+      "latitude": 51.666563,
+      "longitude": 39.20159,
+      "aliases": [
+        "ВГАС1"
+      ],
+      "source_url": "https://github.com/Dembler/Web_AppSite_Predatory_Beavers/blob/d106836c7b34cd3779edd78d4b5a33ddf4b54347/src/main/resources/templates/contacts.html"
+    },
+    {
+      "key": "vspu",
+      "name": "ВГПУ",
+      "address": "Воронеж, Берёзовая Роща, 54А",
+      "latitude": 51.702372,
+      "longitude": 39.226877,
+      "aliases": [
+        "ВГПУ"
+      ],
+      "source_url": "https://github.com/Dembler/Web_AppSite_Predatory_Beavers/blob/d106836c7b34cd3779edd78d4b5a33ddf4b54347/src/main/resources/templates/contacts.html"
+    },
+    {
+      "key": "sogdiana",
+      "name": "СОГДИАНА",
+      "address": "Воронеж, Цимлянская, 3а",
+      "latitude": 51.616427,
+      "longitude": 39.245409,
+      "aliases": [
+        "СОГДИАНА"
+      ],
+      "source_url": "https://github.com/Dembler/Web_AppSite_Predatory_Beavers/blob/d106836c7b34cd3779edd78d4b5a33ddf4b54347/src/main/resources/templates/contacts.html"
+    }
+  ]
+}

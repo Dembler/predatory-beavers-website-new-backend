@@ -21,7 +21,7 @@ from predatory_beavers.modules.audit.models import AdminAuditLog, AuditAction
 from predatory_beavers.modules.audit.repository import AuditRepository
 from predatory_beavers.modules.audit.service import AuditService
 from predatory_beavers.modules.auth import models as auth_models  # noqa: F401
-from predatory_beavers.modules.club.models import Team, TeamCategory
+from predatory_beavers.modules.club.models import MediaAsset, Team, TeamCategory
 from predatory_beavers.modules.club.repository import TeamRepository
 from predatory_beavers.modules.imports.models import ImportStatus
 from predatory_beavers.modules.imports.repository import ImportJobRepository
@@ -33,6 +33,7 @@ from predatory_beavers.modules.matches.repository import (
     MatchRepository,
     VenueRepository,
 )
+from predatory_beavers.modules.matches.schemas import MatchRead
 from predatory_beavers.modules.standings.models import StandingsSnapshot
 from predatory_beavers.modules.standings.repository import StandingsRepository
 from predatory_beavers.settings import Settings
@@ -47,6 +48,8 @@ def _game_payload(*, game_id: int = 865380, arena_id: int = 12371) -> dict[str, 
         "TeamBid": 7433,
         "TeamNameAru": "ВГПУ (Воронеж)",
         "TeamNameBru": "ВГУ (Воронеж)",
+        "TeamLogoA": "https://files.infobasket.su/Logos/16494.png",
+        "TeamLogoB": "https://files.infobasket.su/Logos/17024.png",
         "ScoreA": 49,
         "ScoreB": 61,
         "ArenaId": arena_id,
@@ -132,6 +135,12 @@ async def test_asb_http_client_builds_fixed_urls_and_validates_payload() -> None
 
     assert len(bundle.games) == 1
     assert bundle.games[0].game_id == 865380
+    assert str(bundle.games[0].home_team_logo_url) == (
+        "https://files.infobasket.su/Logos/16494.png"
+    )
+    assert str(bundle.games[0].away_team_logo_url) == (
+        "https://files.infobasket.su/Logos/17024.png"
+    )
     assert [row.position for row in bundle.standings] == [1, 2]
     assert requested_paths == [
         "/Widget/TeamGames/7433",
@@ -289,8 +298,24 @@ async def test_asb_import_is_idempotent_and_publishes_standings(
     assert second.result["standings_published"] is False
 
     assert await session.scalar(select(func.count(Match.id))) == 2
+    match = await MatchRepository(session).get_by_external_identity("asb", "865380")
+    assert match is not None
+    assert match.home_logo_url == "https://files.infobasket.su/Logos/16494.png"
+    assert match.away_logo_url == "https://files.infobasket.su/Logos/17024.png"
+    match_read = MatchRead.model_validate(match).model_dump(mode="json")
+    assert match_read["home_logo_url"] == match.home_logo_url
+    assert match_read["away_logo_url"] == match.away_logo_url
+    assert match_read["home_logo_asset_id"] is None
+    assert match_read["away_logo_asset_id"] is None
     assert await session.scalar(select(func.count(Venue.id))) == 1
     assert await session.scalar(select(func.count(StandingsSnapshot.id))) == 1
+    snapshot = await session.scalar(select(StandingsSnapshot))
+    assert snapshot is not None
+    assert snapshot.rows[0]["team_logo_url"] == "https://files.infobasket.su/Logos/17024.png"
+    assert snapshot.rows[1]["team_logo_url"] == "https://files.infobasket.su/Logos/16494.png"
+    assert snapshot.rows[0]["points_for"] == 150
+    assert snapshot.rows[0]["points_against"] == 120
+    assert snapshot.rows[0]["points_difference"] == 30
     assert await session.scalar(select(func.count(AdminAuditLog.id))) == 2
     actions = list(await session.scalars(select(AdminAuditLog.action)))
     assert actions == [AuditAction.IMPORT, AuditAction.IMPORT]
@@ -298,3 +323,40 @@ async def test_asb_import_is_idempotent_and_publishes_standings(
     jobs, total = await job_repository.list(page=1, page_size=10)
     assert total == 2
     assert all(job.status is ImportStatus.COMPLETED for job in jobs)
+
+    uploaded_logo = MediaAsset(
+        storage_key="manual-logo.png", mime="image/png", size=100, checksum="manual-logo"
+    )
+    session.add(uploaded_logo)
+    await session.flush()
+    match.home_logo_asset_id = uploaded_logo.id
+    match.away_logo_asset_id = uploaded_logo.id
+    await session.commit()
+    bundle.games[0].home_team_logo_url = None
+    bundle.games[0].away_team_logo_url = None
+    changed_payload = _game_payload(game_id=865381)
+    changed_payload["TeamLogoA"] = "https://files.infobasket.su/Logos/changed.png"
+    bundle.games[1] = AsbGame.model_validate(changed_payload)
+    third = await service.import_asb(payload)
+    assert third.result is not None
+    assert third.result["matches_unchanged"] == 1
+    assert third.result["matches_updated"] == 1
+    preserved = await MatchRepository(session).get_by_external_identity("asb", "865380")
+    assert preserved is not None
+    assert preserved.home_logo_url == "https://files.infobasket.su/Logos/16494.png"
+    assert preserved.away_logo_url == "https://files.infobasket.su/Logos/17024.png"
+    assert preserved.home_logo_asset_id == uploaded_logo.id
+    assert preserved.away_logo_asset_id == uploaded_logo.id
+    updated = await MatchRepository(session).get_by_external_identity("asb", "865381")
+    assert updated is not None
+    assert updated.home_logo_url == "https://files.infobasket.su/Logos/changed.png"
+
+
+@pytest.mark.parametrize("logo", [None, "", "   "])
+def test_asb_games_accept_missing_logos(logo: str | None) -> None:
+    payload = _game_payload()
+    payload["TeamLogoA"] = logo
+    payload.pop("TeamLogoB")
+    game = AsbGame.model_validate(payload)
+    assert game.home_team_logo_url is None
+    assert game.away_team_logo_url is None

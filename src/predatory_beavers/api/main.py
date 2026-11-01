@@ -16,6 +16,7 @@ from predatory_beavers.modules.achievements.provider import AchievementsProvider
 from predatory_beavers.modules.audit.provider import AuditProvider
 from predatory_beavers.modules.auth.provider import AuthProvider
 from predatory_beavers.modules.club.provider import ClubProvider
+from predatory_beavers.modules.content.provider import ContentProvider
 from predatory_beavers.modules.home.provider import HomeProvider
 from predatory_beavers.modules.imports.provider import ImportsProvider
 from predatory_beavers.modules.matches.provider import MatchesProvider
@@ -36,6 +37,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         AuthProvider(),
         AuditProvider(),
         ClubProvider(),
+        ContentProvider(),
         MatchesProvider(),
         MediaProvider(),
         AchievementsProvider(),

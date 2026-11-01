@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
 from predatory_beavers.modules.club.schemas import MediaAssetRead, TeamSummary
 from predatory_beavers.modules.matches.models import ClubSide, MatchStatus
@@ -231,6 +231,8 @@ class MatchRead(MatchesSchema):
     away_logo_asset_id: UUID | None
     home_logo: MediaAssetRead | None
     away_logo: MediaAssetRead | None
+    home_logo_url: HttpUrl | None
+    away_logo_url: HttpUrl | None
     notes: str | None
     featured: bool
     created_at: datetime
