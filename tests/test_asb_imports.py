@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 
 import httpx
 import pytest
@@ -23,6 +24,7 @@ from predatory_beavers.modules.audit.service import AuditService
 from predatory_beavers.modules.auth import models as auth_models  # noqa: F401
 from predatory_beavers.modules.club.models import MediaAsset, Team, TeamCategory
 from predatory_beavers.modules.club.repository import TeamRepository
+from predatory_beavers.modules.imports.asb_applier import AsbImportApplier
 from predatory_beavers.modules.imports.models import ImportStatus
 from predatory_beavers.modules.imports.repository import ImportJobRepository
 from predatory_beavers.modules.imports.schemas import AsbImportRequest
@@ -360,3 +362,104 @@ def test_asb_games_accept_missing_logos(logo: str | None) -> None:
     game = AsbGame.model_validate(payload)
     assert game.home_team_logo_url is None
     assert game.away_team_logo_url is None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("current_source", "current_reference"),
+    [("asb", "48637"), ("manual", "48637"), ("asb", "48638")],
+)
+async def test_asb_republication_preserves_reviewed_stage_metadata(
+    session: AsyncSession,
+    current_source: str,
+    current_reference: str,
+) -> None:
+    session.add(Team(slug="men", name="ВГУ", category=TeamCategory.MEN, active=True))
+    await session.commit()
+    applier = AsbImportApplier(
+        team_repository=TeamRepository(session),
+        competition_repository=CompetitionRepository(session),
+        venue_repository=VenueRepository(session),
+        match_repository=MatchRepository(session),
+        standings_repository=StandingsRepository(session),
+    )
+    payload = AsbImportRequest(
+        team="men",
+        competition_id="48154",
+        standings_competition_id="48637",
+        external_team_id="7433",
+        season="2024-2025",
+    )
+    bundle = AsbImportBundle(
+        games=[],
+        standings=[
+            AsbStanding.model_validate(
+                _standing_payload(position=1, team_id=7433, team_name="ВГУ", wins=2, losses=0)
+            )
+        ],
+    )
+    assert (await applier.apply(payload, bundle))["standings_published"] is True
+    await session.commit()
+    first = await session.scalar(select(StandingsSnapshot))
+    assert first is not None
+    assert first.source_url is None
+    assert first.last_game_at is None
+    assert first.stage_order == 0
+    assert first.tournament_id is None
+    assert first.tournament_name is None
+    assert first.stage_name is None
+    assert first.stage_kind == "other"
+    assert first.games == []
+
+    metadata: dict[str, object] = {
+        "source_url": "https://asb.infobasket.su/Widget/CompTeamResults/48637?format=json",
+        "last_game_at": datetime(2025, 2, 19, tzinfo=UTC),
+        "stage_order": 314,
+        "tournament_id": "48340",
+        "tournament_name": "Воронежская область",
+        "stage_name": "Круговой турнир",
+        "stage_kind": "group",
+        "games": [
+            {
+                "external_id": "884990",
+                "round_name": "Круговой турнир",
+                "home_team_name": "ВГУ",
+                "home_team_id": "7433",
+                "away_team_name": "ВГПУ",
+                "away_team_id": "7635",
+                "home_score": 61,
+                "away_score": 49,
+                "status": "finished",
+                "source_url": (
+                    "https://asb.infobasket.su/Widget/CompTeamResults/48637?format=json"
+                ),
+            }
+        ],
+    }
+    empty_metadata = {field: getattr(first, field) for field in metadata}
+    for field, value in metadata.items():
+        setattr(first, field, value)
+    first.source = current_source
+    first.source_reference = current_reference
+    await session.commit()
+    bundle.standings[0] = AsbStanding.model_validate(
+        _standing_payload(position=1, team_id=7433, team_name="ВГУ", wins=3, losses=0)
+    )
+
+    assert (await applier.apply(payload, bundle))["standings_published"] is True
+    await session.commit()
+    current = await session.scalar(select(StandingsSnapshot).where(StandingsSnapshot.is_current))
+    assert current is not None
+    assert current.id != first.id
+    assert first.is_current is False
+    assert current.rows[0]["wins"] == 3
+    assert current.source == "asb"
+    assert current.source_reference == payload.resolved_standings_competition_id
+    assert first.rows[0]["wins"] == 2
+    expected_metadata = (
+        metadata
+        if current_reference == payload.resolved_standings_competition_id
+        else empty_metadata
+    )
+    assert all(getattr(current, field) == value for field, value in expected_metadata.items())
+    assert await session.scalar(select(func.count(StandingsSnapshot.id))) == 2

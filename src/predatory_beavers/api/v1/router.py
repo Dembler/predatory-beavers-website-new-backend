@@ -16,6 +16,9 @@ from predatory_beavers.modules.matches.router import admin_router as matches_adm
 from predatory_beavers.modules.matches.router import public_router as matches_public_router
 from predatory_beavers.modules.media.router import admin_router as media_admin_router
 from predatory_beavers.modules.media.router import public_router as media_public_router
+from predatory_beavers.modules.results.router import router as results_archive_router
+from predatory_beavers.modules.results.tournaments_router import router as tournaments_router
+from predatory_beavers.modules.roster.router import router as asb_roster_router
 from predatory_beavers.modules.standings.router import admin_router as standings_admin_router
 from predatory_beavers.modules.standings.router import public_router as standings_public_router
 
@@ -37,3 +40,6 @@ api_v1_router.include_router(standings_admin_router)
 api_v1_router.include_router(audit_router)
 api_v1_router.include_router(imports_router)
 api_v1_router.include_router(home_router)
+api_v1_router.include_router(results_archive_router)
+api_v1_router.include_router(tournaments_router)
+api_v1_router.include_router(asb_roster_router)

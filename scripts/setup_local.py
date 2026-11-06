@@ -11,6 +11,8 @@ import json
 import os
 import secrets
 import sqlite3
+import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
@@ -122,6 +124,54 @@ def apply() -> None:
     get_settings.cache_clear()
     command.upgrade(Config(str(ROOT / "alembic.ini")), "head")
     asyncio.run(ensure_admin())
+    # Append reviewed history on every setup; stable IDs preserve all editor changes.
+    for manifest in ("legacy-content-manifest.json", "club-history-manifest.json"):
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts/import_legacy_content.py"),
+                "--database",
+                str(DATABASE),
+                "--manifest",
+                str(ROOT / "docs" / manifest),
+                "--apply",
+            ],
+            check=True,
+        )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/import_public_results.py"),
+            "--database",
+            str(DATABASE),
+            "--apply",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/sync_asb_roster.py"),
+            "--database",
+            str(DATABASE),
+            "--apply",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [sys.executable, str(ROOT / "scripts/cache_asb_roster_photos.py")],
+        check=True,
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/import_asb_standings.py"),
+            "--database",
+            str(DATABASE),
+            "--apply",
+        ],
+        check=True,
+    )
     inspect()
 
 

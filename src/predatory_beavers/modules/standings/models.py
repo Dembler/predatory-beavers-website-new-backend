@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import JSON, Boolean, ForeignKey, Index, String, text, true
+from sqlalchemy import JSON, Boolean, ForeignKey, Index, Integer, String, text, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 
@@ -48,6 +48,18 @@ class StandingsSnapshot(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Ba
         index=True,
     )
     source_reference: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    source_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    last_game_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+    stage_order: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    tournament_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    tournament_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    stage_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    stage_kind: Mapped[str] = mapped_column(
+        String(32), default="other", server_default="other", nullable=False
+    )
+    games: Mapped[list[dict[str, object]]] = mapped_column(
+        JSON, default=list, server_default="[]", nullable=False
+    )
     fetched_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False, index=True)
     is_current: Mapped[bool] = mapped_column(
         Boolean,

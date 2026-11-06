@@ -10,7 +10,12 @@ from predatory_beavers.modules.club.repository import TeamRepository
 from predatory_beavers.modules.matches.repository import CompetitionRepository
 from predatory_beavers.modules.standings.models import StandingsSnapshot
 from predatory_beavers.modules.standings.repository import StandingsRepository
-from predatory_beavers.modules.standings.schemas import StandingsPublish, StandingsSnapshotRead
+from predatory_beavers.modules.standings.schemas import (
+    StandingsCompetitionOption,
+    StandingsOptions,
+    StandingsPublish,
+    StandingsSnapshotRead,
+)
 
 
 class StandingsService:
@@ -57,15 +62,43 @@ class StandingsService:
         team: str,
         season: str | None = None,
         competition_id: UUID | None = None,
+        tournament_id: str | None = None,
     ) -> StandingsSnapshot:
         snapshot = await self._repository.get_current(
             team=team,
             season=season,
             competition_id=competition_id,
+            tournament_id=tournament_id,
         )
         if snapshot is None:
             raise NotFoundError("Standings not found")
         return snapshot
+
+    async def public_options(self, *, team: str) -> StandingsOptions:
+        snapshots = await self._repository.list_public(team=team)
+        return StandingsOptions(
+            team=team,
+            seasons=sorted({item.competition.season for item in snapshots}, reverse=True),
+            default_competition_id=snapshots[0].competition_id if snapshots else None,
+            competitions=[
+                StandingsCompetitionOption(
+                    id=item.competition_id,
+                    name=item.competition.name,
+                    season=item.competition.season,
+                    snapshot_id=item.id,
+                    row_count=len(item.rows),
+                    source=item.source,
+                    source_reference=item.source_reference,
+                    source_url=item.source_url,
+                    tournament_id=item.tournament_id,
+                    tournament_name=item.tournament_name,
+                    stage_name=item.stage_name,
+                    stage_kind=item.stage_kind,
+                    game_count=len(item.games),
+                )
+                for item in snapshots
+            ],
+        )
 
     async def publish(self, payload: StandingsPublish) -> StandingsSnapshot:
         try:
@@ -75,6 +108,10 @@ class StandingsService:
                 if await self._competition_repository.get(payload.competition_id) is None:
                     raise NotFoundError("Competition not found")
 
+                previous = await self._repository.get_current_for_pair(
+                    team_id=payload.team_id,
+                    competition_id=payload.competition_id,
+                )
                 await self._repository.archive_current(
                     team_id=payload.team_id,
                     competition_id=payload.competition_id,
@@ -87,7 +124,18 @@ class StandingsService:
                         for row in sorted(payload.rows, key=lambda item: item.position)
                     ],
                     source=payload.source,
-                    source_reference=payload.source_reference,
+                    source_reference=(
+                        payload.source_reference
+                        or (previous.source_reference if previous else None)
+                    ),
+                    source_url=previous.source_url if previous else None,
+                    last_game_at=previous.last_game_at if previous else None,
+                    stage_order=previous.stage_order if previous else 0,
+                    tournament_id=previous.tournament_id if previous else None,
+                    tournament_name=previous.tournament_name if previous else None,
+                    stage_name=previous.stage_name if previous else None,
+                    stage_kind=previous.stage_kind if previous else "other",
+                    games=list(previous.games) if previous else [],
                     fetched_at=payload.fetched_at,
                     is_current=True,
                 )

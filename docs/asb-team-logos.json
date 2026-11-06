@@ -1,0 +1,1130 @@
+{
+  "version": 1,
+  "fetched_at": "2026-11-05T10:40:06.529178+00:00",
+  "identity_policy": "Exact external TeamID and reviewed official aliases. No shared abbreviation matching and no cross-gender crest substitution.",
+  "teams": [
+    {
+      "external_team_id": "6042",
+      "names": [
+        "ВлГУ",
+        "ВлГУ (Владимир)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6042?format=json",
+        "real_team_id": "4156",
+        "name": "ВлГУ",
+        "current_name": "Владимирские львы-ВлГУ",
+        "region": "Владимир",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16646.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/28775?compId=46633&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/5f99c2c9fd2e30fcfc526b11a39ab80dd35acb55ea6925f463431608f188915e.webp"
+    },
+    {
+      "external_team_id": "6127",
+      "names": [
+        "БелГАУ",
+        "БелГАУ (Белгород)",
+        "БелГАУ (Белгородская область)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6127?format=json",
+        "real_team_id": "4095",
+        "name": "БелГАУ",
+        "current_name": "Белгородский ГАУ",
+        "region": "Белгород",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16319.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "2c066bb187b1b34e51a2e40e7cfba9f84463e2b9d19fc1d1a074369d42db58b5",
+      "local_url": "/api/v1/standings/logos/2bfe93c42e437f53fe67e134ece94ddcec36dcccba5cd1143d395809198390cc.webp"
+    },
+    {
+      "external_team_id": "6231",
+      "names": [
+        "ТУСУР",
+        "ТУСУР (Томск)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6231?format=json",
+        "real_team_id": "1472",
+        "name": "ТУСУР",
+        "current_name": "ТУСУР",
+        "region": "Томск",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/17147.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/6231?compId=48150&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/71b5cf37ef7327e708e4dd24f4c8b75b37c192d817d3a165906cf3a693d68652.webp"
+    },
+    {
+      "external_team_id": "6486",
+      "names": [
+        "ИТМО",
+        "ИТМО (Санкт-Петербург)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6486?format=json",
+        "real_team_id": "7494",
+        "name": "ИТМО",
+        "current_name": "ИТМО - Кронверкские барсы",
+        "region": "Санкт-Петербург",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16800.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/28775?compId=46633&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/836b5b8df93247494fd1f040d3553b7667220061e861378cc70a82a1eee246b4.webp"
+    },
+    {
+      "external_team_id": "6497",
+      "names": [
+        "ВГТУ-ф",
+        "ВГТУ-ф (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6497?format=json",
+        "real_team_id": "7468",
+        "name": "ВГТУ",
+        "current_name": "ВГТУ",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/11180.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7693?compId=45300&format=json",
+      "status": "official_logo",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": "/api/v1/standings/logos/069b6e52c20dfeb5bfee3af3cf06c73a1d7a18e916fcdb7348bf0b0cdbc57911.webp"
+    },
+    {
+      "external_team_id": "6839",
+      "names": [
+        "МГАФК-2",
+        "МГАФК-2 (Москва)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6839?format=json",
+        "real_team_id": "7400",
+        "name": "МГАФК-2",
+        "current_name": "МГАФК-2",
+        "region": "Москва",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/11291.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/ec370b61c33f58e5067bc027654fd159ce7646154a73180a4e00d840c1b57e55.webp"
+    },
+    {
+      "external_team_id": "6869",
+      "names": [
+        "ВИ МВД",
+        "ВИ МВД (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6869?format=json",
+        "real_team_id": "7438",
+        "name": "ВИ МВД",
+        "current_name": "ВИ МВД",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/17324.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=45555&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "d781120e730a163cdbd215c4eee9bc2d3feeba7a1652483162c941064af79cdd",
+      "local_url": "/api/v1/standings/logos/f2e5c10d1b4ec13c062d3de0ca08eedea4f055b4f65bd799aac9e4a0aa0dedeb.webp"
+    },
+    {
+      "external_team_id": "6870",
+      "names": [
+        "ВГТУ-Ф",
+        "ВГТУ-Ф (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6870?format=json",
+        "real_team_id": "7437",
+        "name": "ВГТУ-Ф",
+        "current_name": "ВГТУ-Ф",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    },
+    {
+      "external_team_id": "6871",
+      "names": [
+        "ВУНЦ ВВС ВВА",
+        "ВУНЦ ВВС ВВА (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/6871?format=json",
+        "real_team_id": "7436",
+        "name": "ВУНЦ ВВС ВВА",
+        "current_name": "ВУНЦ ВВС ВВА",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/7265.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "d6ecc7ee7c2aa94058432e704555da2370e16e9965e3225aa2cc0cfa27217fe8",
+      "local_url": "/api/v1/standings/logos/1abbb6361dc148557163de3ff7d65e5a915c07446efb013416513bad73ee89af.webp"
+    },
+    {
+      "external_team_id": "7093",
+      "names": [
+        "ВолгГТУ",
+        "ВолгГТУ (Волгоград)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7093?format=json",
+        "real_team_id": "809",
+        "name": "Волгоградский Гос. Технический Университет",
+        "current_name": "ВолгГТУ",
+        "region": "Волгоград",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/15546.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7096?compId=49341&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/79eb55a6f73d700305726559c3677e4df535b6da06a366e2de7d8cc79e3bc6db.webp"
+    },
+    {
+      "external_team_id": "7095",
+      "names": [
+        "ВолГАУ",
+        "ВолГАУ (Волгоград)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7095?format=json",
+        "real_team_id": "807",
+        "name": "Волгоградский Государственный Аграрный Университет",
+        "current_name": "ВолГАУ - Lion`s",
+        "region": "Волгоград",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16499.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7650?compId=49341&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/9dc593c3d14d548e0506ee6424295d125e0003ab1c869229fdcddb8e5029f2ee.webp"
+    },
+    {
+      "external_team_id": "7096",
+      "names": [
+        "ВГАФК",
+        "ВГАФК (Волгоград)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7096?format=json",
+        "real_team_id": "806",
+        "name": "Волгоградская Академия Физической Культуры",
+        "current_name": "Титаны-ВГАФК",
+        "region": "Волгоград",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/11270.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7650?compId=49341&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/3f665340346ce129bf9e8d200c4b295cfb8a2958ab63a171caacfee96e0ac7b4.webp"
+    },
+    {
+      "external_team_id": "7106",
+      "names": [
+        "АГАСУ",
+        "АГАСУ (Астрахань)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7106?format=json",
+        "real_team_id": "796",
+        "name": "АГАСУ",
+        "current_name": "АГАСУ-BEAVERS",
+        "region": "Астрахань",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/13915.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7650?compId=49341&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/3e662c7f8d085ddab434200aa3b3e2be877704f42bc896da5386e6fa0584dca5.webp"
+    },
+    {
+      "external_team_id": "7223",
+      "names": [
+        "УралГУФК",
+        "УралГУФК (Челябинск)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7223?format=json",
+        "real_team_id": "394",
+        "name": "Челбаскет",
+        "current_name": "УралГУФК",
+        "region": "Челябинск",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/13120.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7223?compId=48150&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/01c917a8b33d004ce533345a92ff0a20afbfdc912562f398d2257b1acc95938e.webp"
+    },
+    {
+      "external_team_id": "7231",
+      "names": [
+        "ДВГАФК",
+        "ДВГАФК (Хабаровск)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7231?format=json",
+        "real_team_id": "93",
+        "name": "Дальневосточная Академия Физической Культуры",
+        "current_name": "ДВГАФК-Полянка",
+        "region": "Хабаровск",
+        "gender": 1
+      },
+      "source_url": "https://img.infobasket.su/logo/21494.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7223?compId=48150&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "bbc64ba7d47e8d695479b7cf215a6d641a9a30f4f914f0f55bc00bdc3350eba3",
+      "local_url": "/api/v1/standings/logos/e341377feee3eb83cc6881f6e2cce8ef577ba34b7a4c801fd5c13bd122afa1ae.webp"
+    },
+    {
+      "external_team_id": "7312",
+      "names": [
+        "БГТУ",
+        "БГТУ (Белгород)",
+        "БелГТУ"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7312?format=json",
+        "real_team_id": "11",
+        "name": "БГТУ",
+        "current_name": "БелГТУ",
+        "region": "Белгород",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/12154.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7312?compId=43101&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/535c145453b16fcb474377736fcf43499f3c58ffc232e835c5fa70f2f1b46c15.webp"
+    },
+    {
+      "external_team_id": "7364",
+      "names": [
+        "ВГАС",
+        "ВГАС (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7364?format=json",
+        "real_team_id": "233",
+        "name": "ВГИФК",
+        "current_name": "ВГАС",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://img.infobasket.su/logo/24565.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "a88a95959267dd7865ceb39e5fb9835f8b4e64324f0a23277602da000cfec0f9",
+      "local_url": "/api/v1/standings/logos/8be1ce3bfaea4d0141671173810e3e7f561bc7a4dd31ed297c4f1162972dd93b.webp"
+    },
+    {
+      "external_team_id": "7390",
+      "names": [
+        "ЛГТУ",
+        "ЛГТУ (Липецк)",
+        "Липецкий Гос. Технический Университет",
+        "Липецкий Гос. Технический Университет (Липецк)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7390?format=json",
+        "real_team_id": "222",
+        "name": "ЛГТУ",
+        "current_name": "ЛГТУ",
+        "region": "Липецк",
+        "gender": 1
+      },
+      "source_url": "https://img.infobasket.su/logo/25979.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "1d0dd0417655251a23aff3017c902c6288c1fb7b42cd2f9f6dceb354c1dc8176",
+      "local_url": "/api/v1/standings/logos/1e0c5ed553f0fcb27c8e140c7431e7c5bbbdcaba0a1e3d4bdc073c8df691b2ec.webp"
+    },
+    {
+      "external_team_id": "7429",
+      "names": [
+        "КФ МГТУ",
+        "КФ МГТУ (Калуга)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7429?format=json",
+        "real_team_id": "167",
+        "name": "КФ МГТУ",
+        "current_name": "КФ МГТУ",
+        "region": "Калуга",
+        "gender": 1
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    },
+    {
+      "external_team_id": "7432",
+      "names": [
+        "ВГТУ",
+        "ВГТУ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7432?format=json",
+        "real_team_id": "164",
+        "name": "ВГТУ",
+        "current_name": "ВГТУ",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/830.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "52d61858a127c5a3345898590738daa737d6ad7218ad1ed944965e488b1cc05b",
+      "local_url": "/api/v1/standings/logos/a155558512e7dc3b1db9d066cb569c1c1931baa98bf9ef1eb619d57f28f7253c.webp"
+    },
+    {
+      "external_team_id": "7433",
+      "names": [
+        "ВГУ",
+        "ВГУ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7433?format=json",
+        "real_team_id": "163",
+        "name": "ВГУ",
+        "current_name": "ВГУ",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/17024.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "5fd0add12e67e7e86605c2c61ad13a79cc91903a8ae79fa6382b9c4f49cc8c55",
+      "local_url": "/api/v1/standings/logos/751bf49b8ed596d5b9023dd51eb3273c9593c7c400e302d875e6a9413be1ce28.webp"
+    },
+    {
+      "external_team_id": "7436",
+      "names": [
+        "ВГАС",
+        "ВГАС (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7436?format=json",
+        "real_team_id": "160",
+        "name": "ВГАС",
+        "current_name": "ВГАС",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16208.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=45555&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "0a225e9cf44a4f28b0194e2554a57da70f75a66f5cb2936686f38328bcb681ba",
+      "local_url": "/api/v1/standings/logos/bb311e400ac871c611b9e95285c42447b80d4f231a60b3518b70a8fee15b9f95.webp"
+    },
+    {
+      "external_team_id": "7438",
+      "names": [
+        "ТГУ",
+        "ТГУ (Тамбов)",
+        "ТамГУ",
+        "ТамГУ (Тамбов)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7438?format=json",
+        "real_team_id": "158",
+        "name": "ТГУ",
+        "current_name": "Держава  ТГУ им. Державина",
+        "region": "Тамбов",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/11530.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=45555&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "c60581b347be9234fcf89ecec950aa1d9d62398fdde13a85375dceee224a7f9e",
+      "local_url": "/api/v1/standings/logos/1a9b3d4bbee17f75ab8ab5adb0e07ae6432169382bb88032db15f035782e6955.webp"
+    },
+    {
+      "external_team_id": "7470",
+      "names": [
+        "КГУФКСТ",
+        "КГУФКСТ (Краснодар)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7470?format=json",
+        "real_team_id": "195",
+        "name": "КГУФКСТ",
+        "current_name": "Прометей-КГУФКСТ",
+        "region": "Краснодар",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16649.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7471?compId=48012&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/00723fc70b3e9a700df50250095c166ae6851fa8c509ef740de8008157b55335.webp"
+    },
+    {
+      "external_team_id": "7471",
+      "names": [
+        "ЮФУ",
+        "ЮФУ (Ростов-на-Дону)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7471?format=json",
+        "real_team_id": "194",
+        "name": "ЮФУ",
+        "current_name": "ЮФУ",
+        "region": "Ростов-на-Дону",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16390.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7471?compId=48012&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/156e37774e2123df0e2be523adcdeae406b4addc140cb520c9be4ddf3b78b9bd.webp"
+    },
+    {
+      "external_team_id": "7572",
+      "names": [
+        "КГУ",
+        "КГУ (Курск)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7572?format=json",
+        "real_team_id": "1171",
+        "name": "Курский Гос. Университет",
+        "current_name": "КГУ",
+        "region": "Курск",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/1654.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/28851?compId=49316&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/ff8084beda2d138404a7d8a9845e04db9de64816f0292f01d7dbb064e37d1925.webp"
+    },
+    {
+      "external_team_id": "7581",
+      "names": [
+        "КГУ",
+        "КГУ (Курск)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7581?format=json",
+        "real_team_id": "1162",
+        "name": "КГУ",
+        "current_name": "КГУ",
+        "region": "Курск",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/5965.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7312?compId=43101&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/8367610a9052f5d93cc8f4585dd1c7945f77fb66fef4fba1b358cd0abb923527.webp"
+    },
+    {
+      "external_team_id": "7585",
+      "names": [
+        "ЛГТУ",
+        "ЛГТУ (Липецк)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7585?format=json",
+        "real_team_id": "1158",
+        "name": "ЛГТУ",
+        "current_name": "ЛГТУ",
+        "region": "Липецк",
+        "gender": 2
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    },
+    {
+      "external_team_id": "7629",
+      "names": [
+        "БГУОР",
+        "БГУОР (Брянск)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7629?format=json",
+        "real_team_id": "1208",
+        "name": "БГУОР",
+        "current_name": "БГУОР-Огненный лис",
+        "region": "Брянск",
+        "gender": 1
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    },
+    {
+      "external_team_id": "7635",
+      "names": [
+        "ВГПУ",
+        "ВГПУ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7635?format=json",
+        "real_team_id": "1396",
+        "name": "ВГПУ",
+        "current_name": "ВГПУ",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16494.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "3abd6d248ef0c6967c9ed01eaf51e2891decbcc4785ef38454470e67e6ec4ac2",
+      "local_url": "/api/v1/standings/logos/e8f574ebcaba6173e19f6eb60365e70443237070f4f2b4f34b2e647e5bc36710.webp"
+    },
+    {
+      "external_team_id": "7640",
+      "names": [
+        "КГУ",
+        "КГУ (Калуга)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7640?format=json",
+        "real_team_id": "1391",
+        "name": "КГУ",
+        "current_name": "КГУ",
+        "region": "Калуга",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16270.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7312?compId=43101&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/e4d65d01571a8c6b7c9a61cd8ebb685b42265793c74140a484e2905b8ab93dbc.webp"
+    },
+    {
+      "external_team_id": "7647",
+      "names": [
+        "ВГАУ",
+        "ВГАУ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7647?format=json",
+        "real_team_id": "1399",
+        "name": "ВГАУ",
+        "current_name": "ВГАУ",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16492.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": "Official PNG has an invalid iCCP metadata CRC. Pixel-data CRCs are valid; cache removes ancillary metadata before decode and re-encodes a clean WebP.",
+      "source_sha256": "433305ee1d9d07ef25267303d05bf89179deb4960dc9d336bec2cab0fe2f8238",
+      "local_url": "/api/v1/standings/logos/591a5ac0185ecba72092bf09bc0d3e24c4b176caa232fe33b127d6ad85ef7830.webp"
+    },
+    {
+      "external_team_id": "7650",
+      "names": [
+        "СГУ - Волот",
+        "СГУ - Волот (Саратов)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7650?format=json",
+        "real_team_id": "1381",
+        "name": "СГУ",
+        "current_name": "СГУ-Волот",
+        "region": "Саратов",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/1962.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7650?compId=49341&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/2fba5f236e7ae7544a88a161f0bfcfee6949aae640c82842a20393f573d1112a.webp"
+    },
+    {
+      "external_team_id": "7653",
+      "names": [
+        "СГТУ",
+        "СГТУ (Саратов)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7653?format=json",
+        "real_team_id": "1378",
+        "name": "СГТУ",
+        "current_name": "СГТУ",
+        "region": "Саратов",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/4800.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/c88d750dfb72eec132e98243ae946916b810265fe2a670ff9d064aa64f2b8cd3.webp"
+    },
+    {
+      "external_team_id": "7655",
+      "names": [
+        "ВГМУ",
+        "ВГМУ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7655?format=json",
+        "real_team_id": "1376",
+        "name": "ВГМУ",
+        "current_name": "ВГМУ",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16643.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "97ea4165c192e7b1bdb11c9f17568edce41d3247f687adc62be1fda70d1fc5c9",
+      "local_url": "/api/v1/standings/logos/96b99d3f0ffd4daf87121a55bcbd11420d403b5276d2e07bbab6670e026416dc.webp"
+    },
+    {
+      "external_team_id": "7663",
+      "names": [
+        "ВГУИТ",
+        "ВГУИТ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7663?format=json",
+        "real_team_id": "1383",
+        "name": "ВГУИТ",
+        "current_name": "ВГУИТ",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16640.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "dbf0583da59664c77cb9244cc5d1d7c083a28d2458deab5d5889b02d3ea1f44a",
+      "local_url": "/api/v1/standings/logos/34611413143fa8eb4f4fbb9b3106242f2b963995663cf17f48f820b2180ea58c.webp"
+    },
+    {
+      "external_team_id": "7689",
+      "names": [
+        "ВГАУ",
+        "ВГАУ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7689?format=json",
+        "real_team_id": "1410",
+        "name": "ВГАУ",
+        "current_name": "ВГАУ",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/16493.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/32931?compId=47595&format=json",
+      "status": "official_logo",
+      "note": "Official PNG has an invalid iCCP metadata CRC. Pixel-data CRCs are valid; cache removes ancillary metadata before decode and re-encodes a clean WebP.",
+      "source_sha256": "433305ee1d9d07ef25267303d05bf89179deb4960dc9d336bec2cab0fe2f8238",
+      "local_url": "/api/v1/standings/logos/151b6f9bc19b0318d98928c39131f14fb0d7d3293c7346724c736f167c11a975.webp"
+    },
+    {
+      "external_team_id": "7690",
+      "names": [
+        "ВГУГИТ",
+        "ВГУГИТ (Воронеж)",
+        "ВГУИТ",
+        "ВГУИТ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7690?format=json",
+        "real_team_id": "1409",
+        "name": "Воронежский Гос. Университет Инженерных Технологий",
+        "current_name": "ВГУИТ",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/7382.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "518e416b755729961961c452257d2ff219352912c28134a30dfb398d4a5a673a",
+      "local_url": "/api/v1/standings/logos/01c77f4509bf46cd7e94c031b06f03a466448885fe17695c4bfedb614ef80192.webp"
+    },
+    {
+      "external_team_id": "7691",
+      "names": [
+        "ВГТУ",
+        "ВГТУ (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7691?format=json",
+        "real_team_id": "1408",
+        "name": "ВГТУ",
+        "current_name": "ВГТУ-Фурии",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/16438.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "c591014cabfb66c89e1b0a00369ca2484854ae3676493544d3dfbdc9754bc702",
+      "local_url": "/api/v1/standings/logos/5964cdc8ce6ceda065f419a011a33b57cfce1c6a2d98b72f8f59de1e7da079db.webp"
+    },
+    {
+      "external_team_id": "7693",
+      "names": [
+        "ВГМУ",
+        "ВГМУ (Воронеж)",
+        "Воронежская Гос. Медицинская Академия",
+        "Воронежская Гос. Медицинская Академия (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7693?format=json",
+        "real_team_id": "1406",
+        "name": "Воронежская Гос. Медицинская Академия",
+        "current_name": "ВГМУ",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/11857.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7693?compId=45300&format=json",
+      "status": "official_logo",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": "/api/v1/standings/logos/36b6e0acc8d4d6cd5d4b508159e8368328799d7ebe5bfdfdcf8e76eff0a4ba29.webp"
+    },
+    {
+      "external_team_id": "7694",
+      "names": [
+        "ВГПУ",
+        "ВГПУ (Воронеж)",
+        "Воронежский Гос. Педагогический Университет",
+        "Воронежский Гос. Педагогический Университет (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7694?format=json",
+        "real_team_id": "1405",
+        "name": "Воронежский Гос. Педагогический Университет",
+        "current_name": "ВГПУ",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/16528.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "3abd6d248ef0c6967c9ed01eaf51e2891decbcc4785ef38454470e67e6ec4ac2",
+      "local_url": "/api/v1/standings/logos/6b678d81c26dfd313b5899ce49db600ce220f2d38e984b1e2180e7d498bf9c5b.webp"
+    },
+    {
+      "external_team_id": "7695",
+      "names": [
+        "ВГУ",
+        "ВГУ (Воронеж)",
+        "Воронежский Гос. Университет",
+        "Воронежский Гос. Университет (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/7695?format=json",
+        "real_team_id": "1404",
+        "name": "Воронежский Гос. Университет",
+        "current_name": "ВГУ",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/21127.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/32931?compId=47595&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "5fd0add12e67e7e86605c2c61ad13a79cc91903a8ae79fa6382b9c4f49cc8c55",
+      "local_url": "/api/v1/standings/logos/46631d9800f4163af0b93af0def6a0e150287e97b3424bf5b13d704880ce6ec3.webp"
+    },
+    {
+      "external_team_id": "8835",
+      "names": [
+        "СевГУ",
+        "СевГУ (Севастополь)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/8835?format=json",
+        "real_team_id": "100399",
+        "name": "СевГУ",
+        "current_name": "СевГУ-Leviathan",
+        "region": "Севастополь",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/17140.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7471?compId=48012&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/7326292edfb75e4fafdaa8c825f0245b9292097d9381e71e5cf7a67195c7bbc1.webp"
+    },
+    {
+      "external_team_id": "14948",
+      "names": [
+        "РТУ МИРЭА",
+        "РТУ МИРЭА (Москва)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/14948?format=json",
+        "real_team_id": "100081",
+        "name": "РТУ МИРЭА",
+        "current_name": "РТУ МИРЭА",
+        "region": "Москва",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/15354.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/28851?compId=49316&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/3d2446c299e24f939de9c8739cd02a881cb37c89c4e9277644939bde722b0490.webp"
+    },
+    {
+      "external_team_id": "18067",
+      "names": [
+        "НИУ БелГУ",
+        "НИУ БелГУ (Белгород)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/18067?format=json",
+        "real_team_id": "100375",
+        "name": "Пегас НИУ \"БЕЛГУ\"",
+        "current_name": "БелГУ-Пегас",
+        "region": "Белгород",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/16476.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=45555&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "4724a71145c1fa3144527f9576aa292e4635b7f6849afe60156886d35b278106",
+      "local_url": "/api/v1/standings/logos/1ccf3bc638176d3cb6e93af698df899e8bc37520decde5e28086b70302acd2db.webp"
+    },
+    {
+      "external_team_id": "20589",
+      "names": [
+        "ВГАС-2",
+        "ВГАС-2 (Воронеж)",
+        "ВГИФК-ф",
+        "ВГИФК-ф (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/20589?format=json",
+        "real_team_id": "100501",
+        "name": "ВГИФК-2",
+        "current_name": "ВГАС-2",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    },
+    {
+      "external_team_id": "20671",
+      "names": [
+        "ВГАС-Ф",
+        "ВГАС-Ф (Воронеж)",
+        "ВГАС-ф",
+        "ВГАС-ф (Воронеж)",
+        "ВГИФК-ф",
+        "ВГИФК-ф (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/20671?format=json",
+        "real_team_id": "100513",
+        "name": "ВГИФК-ф",
+        "current_name": "ВГАС-Ф",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/13180.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=43372&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "343cd2b083cf7e10a0a2edeecd0fc438e0d1b179a14a03bd0dd7a0406be4482a",
+      "local_url": "/api/v1/standings/logos/4204ef1c883a0d22b6a7d08f22ef6b97660afeec7dd8be5696b863bb3cc73f09.webp"
+    },
+    {
+      "external_team_id": "20727",
+      "names": [
+        "ВУНЦ ВВА-ф",
+        "ВУНЦ ВВА-ф (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/20727?format=json",
+        "real_team_id": "100527",
+        "name": "ВУНЦ ВВА-ф",
+        "current_name": "ВУНЦ ВВА-ф",
+        "region": "Воронеж",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/7337.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=43372&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "d6ecc7ee7c2aa94058432e704555da2370e16e9965e3225aa2cc0cfa27217fe8",
+      "local_url": "/api/v1/standings/logos/e25fa9650a9e321323b469d332512d4929be073841e0b5e831e2b7e603f506c9.webp"
+    },
+    {
+      "external_team_id": "28124",
+      "names": [
+        "СПбГУПТД-3",
+        "СПбГУПТД-3 (Санкт-Петербург)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/28124?format=json",
+        "real_team_id": "100685",
+        "name": "СПбГУПТД-3",
+        "current_name": "СПбГУПТД-3",
+        "region": "Санкт-Петербург",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/15914.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/6231?compId=48150&format=json",
+      "status": "official_logo",
+      "note": null,
+      "source_sha256": "bad20ad7fb5e62dd7e9e15f9b79a4859b31bbcca05aed70bcfdc3eff24b5eba7",
+      "local_url": "/api/v1/standings/logos/d86fb6bd3637219a101e98cd6cf65abf5112e558d8f8529d095053f0818ec016.webp"
+    },
+    {
+      "external_team_id": "28414",
+      "names": [
+        "ВИ МВД",
+        "ВИ МВД (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/28414?format=json",
+        "real_team_id": "100713",
+        "name": "ВИ МВД",
+        "current_name": "ВИ МВД",
+        "region": "Воронеж",
+        "gender": 2
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    },
+    {
+      "external_team_id": "28775",
+      "names": [
+        "КАС №7",
+        "КАС №7 (Москва)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/28775?format=json",
+        "real_team_id": "100729",
+        "name": "КАС №7",
+        "current_name": "МКАГ-Бобры",
+        "region": "Москва",
+        "gender": 1
+      },
+      "source_url": "https://files.infobasket.su/Logos/17111.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/28775?compId=46633&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/d123f4136c7bdff1d796a2f0d81f7fe9532361a8fcee3b37c45023fed5c4d626.webp"
+    },
+    {
+      "external_team_id": "28851",
+      "names": [
+        "Приоритет-МИПК",
+        "Приоритет-МИПК (Москва)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/28851?format=json",
+        "real_team_id": "100733",
+        "name": "Приоритет-МИПК",
+        "current_name": "Приоритет-МИПК",
+        "region": "Москва",
+        "gender": 2
+      },
+      "source_url": "https://files.infobasket.su/Logos/17105.png",
+      "evidence_url": "https://asb.infobasket.su/Widget/TeamGames/28851?compId=49316&format=json",
+      "status": "official_logo",
+      "note": null,
+      "local_url": "/api/v1/standings/logos/c04af3d19c879a620009bd9a204cf95f50c0cb02cf8aebd0734e3df6ed590eb0.webp"
+    },
+    {
+      "external_team_id": "32931",
+      "names": [
+        "ВГАС-Ф",
+        "ВГАС-Ф (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/32931?format=json",
+        "real_team_id": "100842",
+        "name": "ВГАС-Ф",
+        "current_name": "ВГАС-Ф",
+        "region": "Воронеж",
+        "gender": 0
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    },
+    {
+      "external_team_id": "54902",
+      "names": [
+        "ВФ РГУПС",
+        "ВФ РГУПС (Воронеж)"
+      ],
+      "official_identity": {
+        "team_info_url": "https://asb.infobasket.su/Widget/TeamInfo/54902?format=json",
+        "real_team_id": "101141",
+        "name": "ВФ РГУПС",
+        "current_name": "ВФ РГУПС",
+        "region": "Воронеж",
+        "gender": 0
+      },
+      "source_url": null,
+      "evidence_url": null,
+      "status": "official_placeholder_only",
+      "note": "Official ASB TeamGames publishes only logo/0.png or Logos/0.png for this exact team identity. A different team crest is not substituted.",
+      "local_url": null
+    }
+  ]
+}

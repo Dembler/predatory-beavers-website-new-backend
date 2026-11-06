@@ -22,3 +22,13 @@ data/test-run-*/
 data/mypy-work/
 data/pytest-*/
 data/pytest-*.log
+data/private-history-work/
+data/results-research/
+data/results-archive-import-report.json
+data/standings-research/
+data/standings-tests-*/
+data/standings-stage-tests-*/
+data/standings-setup-tests/
+data/*.pid
+data/standings-before-preservation.json
+data/standings-import-audit.json

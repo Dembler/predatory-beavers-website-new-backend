@@ -116,6 +116,9 @@ def plan_import(
                 "section": entry.section.value,
                 "title": entry.title,
                 "body": entry.body,
+                "subtitle": entry.subtitle,
+                "link_url": str(entry.link_url) if entry.link_url else None,
+                "link_label": entry.link_label,
                 "active": entry.active,
                 "sort_order": order,
                 "status": status,
@@ -147,6 +150,13 @@ def import_content(
         before = snapshot(connection)
         plan = plan_import(connection, manifest)
         additions = [item for item in plan if item["status"] == "add"]
+        optional_columns = {"subtitle", "link_url", "link_label"}
+        database_columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(content_blocks)")
+        }
+        missing_columns = optional_columns - database_columns
+        if any(item[column] is not None for item in additions for column in missing_columns):
+            raise ValueError("Migrate the database before importing content source metadata")
         report = {
             "repository": manifest.repository,
             "revision": manifest.revision,
@@ -172,20 +182,15 @@ def import_content(
                 source.backup(target)
         report["backup"] = str(backup)
         now = datetime.now(UTC).isoformat()
+        columns = ["id", "section", "title", "body", "sort_order", "active"]
+        columns.extend(sorted(optional_columns & database_columns))
+        columns.extend(["created_at", "updated_at", "is_deleted"])
+        placeholders = ",".join("?" for _ in columns)
         for item in additions:
+            values = {**item, "created_at": now, "updated_at": now, "is_deleted": 0}
             connection.execute(
-                "INSERT INTO content_blocks (id,section,title,body,sort_order,active,"
-                "created_at,updated_at,is_deleted) VALUES (?,?,?,?,?,?,?,?,0)",
-                (
-                    item["id"],
-                    item["section"],
-                    item["title"],
-                    item["body"],
-                    item["sort_order"],
-                    item["active"],
-                    now,
-                    now,
-                ),
+                f"INSERT INTO content_blocks ({','.join(columns)}) VALUES ({placeholders})",
+                tuple(values[column] for column in columns),
             )
         connection.execute(
             "INSERT INTO admin_audit_log (id,actor_username,action,entity_type,entity_id,"

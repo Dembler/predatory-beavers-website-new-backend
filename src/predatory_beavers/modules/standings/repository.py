@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import builtins
 from datetime import UTC, datetime
 from typing import cast
 from uuid import UUID
@@ -75,7 +78,22 @@ class StandingsRepository:
         team: str,
         season: str | None = None,
         competition_id: UUID | None = None,
+        tournament_id: str | None = None,
     ) -> StandingsSnapshot | None:
+        snapshots = await self.list_public(team=team, season=season)
+        return next(
+            (
+                item
+                for item in snapshots
+                if (competition_id is None or item.competition_id == competition_id)
+                and (tournament_id is None or item.tournament_id == tournament_id)
+            ),
+            None,
+        )
+
+    async def list_public(
+        self, *, team: str, season: str | None = None
+    ) -> builtins.list[StandingsSnapshot]:
         filters: list[ColumnElement[bool]] = [
             StandingsSnapshot.is_current.is_(True),
             StandingsSnapshot.is_deleted.is_(False),
@@ -87,22 +105,30 @@ class StandingsRepository:
         ]
         if season is not None:
             filters.append(Competition.season == season)
-        if competition_id is not None:
-            filters.append(StandingsSnapshot.competition_id == competition_id)
-
         statement = self._with_details(
             select(StandingsSnapshot)
             .join(StandingsSnapshot.team)
             .join(StandingsSnapshot.competition)
             .where(*filters)
-            .order_by(
-                Competition.season.desc(),
-                StandingsSnapshot.fetched_at.desc(),
-                StandingsSnapshot.created_at.desc(),
-            )
-            .limit(1)
         )
-        return cast(StandingsSnapshot | None, await self._session.scalar(statement))
+        snapshots = list(await self._session.scalars(statement))
+        # Fetching an old table today must not make it newer than a later stage.
+        # Dates refer to actual official games, never to the import timestamp.
+        return sorted(
+            (item for item in snapshots if item.rows or item.games),
+            key=lambda item: (
+                item.competition.season,
+                any(
+                    isinstance(played := row.get("played"), int) and played > 0 for row in item.rows
+                )
+                or any(game.get("status") == "finished" for game in item.games),
+                item.last_game_at.isoformat() if item.last_game_at else "",
+                item.stage_order,
+                item.fetched_at.isoformat(),
+                str(item.id),
+            ),
+            reverse=True,
+        )
 
     async def get_current_for_pair(
         self,

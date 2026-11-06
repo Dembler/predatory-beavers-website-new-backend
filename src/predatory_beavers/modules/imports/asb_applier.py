@@ -245,6 +245,16 @@ class AsbImportApplier:
             and current.source_reference == payload.resolved_standings_competition_id
         ):
             return False
+        # An updated numeric table is a new version of the same ASB stage.
+        # A calendar competition can contain multiple standings stages. Only
+        # the same source_reference retains archive metadata, including after
+        # an editor publishes a manual version of that exact stage.
+        previous_stage = (
+            current
+            if current is not None
+            and current.source_reference == payload.resolved_standings_competition_id
+            else None
+        )
         await self._standings_repository.archive_current(
             team_id=team.id,
             competition_id=competition.id,
@@ -256,6 +266,14 @@ class AsbImportApplier:
                 rows=rows,
                 source="asb",
                 source_reference=payload.resolved_standings_competition_id,
+                source_url=previous_stage.source_url if previous_stage else None,
+                last_game_at=previous_stage.last_game_at if previous_stage else None,
+                stage_order=previous_stage.stage_order if previous_stage else 0,
+                tournament_id=previous_stage.tournament_id if previous_stage else None,
+                tournament_name=previous_stage.tournament_name if previous_stage else None,
+                stage_name=previous_stage.stage_name if previous_stage else None,
+                stage_kind=previous_stage.stage_kind if previous_stage else "other",
+                games=list(previous_stage.games) if previous_stage else [],
                 fetched_at=standings_payload.fetched_at,
                 is_current=True,
             )

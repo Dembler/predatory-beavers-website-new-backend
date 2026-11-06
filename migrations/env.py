@@ -16,6 +16,8 @@ from predatory_beavers.modules.club import models as club_models  # noqa: F401,E
 from predatory_beavers.modules.content import models as content_models  # noqa: F401,E402
 from predatory_beavers.modules.imports import models as imports_models  # noqa: F401,E402
 from predatory_beavers.modules.matches import models as matches_models  # noqa: F401,E402
+from predatory_beavers.modules.results import models as results_models  # noqa: F401,E402
+from predatory_beavers.modules.roster import models as roster_models  # noqa: F401,E402
 from predatory_beavers.modules.standings import models as standings_models  # noqa: F401,E402
 from predatory_beavers.settings import get_settings
 

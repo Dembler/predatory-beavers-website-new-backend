@@ -2,10 +2,14 @@ from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Query, Request, Response, status
+from fastapi.responses import FileResponse
 
+from predatory_beavers.api.errors import NotFoundError
 from predatory_beavers.api.responses import ApiResponse, PaginatedResponse
 from predatory_beavers.modules.club.auth import AdminAuthorizer
+from predatory_beavers.modules.standings.logos import get_logo_path, team_logo_path
 from predatory_beavers.modules.standings.schemas import (
+    StandingsOptions,
     StandingsPublish,
     StandingsSnapshotRead,
 )
@@ -20,21 +24,58 @@ admin_router = APIRouter(
 )
 
 
+def public_snapshot(snapshot: object) -> StandingsSnapshotRead:
+    result = StandingsSnapshotRead.model_validate(snapshot)
+    for row in result.rows:
+        row.team_logo_url = team_logo_path(row.external_team_id, row.team_name) or row.team_logo_url
+    for game in result.games:
+        game.home_team_logo_url = (
+            team_logo_path(game.home_team_id, game.home_team_name) or game.home_team_logo_url
+        )
+        game.away_team_logo_url = (
+            team_logo_path(game.away_team_id, game.away_team_name) or game.away_team_logo_url
+        )
+    return result
+
+
+@public_router.get("/standings/logos/{key}.webp", response_class=FileResponse)
+async def get_standings_logo(key: str) -> FileResponse:
+    path = get_logo_path(key)
+    if path is None:
+        raise NotFoundError("Team emblem not found")
+    return FileResponse(
+        path, media_type="image/webp", headers={"Cache-Control": "public, max-age=86400"}
+    )
+
+
+@public_router.get("/standings/options", response_model=ApiResponse[StandingsOptions])
+async def get_standings_options(
+    service: FromDishka[StandingsService],
+    team: str = Query(min_length=1, max_length=64),
+) -> ApiResponse[StandingsOptions]:
+    return ApiResponse(
+        message="Published standings options retrieved",
+        data=await service.public_options(team=team),
+    )
+
+
 @public_router.get("/standings", response_model=ApiResponse[StandingsSnapshotRead])
 async def get_standings(
     service: FromDishka[StandingsService],
     team: str = Query(min_length=1, max_length=64),
     season: str | None = Query(None, min_length=1, max_length=32),
     competition_id: UUID | None = None,
+    tournament_id: str | None = Query(None, min_length=1, max_length=128),
 ) -> ApiResponse[StandingsSnapshotRead]:
     snapshot = await service.get_public(
         team=team,
         season=season,
         competition_id=competition_id,
+        tournament_id=tournament_id,
     )
     return ApiResponse(
         message="Standings retrieved",
-        data=StandingsSnapshotRead.model_validate(snapshot),
+        data=public_snapshot(snapshot),
     )
 
 

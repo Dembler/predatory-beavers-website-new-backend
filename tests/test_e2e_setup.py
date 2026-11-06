@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
+from alembic.script import ScriptDirectory
 
 from predatory_beavers.settings import get_settings
 from scripts import setup_e2e
@@ -57,7 +58,7 @@ def test_e2e_setup_without_uploaded_media_keeps_source_and_reuses_copy(
         assert len(runtime["runtimeToken"]) >= 32
         with sqlite3.connect(database) as connection:
             assert connection.execute("SELECT version_num FROM alembic_version").fetchone() == (
-                "0009",
+                ScriptDirectory.from_config(migration_config("")).get_current_head(),
             )
             assert connection.execute(
                 "SELECT count(*) FROM users WHERE role='ADMIN'"

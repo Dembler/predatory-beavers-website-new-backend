@@ -1,0 +1,681 @@
+{
+  "version": 1,
+  "teams": {
+    "6042": {
+      "names": [
+        "ВлГУ",
+        "ВлГУ (Владимир)"
+      ],
+      "key": "5f99c2c9fd2e30fcfc526b11a39ab80dd35acb55ea6925f463431608f188915e"
+    },
+    "6127": {
+      "names": [
+        "БелГАУ",
+        "БелГАУ (Белгород)",
+        "БелГАУ (Белгородская область)"
+      ],
+      "key": "2bfe93c42e437f53fe67e134ece94ddcec36dcccba5cd1143d395809198390cc"
+    },
+    "6231": {
+      "names": [
+        "ТУСУР",
+        "ТУСУР (Томск)"
+      ],
+      "key": "71b5cf37ef7327e708e4dd24f4c8b75b37c192d817d3a165906cf3a693d68652"
+    },
+    "6486": {
+      "names": [
+        "ИТМО",
+        "ИТМО (Санкт-Петербург)"
+      ],
+      "key": "836b5b8df93247494fd1f040d3553b7667220061e861378cc70a82a1eee246b4"
+    },
+    "6497": {
+      "names": [
+        "ВГТУ-ф",
+        "ВГТУ-ф (Воронеж)"
+      ],
+      "key": "069b6e52c20dfeb5bfee3af3cf06c73a1d7a18e916fcdb7348bf0b0cdbc57911"
+    },
+    "6839": {
+      "names": [
+        "МГАФК-2",
+        "МГАФК-2 (Москва)"
+      ],
+      "key": "ec370b61c33f58e5067bc027654fd159ce7646154a73180a4e00d840c1b57e55"
+    },
+    "6869": {
+      "names": [
+        "ВИ МВД",
+        "ВИ МВД (Воронеж)"
+      ],
+      "key": "f2e5c10d1b4ec13c062d3de0ca08eedea4f055b4f65bd799aac9e4a0aa0dedeb"
+    },
+    "6870": {
+      "names": [
+        "ВГТУ-Ф",
+        "ВГТУ-Ф (Воронеж)"
+      ],
+      "key": null
+    },
+    "6871": {
+      "names": [
+        "ВУНЦ ВВС ВВА",
+        "ВУНЦ ВВС ВВА (Воронеж)"
+      ],
+      "key": "1abbb6361dc148557163de3ff7d65e5a915c07446efb013416513bad73ee89af"
+    },
+    "7093": {
+      "names": [
+        "ВолгГТУ",
+        "ВолгГТУ (Волгоград)"
+      ],
+      "key": "79eb55a6f73d700305726559c3677e4df535b6da06a366e2de7d8cc79e3bc6db"
+    },
+    "7095": {
+      "names": [
+        "ВолГАУ",
+        "ВолГАУ (Волгоград)"
+      ],
+      "key": "9dc593c3d14d548e0506ee6424295d125e0003ab1c869229fdcddb8e5029f2ee"
+    },
+    "7096": {
+      "names": [
+        "ВГАФК",
+        "ВГАФК (Волгоград)"
+      ],
+      "key": "3f665340346ce129bf9e8d200c4b295cfb8a2958ab63a171caacfee96e0ac7b4"
+    },
+    "7106": {
+      "names": [
+        "АГАСУ",
+        "АГАСУ (Астрахань)"
+      ],
+      "key": "3e662c7f8d085ddab434200aa3b3e2be877704f42bc896da5386e6fa0584dca5"
+    },
+    "7223": {
+      "names": [
+        "УралГУФК",
+        "УралГУФК (Челябинск)"
+      ],
+      "key": "01c917a8b33d004ce533345a92ff0a20afbfdc912562f398d2257b1acc95938e"
+    },
+    "7231": {
+      "names": [
+        "ДВГАФК",
+        "ДВГАФК (Хабаровск)"
+      ],
+      "key": "e341377feee3eb83cc6881f6e2cce8ef577ba34b7a4c801fd5c13bd122afa1ae"
+    },
+    "7312": {
+      "names": [
+        "БГТУ",
+        "БГТУ (Белгород)",
+        "БелГТУ"
+      ],
+      "key": "535c145453b16fcb474377736fcf43499f3c58ffc232e835c5fa70f2f1b46c15"
+    },
+    "7364": {
+      "names": [
+        "ВГАС",
+        "ВГАС (Воронеж)"
+      ],
+      "key": "8be1ce3bfaea4d0141671173810e3e7f561bc7a4dd31ed297c4f1162972dd93b"
+    },
+    "7390": {
+      "names": [
+        "ЛГТУ",
+        "ЛГТУ (Липецк)",
+        "Липецкий Гос. Технический Университет",
+        "Липецкий Гос. Технический Университет (Липецк)"
+      ],
+      "key": "1e0c5ed553f0fcb27c8e140c7431e7c5bbbdcaba0a1e3d4bdc073c8df691b2ec"
+    },
+    "7429": {
+      "names": [
+        "КФ МГТУ",
+        "КФ МГТУ (Калуга)"
+      ],
+      "key": null
+    },
+    "7432": {
+      "names": [
+        "ВГТУ",
+        "ВГТУ (Воронеж)"
+      ],
+      "key": "a155558512e7dc3b1db9d066cb569c1c1931baa98bf9ef1eb619d57f28f7253c"
+    },
+    "7433": {
+      "names": [
+        "ВГУ",
+        "ВГУ (Воронеж)"
+      ],
+      "key": "751bf49b8ed596d5b9023dd51eb3273c9593c7c400e302d875e6a9413be1ce28"
+    },
+    "7436": {
+      "names": [
+        "ВГАС",
+        "ВГАС (Воронеж)"
+      ],
+      "key": "bb311e400ac871c611b9e95285c42447b80d4f231a60b3518b70a8fee15b9f95"
+    },
+    "7438": {
+      "names": [
+        "ТГУ",
+        "ТГУ (Тамбов)",
+        "ТамГУ",
+        "ТамГУ (Тамбов)"
+      ],
+      "key": "1a9b3d4bbee17f75ab8ab5adb0e07ae6432169382bb88032db15f035782e6955"
+    },
+    "7470": {
+      "names": [
+        "КГУФКСТ",
+        "КГУФКСТ (Краснодар)"
+      ],
+      "key": "00723fc70b3e9a700df50250095c166ae6851fa8c509ef740de8008157b55335"
+    },
+    "7471": {
+      "names": [
+        "ЮФУ",
+        "ЮФУ (Ростов-на-Дону)"
+      ],
+      "key": "156e37774e2123df0e2be523adcdeae406b4addc140cb520c9be4ddf3b78b9bd"
+    },
+    "7572": {
+      "names": [
+        "КГУ",
+        "КГУ (Курск)"
+      ],
+      "key": "ff8084beda2d138404a7d8a9845e04db9de64816f0292f01d7dbb064e37d1925"
+    },
+    "7581": {
+      "names": [
+        "КГУ",
+        "КГУ (Курск)"
+      ],
+      "key": "8367610a9052f5d93cc8f4585dd1c7945f77fb66fef4fba1b358cd0abb923527"
+    },
+    "7585": {
+      "names": [
+        "ЛГТУ",
+        "ЛГТУ (Липецк)"
+      ],
+      "key": null
+    },
+    "7629": {
+      "names": [
+        "БГУОР",
+        "БГУОР (Брянск)"
+      ],
+      "key": null
+    },
+    "7635": {
+      "names": [
+        "ВГПУ",
+        "ВГПУ (Воронеж)"
+      ],
+      "key": "e8f574ebcaba6173e19f6eb60365e70443237070f4f2b4f34b2e647e5bc36710"
+    },
+    "7640": {
+      "names": [
+        "КГУ",
+        "КГУ (Калуга)"
+      ],
+      "key": "e4d65d01571a8c6b7c9a61cd8ebb685b42265793c74140a484e2905b8ab93dbc"
+    },
+    "7647": {
+      "names": [
+        "ВГАУ",
+        "ВГАУ (Воронеж)"
+      ],
+      "key": "591a5ac0185ecba72092bf09bc0d3e24c4b176caa232fe33b127d6ad85ef7830"
+    },
+    "7650": {
+      "names": [
+        "СГУ - Волот",
+        "СГУ - Волот (Саратов)"
+      ],
+      "key": "2fba5f236e7ae7544a88a161f0bfcfee6949aae640c82842a20393f573d1112a"
+    },
+    "7653": {
+      "names": [
+        "СГТУ",
+        "СГТУ (Саратов)"
+      ],
+      "key": "c88d750dfb72eec132e98243ae946916b810265fe2a670ff9d064aa64f2b8cd3"
+    },
+    "7655": {
+      "names": [
+        "ВГМУ",
+        "ВГМУ (Воронеж)"
+      ],
+      "key": "96b99d3f0ffd4daf87121a55bcbd11420d403b5276d2e07bbab6670e026416dc"
+    },
+    "7663": {
+      "names": [
+        "ВГУИТ",
+        "ВГУИТ (Воронеж)"
+      ],
+      "key": "34611413143fa8eb4f4fbb9b3106242f2b963995663cf17f48f820b2180ea58c"
+    },
+    "7689": {
+      "names": [
+        "ВГАУ",
+        "ВГАУ (Воронеж)"
+      ],
+      "key": "151b6f9bc19b0318d98928c39131f14fb0d7d3293c7346724c736f167c11a975"
+    },
+    "7690": {
+      "names": [
+        "ВГУГИТ",
+        "ВГУГИТ (Воронеж)",
+        "ВГУИТ",
+        "ВГУИТ (Воронеж)"
+      ],
+      "key": "01c77f4509bf46cd7e94c031b06f03a466448885fe17695c4bfedb614ef80192"
+    },
+    "7691": {
+      "names": [
+        "ВГТУ",
+        "ВГТУ (Воронеж)"
+      ],
+      "key": "5964cdc8ce6ceda065f419a011a33b57cfce1c6a2d98b72f8f59de1e7da079db"
+    },
+    "7693": {
+      "names": [
+        "ВГМУ",
+        "ВГМУ (Воронеж)",
+        "Воронежская Гос. Медицинская Академия",
+        "Воронежская Гос. Медицинская Академия (Воронеж)"
+      ],
+      "key": "36b6e0acc8d4d6cd5d4b508159e8368328799d7ebe5bfdfdcf8e76eff0a4ba29"
+    },
+    "7694": {
+      "names": [
+        "ВГПУ",
+        "ВГПУ (Воронеж)",
+        "Воронежский Гос. Педагогический Университет",
+        "Воронежский Гос. Педагогический Университет (Воронеж)"
+      ],
+      "key": "6b678d81c26dfd313b5899ce49db600ce220f2d38e984b1e2180e7d498bf9c5b"
+    },
+    "7695": {
+      "names": [
+        "ВГУ",
+        "ВГУ (Воронеж)",
+        "Воронежский Гос. Университет",
+        "Воронежский Гос. Университет (Воронеж)"
+      ],
+      "key": "46631d9800f4163af0b93af0def6a0e150287e97b3424bf5b13d704880ce6ec3"
+    },
+    "8835": {
+      "names": [
+        "СевГУ",
+        "СевГУ (Севастополь)"
+      ],
+      "key": "7326292edfb75e4fafdaa8c825f0245b9292097d9381e71e5cf7a67195c7bbc1"
+    },
+    "14948": {
+      "names": [
+        "РТУ МИРЭА",
+        "РТУ МИРЭА (Москва)"
+      ],
+      "key": "3d2446c299e24f939de9c8739cd02a881cb37c89c4e9277644939bde722b0490"
+    },
+    "18067": {
+      "names": [
+        "НИУ БелГУ",
+        "НИУ БелГУ (Белгород)"
+      ],
+      "key": "1ccf3bc638176d3cb6e93af698df899e8bc37520decde5e28086b70302acd2db"
+    },
+    "20589": {
+      "names": [
+        "ВГАС-2",
+        "ВГАС-2 (Воронеж)",
+        "ВГИФК-ф",
+        "ВГИФК-ф (Воронеж)"
+      ],
+      "key": null
+    },
+    "20671": {
+      "names": [
+        "ВГАС-Ф",
+        "ВГАС-Ф (Воронеж)",
+        "ВГАС-ф",
+        "ВГАС-ф (Воронеж)",
+        "ВГИФК-ф",
+        "ВГИФК-ф (Воронеж)"
+      ],
+      "key": "4204ef1c883a0d22b6a7d08f22ef6b97660afeec7dd8be5696b863bb3cc73f09"
+    },
+    "20727": {
+      "names": [
+        "ВУНЦ ВВА-ф",
+        "ВУНЦ ВВА-ф (Воронеж)"
+      ],
+      "key": "e25fa9650a9e321323b469d332512d4929be073841e0b5e831e2b7e603f506c9"
+    },
+    "28124": {
+      "names": [
+        "СПбГУПТД-3",
+        "СПбГУПТД-3 (Санкт-Петербург)"
+      ],
+      "key": "d86fb6bd3637219a101e98cd6cf65abf5112e558d8f8529d095053f0818ec016"
+    },
+    "28414": {
+      "names": [
+        "ВИ МВД",
+        "ВИ МВД (Воронеж)"
+      ],
+      "key": null
+    },
+    "28775": {
+      "names": [
+        "КАС №7",
+        "КАС №7 (Москва)"
+      ],
+      "key": "d123f4136c7bdff1d796a2f0d81f7fe9532361a8fcee3b37c45023fed5c4d626"
+    },
+    "28851": {
+      "names": [
+        "Приоритет-МИПК",
+        "Приоритет-МИПК (Москва)"
+      ],
+      "key": "c04af3d19c879a620009bd9a204cf95f50c0cb02cf8aebd0734e3df6ed590eb0"
+    },
+    "32931": {
+      "names": [
+        "ВГАС-Ф",
+        "ВГАС-Ф (Воронеж)"
+      ],
+      "key": null
+    },
+    "54902": {
+      "names": [
+        "ВФ РГУПС",
+        "ВФ РГУПС (Воронеж)"
+      ],
+      "key": null
+    }
+  },
+  "images": {
+    "5f99c2c9fd2e30fcfc526b11a39ab80dd35acb55ea6925f463431608f188915e": {
+      "source_url": "https://files.infobasket.su/Logos/16646.png",
+      "sha256": "049b1d17c56f6fff70728c62bc00a22218fdb6bbb42a00211bca78d60d7f73b4",
+      "width": 600,
+      "height": 600
+    },
+    "2bfe93c42e437f53fe67e134ece94ddcec36dcccba5cd1143d395809198390cc": {
+      "source_url": "https://files.infobasket.su/Logos/16319.png",
+      "sha256": "c1e72689ec07ce3e176db3ddd630931e8012d4d031195477264bfb88fc847236",
+      "width": 200,
+      "height": 200
+    },
+    "71b5cf37ef7327e708e4dd24f4c8b75b37c192d817d3a165906cf3a693d68652": {
+      "source_url": "https://files.infobasket.su/Logos/17147.png",
+      "sha256": "64de8cc1f0dd84f0b29df4b2cf6191080d2235bf21617ea97c2b7e7b75799a76",
+      "width": 150,
+      "height": 150
+    },
+    "836b5b8df93247494fd1f040d3553b7667220061e861378cc70a82a1eee246b4": {
+      "source_url": "https://files.infobasket.su/Logos/16800.png",
+      "sha256": "cf8d8de954b83d308036d131e57a265937b8f34866ae06ccfaef953f0e04f820",
+      "width": 600,
+      "height": 600
+    },
+    "069b6e52c20dfeb5bfee3af3cf06c73a1d7a18e916fcdb7348bf0b0cdbc57911": {
+      "source_url": "https://files.infobasket.su/Logos/11180.png",
+      "sha256": "824149b843698af73b24860ebbf6250c0372384c1ed078e188dbddfeb8424d1c",
+      "width": 336,
+      "height": 336
+    },
+    "ec370b61c33f58e5067bc027654fd159ce7646154a73180a4e00d840c1b57e55": {
+      "source_url": "https://files.infobasket.su/Logos/11291.png",
+      "sha256": "b105fb9367c5b84301fb720ced2ee67d85cc02f4a4e22fefa329241c2bc24b3a",
+      "width": 600,
+      "height": 600
+    },
+    "f2e5c10d1b4ec13c062d3de0ca08eedea4f055b4f65bd799aac9e4a0aa0dedeb": {
+      "source_url": "https://files.infobasket.su/Logos/17324.png",
+      "sha256": "928460f54ef697cfd95106deec33ac7494a4da28da21eed26d6c05b5387d74ba",
+      "width": 590,
+      "height": 590
+    },
+    "1abbb6361dc148557163de3ff7d65e5a915c07446efb013416513bad73ee89af": {
+      "source_url": "https://files.infobasket.su/Logos/7265.png",
+      "sha256": "5ababc2994dc2e08dd19d92cb86fd91ebf2841e4f4cb6ad880dcef93a695d6f6",
+      "width": 600,
+      "height": 600
+    },
+    "79eb55a6f73d700305726559c3677e4df535b6da06a366e2de7d8cc79e3bc6db": {
+      "source_url": "https://files.infobasket.su/Logos/15546.png",
+      "sha256": "6333d6748cd65a2319245eb0340b1de9a1f5916e114967e8e86ffe9fbd766259",
+      "width": 150,
+      "height": 150
+    },
+    "9dc593c3d14d548e0506ee6424295d125e0003ab1c869229fdcddb8e5029f2ee": {
+      "source_url": "https://files.infobasket.su/Logos/16499.png",
+      "sha256": "edeb32bd4eb1a7d7b56368c13d4045154333a2b4fe273bffe11e113699a87524",
+      "width": 600,
+      "height": 600
+    },
+    "3f665340346ce129bf9e8d200c4b295cfb8a2958ab63a171caacfee96e0ac7b4": {
+      "source_url": "https://files.infobasket.su/Logos/11270.png",
+      "sha256": "52403ed5e5f4c7a0be915db97fc918133ea1756c2d1d4eb98b21f7d443fb07ae",
+      "width": 150,
+      "height": 150
+    },
+    "3e662c7f8d085ddab434200aa3b3e2be877704f42bc896da5386e6fa0584dca5": {
+      "source_url": "https://files.infobasket.su/Logos/13915.png",
+      "sha256": "f9ae726bae7fe9096f7c01829a6e7bdbe7f4d1f0d26862f8d8dc9609eaa75820",
+      "width": 507,
+      "height": 507
+    },
+    "01c917a8b33d004ce533345a92ff0a20afbfdc912562f398d2257b1acc95938e": {
+      "source_url": "https://files.infobasket.su/Logos/13120.png",
+      "sha256": "228eaf8d9cba4e15c0e57386ded264ad84162cc428a40e666e335003f6885cfb",
+      "width": 600,
+      "height": 600
+    },
+    "e341377feee3eb83cc6881f6e2cce8ef577ba34b7a4c801fd5c13bd122afa1ae": {
+      "source_url": "https://img.infobasket.su/logo/21494.png",
+      "sha256": "cf7a73dc831346de06b30b530a34a11c3c13d9cf8bd29d0edec0db060f300591",
+      "width": 350,
+      "height": 350
+    },
+    "535c145453b16fcb474377736fcf43499f3c58ffc232e835c5fa70f2f1b46c15": {
+      "source_url": "https://files.infobasket.su/Logos/12154.png",
+      "sha256": "4d79c8549811c5f25de8969baf4b47775285a30acf9b90a8ea38d6b7f380538f",
+      "width": 323,
+      "height": 323
+    },
+    "8be1ce3bfaea4d0141671173810e3e7f561bc7a4dd31ed297c4f1162972dd93b": {
+      "source_url": "https://img.infobasket.su/logo/24565.png",
+      "sha256": "0152131608600f8b2a19abc35a420fdf0db213bdae1c1c4e6560b8bd7425f5eb",
+      "width": 369,
+      "height": 369
+    },
+    "1e0c5ed553f0fcb27c8e140c7431e7c5bbbdcaba0a1e3d4bdc073c8df691b2ec": {
+      "source_url": "https://img.infobasket.su/logo/25979.png",
+      "sha256": "4abb11f43f395ced627c925b890ffa0407db147061f2e4f764aca85a421dc84b",
+      "width": 340,
+      "height": 340
+    },
+    "a155558512e7dc3b1db9d066cb569c1c1931baa98bf9ef1eb619d57f28f7253c": {
+      "source_url": "https://files.infobasket.su/Logos/830.png",
+      "sha256": "cefc88eba9a3d16d97358fbff362d4fab7f6d7e0b13996226a0859d7dc38ce58",
+      "width": 450,
+      "height": 450
+    },
+    "751bf49b8ed596d5b9023dd51eb3273c9593c7c400e302d875e6a9413be1ce28": {
+      "source_url": "https://files.infobasket.su/Logos/17024.png",
+      "sha256": "583af962d0c88f4a6eb1a29a8419e3aaf21c0db09e5fc046b659b64c39586e34",
+      "width": 600,
+      "height": 600
+    },
+    "bb311e400ac871c611b9e95285c42447b80d4f231a60b3518b70a8fee15b9f95": {
+      "source_url": "https://files.infobasket.su/Logos/16208.png",
+      "sha256": "a1f59869fd51e655d834c0a7c46c684bff4f44ae9dc1d4dd453c2093f3597af2",
+      "width": 320,
+      "height": 320
+    },
+    "1a9b3d4bbee17f75ab8ab5adb0e07ae6432169382bb88032db15f035782e6955": {
+      "source_url": "https://files.infobasket.su/Logos/11530.png",
+      "sha256": "c6fefde92a53b0c2cf0340036f0194c64e49fee9625291a91a3e29b6a0a977a7",
+      "width": 500,
+      "height": 500
+    },
+    "00723fc70b3e9a700df50250095c166ae6851fa8c509ef740de8008157b55335": {
+      "source_url": "https://files.infobasket.su/Logos/16649.png",
+      "sha256": "67c79ad689856224b29a347d36ac6f704a42e7bb31705a6806be1368cffe058a",
+      "width": 600,
+      "height": 600
+    },
+    "156e37774e2123df0e2be523adcdeae406b4addc140cb520c9be4ddf3b78b9bd": {
+      "source_url": "https://files.infobasket.su/Logos/16390.png",
+      "sha256": "ce43596dc3e37cd52b21896cfb626ba98353aa17886cc17cbd2aaea5056e94d3",
+      "width": 497,
+      "height": 497
+    },
+    "ff8084beda2d138404a7d8a9845e04db9de64816f0292f01d7dbb064e37d1925": {
+      "source_url": "https://files.infobasket.su/Logos/1654.png",
+      "sha256": "f3d072595cbbbd381b6a769acfed55f846d5b5da643e453e8b34119248840df5",
+      "width": 200,
+      "height": 200
+    },
+    "8367610a9052f5d93cc8f4585dd1c7945f77fb66fef4fba1b358cd0abb923527": {
+      "source_url": "https://files.infobasket.su/Logos/5965.png",
+      "sha256": "f3d072595cbbbd381b6a769acfed55f846d5b5da643e453e8b34119248840df5",
+      "width": 200,
+      "height": 200
+    },
+    "e8f574ebcaba6173e19f6eb60365e70443237070f4f2b4f34b2e647e5bc36710": {
+      "source_url": "https://files.infobasket.su/Logos/16494.png",
+      "sha256": "9bb597a00875403e6906ab7cd5d0aa4885897366913c0f7a5b19c27d692464cb",
+      "width": 600,
+      "height": 600
+    },
+    "e4d65d01571a8c6b7c9a61cd8ebb685b42265793c74140a484e2905b8ab93dbc": {
+      "source_url": "https://files.infobasket.su/Logos/16270.png",
+      "sha256": "783caa99b5bf2fee119df0ddf6f235cf81a3a6be989d8baeb6ea21c69fc3df0c",
+      "width": 600,
+      "height": 600
+    },
+    "591a5ac0185ecba72092bf09bc0d3e24c4b176caa232fe33b127d6ad85ef7830": {
+      "source_url": "https://files.infobasket.su/Logos/16492.png",
+      "sha256": "4a434a9b3f118af2af742e55c855a3fe9eacc33acd2bd7446f25dfe11a5f6435",
+      "width": 520,
+      "height": 520
+    },
+    "2fba5f236e7ae7544a88a161f0bfcfee6949aae640c82842a20393f573d1112a": {
+      "source_url": "https://files.infobasket.su/Logos/1962.png",
+      "sha256": "8d77c0ec66ae4e52e66ee5ef9e50bef77056f0c54fb5d297552c063875dd84f0",
+      "width": 336,
+      "height": 336
+    },
+    "c88d750dfb72eec132e98243ae946916b810265fe2a670ff9d064aa64f2b8cd3": {
+      "source_url": "https://files.infobasket.su/Logos/4800.png",
+      "sha256": "fdd0079ae1492a49b037cba4f8d18eb3a1a6083d4396af5f07ef3a8d244b854a",
+      "width": 600,
+      "height": 600
+    },
+    "96b99d3f0ffd4daf87121a55bcbd11420d403b5276d2e07bbab6670e026416dc": {
+      "source_url": "https://files.infobasket.su/Logos/16643.png",
+      "sha256": "91cbc09380dbe8c7eb5de5ce7d69f896e0e06d5f2c9033c7954c0584714a743c",
+      "width": 480,
+      "height": 480
+    },
+    "34611413143fa8eb4f4fbb9b3106242f2b963995663cf17f48f820b2180ea58c": {
+      "source_url": "https://files.infobasket.su/Logos/16640.png",
+      "sha256": "0ee9e40e0d4e3391a93c18bf3711ab46aa5e102ffb02c0e562b76032089d1349",
+      "width": 590,
+      "height": 590
+    },
+    "151b6f9bc19b0318d98928c39131f14fb0d7d3293c7346724c736f167c11a975": {
+      "source_url": "https://files.infobasket.su/Logos/16493.png",
+      "sha256": "4a434a9b3f118af2af742e55c855a3fe9eacc33acd2bd7446f25dfe11a5f6435",
+      "width": 520,
+      "height": 520
+    },
+    "01c77f4509bf46cd7e94c031b06f03a466448885fe17695c4bfedb614ef80192": {
+      "source_url": "https://files.infobasket.su/Logos/7382.png",
+      "sha256": "6a0b326fc62857517bcc232c920799dc0ada53c91d4c8e6bfb01d112ae6fb403",
+      "width": 500,
+      "height": 500
+    },
+    "5964cdc8ce6ceda065f419a011a33b57cfce1c6a2d98b72f8f59de1e7da079db": {
+      "source_url": "https://files.infobasket.su/Logos/16438.png",
+      "sha256": "bef6654360eec7e409c97788beb04c730dfa10492a211f549577d53e2aaf820b",
+      "width": 336,
+      "height": 336
+    },
+    "36b6e0acc8d4d6cd5d4b508159e8368328799d7ebe5bfdfdcf8e76eff0a4ba29": {
+      "source_url": "https://files.infobasket.su/Logos/11857.png",
+      "sha256": "f750aad5faee290f23329a9c4c54a0421a7d5d52a6cf05f5bb0da893e8bf32f3",
+      "width": 500,
+      "height": 500
+    },
+    "6b678d81c26dfd313b5899ce49db600ce220f2d38e984b1e2180e7d498bf9c5b": {
+      "source_url": "https://files.infobasket.su/Logos/16528.png",
+      "sha256": "9bb597a00875403e6906ab7cd5d0aa4885897366913c0f7a5b19c27d692464cb",
+      "width": 600,
+      "height": 600
+    },
+    "46631d9800f4163af0b93af0def6a0e150287e97b3424bf5b13d704880ce6ec3": {
+      "source_url": "https://files.infobasket.su/Logos/21127.png",
+      "sha256": "583af962d0c88f4a6eb1a29a8419e3aaf21c0db09e5fc046b659b64c39586e34",
+      "width": 600,
+      "height": 600
+    },
+    "7326292edfb75e4fafdaa8c825f0245b9292097d9381e71e5cf7a67195c7bbc1": {
+      "source_url": "https://files.infobasket.su/Logos/17140.png",
+      "sha256": "126ec75caa70c98ab19ce903a27e2537cf2ecc3ebcf7db3cecc700d311e50bec",
+      "width": 599,
+      "height": 599
+    },
+    "3d2446c299e24f939de9c8739cd02a881cb37c89c4e9277644939bde722b0490": {
+      "source_url": "https://files.infobasket.su/Logos/15354.png",
+      "sha256": "b275517990ee3f1d45feca3d2c5e1fcc2380ee6f60fbd51a1265d4f0cc43e2b6",
+      "width": 320,
+      "height": 320
+    },
+    "1ccf3bc638176d3cb6e93af698df899e8bc37520decde5e28086b70302acd2db": {
+      "source_url": "https://files.infobasket.su/Logos/16476.png",
+      "sha256": "d3de06b96038c47fd8908b10201005e5a812780cc9a3aa8ff2d87762d6a2df6f",
+      "width": 550,
+      "height": 550
+    },
+    "4204ef1c883a0d22b6a7d08f22ef6b97660afeec7dd8be5696b863bb3cc73f09": {
+      "source_url": "https://files.infobasket.su/Logos/13180.png",
+      "sha256": "fffa6a238b7431698638f592d0dfcd0d4a6df64c6a56e5df1513debcf232d2ea",
+      "width": 400,
+      "height": 400
+    },
+    "e25fa9650a9e321323b469d332512d4929be073841e0b5e831e2b7e603f506c9": {
+      "source_url": "https://files.infobasket.su/Logos/7337.png",
+      "sha256": "5ababc2994dc2e08dd19d92cb86fd91ebf2841e4f4cb6ad880dcef93a695d6f6",
+      "width": 600,
+      "height": 600
+    },
+    "d86fb6bd3637219a101e98cd6cf65abf5112e558d8f8529d095053f0818ec016": {
+      "source_url": "https://files.infobasket.su/Logos/15914.png",
+      "sha256": "00fb903a043b72f1d175e08b073ee9409e91c5d783fd74f41bef0a417829a4f0",
+      "width": 600,
+      "height": 600
+    },
+    "d123f4136c7bdff1d796a2f0d81f7fe9532361a8fcee3b37c45023fed5c4d626": {
+      "source_url": "https://files.infobasket.su/Logos/17111.png",
+      "sha256": "529849c06aaeb0a9b47225f554b5fa302fd846208ccfe8a6e63d4b32f42f0a22",
+      "width": 600,
+      "height": 600
+    },
+    "c04af3d19c879a620009bd9a204cf95f50c0cb02cf8aebd0734e3df6ed590eb0": {
+      "source_url": "https://files.infobasket.su/Logos/17105.png",
+      "sha256": "48b2f63f4c83d583b127e3afc4a81e9ca83f7c9e401e1387a0e7203f91fe1635",
+      "width": 472,
+      "height": 472
+    }
+  }
+}

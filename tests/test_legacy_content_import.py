@@ -237,6 +237,48 @@ def test_existing_row_mutation_rolls_back_the_whole_import(tmp_path: Path, datab
     assert snapshot(database) == before
 
 
+def test_source_metadata_is_imported_and_editor_changes_are_preserved(
+    tmp_path: Path, database: Path
+) -> None:
+    with sqlite3.connect(database) as connection:
+        for column in ("subtitle", "link_url", "link_label"):
+            connection.execute(f"ALTER TABLE content_blocks ADD COLUMN {column} TEXT")
+    record = entry("sourced-history") | {
+        "subtitle": "2024 · club archive",
+        "link_url": "https://www.vsu.ru/ru/news/feed/2024/04/17849",
+        "link_label": "University source",
+    }
+    manifest_path = write_manifest(tmp_path, [record])
+    before = snapshot(database)
+    result = import_content(database, manifest_path, apply=True)
+    assert result["added"] == 1
+    assert_existing_rows_preserved(before, snapshot(database))
+    with sqlite3.connect(database) as connection:
+        assert connection.execute(
+            "SELECT subtitle,link_url,link_label FROM content_blocks WHERE title=?",
+            ("Legacy club content",),
+        ).fetchone() == (record["subtitle"], record["link_url"], record["link_label"])
+        connection.execute(
+            "UPDATE content_blocks SET subtitle='Edited source' WHERE title=?",
+            ("Legacy club content",),
+        )
+    edited = snapshot(database)
+    assert import_content(database, manifest_path, apply=True)["added"] == 0
+    assert snapshot(database) == edited
+
+
+def test_source_metadata_requires_migration_before_any_change(
+    tmp_path: Path, database: Path
+) -> None:
+    manifest_path = write_manifest(tmp_path, [entry("sourced-history") | {"subtitle": "2024"}])
+    before = snapshot(database)
+    before_files = sorted(tmp_path.iterdir())
+    with pytest.raises(ValueError, match="Migrate the database"):
+        import_content(database, manifest_path, apply=True)
+    assert snapshot(database) == before
+    assert sorted(tmp_path.iterdir()) == before_files
+
+
 @pytest.mark.parametrize("invalid_field", ["section", "body", "source_key"])
 def test_malformed_manifest_is_rejected_without_database_changes(
     tmp_path: Path, database: Path, invalid_field: str

@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Literal
 from uuid import UUID
 
 from pydantic import (
@@ -6,6 +7,7 @@ from pydantic import (
     ConfigDict,
     Field,
     HttpUrl,
+    TypeAdapter,
     computed_field,
     field_validator,
     model_validator,
@@ -19,7 +21,7 @@ class StandingRow(BaseModel):
     position: int = Field(ge=1)
     team_name: str = Field(min_length=1, max_length=200)
     external_team_id: str | None = Field(default=None, max_length=128)
-    team_logo_url: HttpUrl | None = None
+    team_logo_url: str | None = None
     played: int = Field(ge=0)
     wins: int = Field(ge=0)
     losses: int = Field(ge=0)
@@ -27,6 +29,15 @@ class StandingRow(BaseModel):
     table_points: int = Field(ge=0)
     points_for: int = Field(ge=0)
     points_against: int = Field(ge=0)
+
+    @field_validator("team_logo_url", mode="before")
+    @classmethod
+    def validate_logo_url(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        if isinstance(value, str) and value.startswith("/api/v1/standings/logos/"):
+            return value
+        return str(TypeAdapter(HttpUrl).validate_python(value))
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -97,6 +108,34 @@ class StandingsPublish(BaseModel):
         return self
 
 
+class StandingsGame(BaseModel):
+    external_id: str
+    round_name: str
+    round: int | None = None
+    tree: int | None = None
+    sort_order: int = 0
+    starts_at: datetime | None = None
+    date_precision: Literal["day", "time"] = "day"
+    home_team_name: str
+    home_team_id: str | None = None
+    home_team_logo_url: str | None = None
+    away_team_name: str
+    away_team_id: str | None = None
+    away_team_logo_url: str | None = None
+    home_score: int | None = Field(default=None, ge=0)
+    away_score: int | None = Field(default=None, ge=0)
+    status: Literal["finished", "scheduled", "unpublished"]
+    source_url: HttpUrl
+
+    @model_validator(mode="after")
+    def validate_score(self) -> "StandingsGame":
+        if (self.home_score is None) != (self.away_score is None):
+            raise ValueError("Both scores must be present or absent")
+        if self.status == "finished" and self.home_score is None:
+            raise ValueError("Finished playoff games require confirmed scores")
+        return self
+
+
 class StandingsSnapshotRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -108,7 +147,38 @@ class StandingsSnapshotRead(BaseModel):
     rows: list[StandingRow]
     source: str
     source_reference: str | None
+    source_url: str | None
+    last_game_at: datetime | None
+    stage_order: int
+    tournament_id: str | None = None
+    tournament_name: str | None = None
+    stage_name: str | None = None
+    stage_kind: str = "other"
+    games: list[StandingsGame] = Field(default_factory=list)
     fetched_at: datetime
     is_current: bool
     created_at: datetime
     updated_at: datetime
+
+
+class StandingsCompetitionOption(BaseModel):
+    id: UUID
+    name: str
+    season: str
+    snapshot_id: UUID
+    row_count: int
+    source: str
+    source_reference: str | None
+    source_url: str | None
+    tournament_id: str | None = None
+    tournament_name: str | None = None
+    stage_name: str | None = None
+    stage_kind: str = "other"
+    game_count: int = 0
+
+
+class StandingsOptions(BaseModel):
+    team: str
+    seasons: list[str]
+    competitions: list[StandingsCompetitionOption]
+    default_competition_id: UUID | None

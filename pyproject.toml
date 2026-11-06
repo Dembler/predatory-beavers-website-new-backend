@@ -33,6 +33,11 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"predatory_beavers.modules.roster" = ["assets/photos/*.webp", "assets/photos/index.json"]
+"predatory_beavers.modules.results" = ["assets/tournament-context.json"]
+"predatory_beavers.modules.standings" = ["assets/logos/*.webp", "assets/logos/index.json"]
+
 [tool.pytest.ini_options]
 addopts = "-q"
 asyncio_mode = "auto"
