@@ -1,5 +1,7 @@
+from datetime import datetime
 from uuid import UUID
 
+from predatory_beavers.api.concurrency import require_version
 from predatory_beavers.api.errors import ConflictError, NotFoundError
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.audit.models import AuditAction
@@ -29,12 +31,14 @@ class CompetitionService:
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         season: str | None = None,
         active: bool | None = True,
     ) -> tuple[list[Competition], int]:
         return await self._repository.list(
             page=page,
             page_size=page_size,
+            q=q,
             season=season,
             active=active,
         )
@@ -45,8 +49,17 @@ class CompetitionService:
             raise NotFoundError("Competition not found")
         return competition
 
+    async def impact(self, competition_id: UUID) -> tuple[int, int]:
+        await self.get(competition_id)
+        return await self._repository.impact(competition_id)
+
     async def create(self, payload: CompetitionCreate) -> Competition:
         async with self._unit_of_work:
+            previous_id = await self._repository.creation_ledger.reserve("competitions", payload)
+            if previous_id is not None:
+                previous = await self.get(previous_id)
+                await self._unit_of_work.commit()
+                return previous
             await self._ensure_external_identity_available(payload.source, payload.external_id)
             competition = await self._repository.add(Competition(**payload.model_dump()))
             await self._record(
@@ -54,6 +67,7 @@ class CompetitionService:
                 competition=competition,
                 after=CompetitionRead.model_validate(competition).model_dump(mode="json"),
             )
+            await self._repository.creation_ledger.finish("competitions", payload, competition.id)
             await self._unit_of_work.commit()
             return competition
 
@@ -64,6 +78,7 @@ class CompetitionService:
     ) -> Competition:
         async with self._unit_of_work:
             competition = await self.get(competition_id)
+            require_version(competition.updated_at, payload.expected_updated_at)
             before = CompetitionRead.model_validate(competition).model_dump(mode="json")
             changes = payload.model_dump(exclude_unset=True)
             source = changes.get("source", competition.source)
@@ -86,9 +101,12 @@ class CompetitionService:
             await self._unit_of_work.commit()
             return updated
 
-    async def delete(self, competition_id: UUID) -> None:
+    async def delete(
+        self, competition_id: UUID, expected_updated_at: datetime | None = None
+    ) -> None:
         async with self._unit_of_work:
             competition = await self.get(competition_id)
+            require_version(competition.updated_at, expected_updated_at)
             before = CompetitionRead.model_validate(competition).model_dump(mode="json")
             await self._repository.soft_delete(competition)
             await self._record(

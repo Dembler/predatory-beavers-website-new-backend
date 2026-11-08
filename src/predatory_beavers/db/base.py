@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, DateTime, MetaData, false
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Boolean, DateTime, Integer, MetaData, false, text
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 from sqlalchemy.types import Uuid
 
 NAMING_CONVENTION = {
@@ -32,6 +32,18 @@ class TimestampMixin:
         onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
+
+
+class OptimisticVersionMixin:
+    # Legacy import scripts store timestamps in several equivalent ISO formats.
+    # A dedicated integer avoids SQLite text-format mismatches in UPDATE WHERE.
+    version_id: Mapped[int] = mapped_column(
+        Integer, default=1, server_default=text("1"), nullable=False
+    )
+
+    @declared_attr.directive
+    def __mapper_args__(cls) -> dict[str, object]:
+        return {"version_id_col": cls.version_id}
 
 
 class SoftDeleteMixin:

@@ -93,7 +93,10 @@ def plan_sync(connection: sqlite3.Connection, manifest: dict[str, Any]) -> list[
                 values["description"] = None
             if row["latitude"] is None and row["longitude"] is None and "latitude" in item:
                 values.update(latitude=item["latitude"], longitude=item["longitude"])
-            VenueCreate.model_validate(row | values)
+            merged = row | values
+            VenueCreate.model_validate(
+                {key: value for key, value in merged.items() if key in VenueCreate.model_fields}
+            )
             if values:
                 actions.append(
                     {"table": "venues", "id": row["id"], "before": row, "values": values}

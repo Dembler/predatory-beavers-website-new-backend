@@ -85,7 +85,7 @@ def test_media_achievement_and_home_flow(tmp_path: Path) -> None:
         content = client.get(media["content_url"])
         assert content.status_code == 200
         assert content.headers["Content-Type"] == "image/webp"
-        assert content.headers["Cache-Control"] == "public, max-age=31536000, immutable"
+        assert content.headers["Cache-Control"] == "private, no-store"
         assert content.headers["ETag"]
         assert content.content.startswith(b"RIFF")
         legacy_content = client.get(f"/api/v1/media/{media['id']}/content")
@@ -102,6 +102,9 @@ def test_media_achievement_and_home_flow(tmp_path: Path) -> None:
             headers=auth_headers,
         )
         assert achievement.status_code == 201
+        assert client.get(media["content_url"]).headers["Cache-Control"] == (
+            "public, max-age=0, must-revalidate"
+        )
         assert achievement.json()["data"]["media"]["content_url"] == media["content_url"]
 
         public_achievements = client.get("/api/v1/achievements?team=men")

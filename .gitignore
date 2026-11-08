@@ -16,9 +16,13 @@ data/*.db*
 data/*.log
 data/media/
 data/e2e-credentials.json
+data/e2e-browsers-credentials-*.json
+data/e2e-browsers-*/
+data/cross-browser-server-*.py
 data/local-admin-credentials.json
 data/e2e-media/
 data/test-run-*/
+data/backups/
 data/mypy-work/
 data/pytest-*/
 data/pytest-*.log
@@ -32,3 +36,5 @@ data/standings-setup-tests/
 data/*.pid
 data/standings-before-preservation.json
 data/standings-import-audit.json
+
+data/fix-tests-*/

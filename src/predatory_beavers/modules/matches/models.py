@@ -21,7 +21,13 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 
-from predatory_beavers.db.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from predatory_beavers.db.base import (
+    Base,
+    OptimisticVersionMixin,
+    SoftDeleteMixin,
+    TimestampMixin,
+    UUIDPrimaryKeyMixin,
+)
 from predatory_beavers.db.types import UTCDateTime
 from predatory_beavers.modules.club.models import MediaAsset, Team
 
@@ -39,7 +45,9 @@ class ClubSide(StrEnum):
     AWAY = "away"
 
 
-class Competition(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class Competition(
+    UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base
+):
     __tablename__ = "competitions"
     __table_args__ = (
         Index(
@@ -64,7 +72,7 @@ class Competition(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     )
 
 
-class Venue(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class Venue(UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base):
     __tablename__ = "venues"
     __table_args__ = (
         CheckConstraint(
@@ -111,7 +119,7 @@ class Venue(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     )
 
 
-class Match(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class Match(UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base):
     __tablename__ = "matches"
     __table_args__ = (
         CheckConstraint(
@@ -184,6 +192,9 @@ class Match(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     home_logo_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     away_logo_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    active: Mapped[bool] = mapped_column(
+        Boolean, default=True, server_default=true(), nullable=False, index=True
+    )
     featured: Mapped[bool] = mapped_column(
         Boolean,
         default=False,

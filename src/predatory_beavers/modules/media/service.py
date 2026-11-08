@@ -1,13 +1,16 @@
 import asyncio
+import builtins
 import hashlib
 import warnings
 from dataclasses import dataclass
+from datetime import datetime
 from io import BytesIO
 from uuid import UUID, uuid4
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 from sqlalchemy.exc import IntegrityError
 
+from predatory_beavers.api.concurrency import require_version
 from predatory_beavers.api.errors import ConflictError, NotFoundError, ServiceUnavailableError
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.integrations.object_storage.client import ObjectStorage
@@ -82,9 +85,14 @@ class MediaService:
             existing = await self._repository.get_by_checksum(processed.checksum)
             if existing is not None:
                 if existing.is_deleted:
+                    await self._storage.put(
+                        key=existing.storage_key,
+                        content=processed.content,
+                        content_type=OUTPUT_MIME,
+                    )
                     existing.is_deleted = False
                     existing.deleted_at = None
-                    existing.alt_text = normalized_alt
+                    existing.legacy_public = False
                     await self._repository.save(existing)
                     if self._audit_service is not None:
                         await self._audit_service.record(
@@ -94,6 +102,7 @@ class MediaService:
                             after=MediaAssetRead.model_validate(existing).model_dump(mode="json"),
                         )
                 await self._unit_of_work.commit()
+                existing.reused = True
                 return existing
 
         storage_key = f"images/{uuid4().hex}.webp"
@@ -131,6 +140,7 @@ class MediaService:
                 if existing is None:
                     raise
                 await self._unit_of_work.commit()
+                existing.reused = True
                 return existing
         except BaseException:
             await self._storage.delete(key=storage_key)
@@ -142,12 +152,15 @@ class MediaService:
             raise NotFoundError("Media asset not found")
         return asset
 
-    async def list(self, *, page: int, page_size: int) -> tuple[list[MediaAsset], int]:
-        return await self._repository.list(page=page, page_size=page_size)
+    async def list(
+        self, *, page: int, page_size: int, q: str | None = None
+    ) -> tuple[list[MediaAsset], int]:
+        return await self._repository.list(page=page, page_size=page_size, q=q)
 
     async def update(self, asset_id: UUID, payload: MediaUpdate) -> MediaAsset:
         async with self._unit_of_work:
             asset = await self.get(asset_id)
+            require_version(asset.updated_at, payload.expected_updated_at)
             before = MediaAssetRead.model_validate(asset).model_dump(mode="json")
             if "alt_text" in payload.model_fields_set:
                 asset.alt_text = payload.alt_text
@@ -163,12 +176,15 @@ class MediaService:
             await self._unit_of_work.commit()
             return asset
 
-    async def delete(self, asset_id: UUID) -> None:
+    async def delete(self, asset_id: UUID, expected_updated_at: datetime | None = None) -> None:
         async with self._unit_of_work:
             asset = await self.get(asset_id)
-            if await self._repository.is_referenced(asset_id):
+            require_version(asset.updated_at, expected_updated_at)
+            usage = await self._repository.usage(asset_id)
+            if usage:
                 raise ConflictError(
-                    "Image is in use; remove it from its player, team, match or achievement first"
+                    "Image is in use; open the linked records and detach it first",
+                    errors=usage,
                 )
             before = MediaAssetRead.model_validate(asset).model_dump(mode="json")
             await self._repository.soft_delete(asset)
@@ -182,8 +198,28 @@ class MediaService:
             # Keep the immutable file for safe restoration and already cached URLs.
             await self._unit_of_work.commit()
 
-    async def get_content(self, asset_id: UUID) -> MediaContent:
+    async def usage(self, asset_id: UUID) -> builtins.list[dict[str, object]]:
+        await self.get(asset_id)
+        return await self._repository.usage(asset_id)
+
+    async def is_public(self, asset_id: UUID) -> bool:
         asset = await self.get(asset_id)
+        return asset.legacy_public or await self._repository.is_publicly_referenced(asset_id)
+
+    async def public_cache_control(self, asset_id: UUID) -> str:
+        asset = await self.get(asset_id)
+        # New assets can be unpublished. Require revalidation rather than keeping
+        # a formerly published draft for a year in shared caches.
+        return (
+            "public, max-age=31536000, immutable"
+            if asset.legacy_public
+            else "public, max-age=0, must-revalidate"
+        )
+
+    async def get_content(self, asset_id: UUID, *, allow_private: bool = False) -> MediaContent:
+        asset = await self.get(asset_id)
+        if not allow_private and not await self.is_public(asset_id):
+            raise NotFoundError("Media asset not found")
         try:
             content = await self._storage.read(key=asset.storage_key)
         except ObjectNotFoundError as exc:

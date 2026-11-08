@@ -1,6 +1,9 @@
+from datetime import datetime
 from uuid import UUID
 
+from predatory_beavers.api.concurrency import require_version
 from predatory_beavers.api.errors import NotFoundError
+from predatory_beavers.api.publication import PublicationDependencyError
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.achievements.models import Achievement
 from predatory_beavers.modules.achievements.repository import AchievementRepository
@@ -36,6 +39,7 @@ class AchievementService:
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         team: str | None = None,
         category: TeamCategory | None = None,
         active: bool | None = True,
@@ -44,6 +48,7 @@ class AchievementService:
         return await self._repository.list(
             page=page,
             page_size=page_size,
+            q=q,
             team=team,
             category=category,
             active=active,
@@ -64,13 +69,21 @@ class AchievementService:
 
     async def create(self, payload: AchievementCreate) -> Achievement:
         async with self._unit_of_work:
-            await self._require_references(payload.team_id, payload.media_asset_id)
+            previous_id = await self._repository.creation_ledger.reserve("achievements", payload)
+            if previous_id is not None:
+                previous = await self.get(previous_id)
+                await self._unit_of_work.commit()
+                return previous
+            await self._require_references(
+                payload.team_id, payload.media_asset_id, published=payload.active
+            )
             achievement = await self._repository.add(Achievement(**payload.model_dump()))
             await self._record(
                 action=AuditAction.CREATE,
                 achievement=achievement,
                 after=AchievementRead.model_validate(achievement).model_dump(mode="json"),
             )
+            await self._repository.creation_ledger.finish("achievements", payload, achievement.id)
             await self._unit_of_work.commit()
             return achievement
 
@@ -81,12 +94,18 @@ class AchievementService:
     ) -> Achievement:
         async with self._unit_of_work:
             achievement = await self.get(achievement_id)
+            require_version(achievement.updated_at, payload.expected_updated_at)
             before = AchievementRead.model_validate(achievement).model_dump(mode="json")
             changes = payload.model_dump(exclude_unset=True)
             team_id = changes.get("team_id", achievement.team_id)
             media_asset_id = changes.get("media_asset_id", achievement.media_asset_id)
-            if team_id != achievement.team_id or media_asset_id != achievement.media_asset_id:
-                await self._require_references(team_id, media_asset_id)
+            published = changes.get("active", achievement.active)
+            if (
+                published
+                or team_id != achievement.team_id
+                or media_asset_id != achievement.media_asset_id
+            ):
+                await self._require_references(team_id, media_asset_id, published=published)
             for field, value in changes.items():
                 setattr(achievement, field, value)
             updated = await self._repository.save(achievement)
@@ -99,9 +118,12 @@ class AchievementService:
             await self._unit_of_work.commit()
             return updated
 
-    async def delete(self, achievement_id: UUID) -> None:
+    async def delete(
+        self, achievement_id: UUID, expected_updated_at: datetime | None = None
+    ) -> None:
         async with self._unit_of_work:
             achievement = await self.get(achievement_id)
+            require_version(achievement.updated_at, expected_updated_at)
             before = AchievementRead.model_validate(achievement).model_dump(mode="json")
             await self._repository.soft_delete(achievement)
             await self._record(
@@ -111,9 +133,16 @@ class AchievementService:
             )
             await self._unit_of_work.commit()
 
-    async def _require_references(self, team_id: UUID, media_asset_id: UUID) -> None:
-        if await self._team_repository.get(team_id) is None:
+    async def _require_references(
+        self, team_id: UUID, media_asset_id: UUID, *, published: bool = False
+    ) -> None:
+        team = await self._team_repository.get(team_id)
+        if team is None:
             raise NotFoundError("Team not found")
+        if published and not team.active:
+            raise PublicationDependencyError(
+                "Сначала опубликуйте связанную команду; затем публикуйте достижение."
+            )
         if await self._media_repository.get(media_asset_id) is None:
             raise NotFoundError("Media asset not found")
 

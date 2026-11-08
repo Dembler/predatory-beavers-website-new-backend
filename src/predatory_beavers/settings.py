@@ -93,8 +93,19 @@ class Settings(BaseSettings):
             raise ValueError("APP_COOKIE_SECURE must be true in production")
         if not self.session_cookie_name.startswith("__Host-"):
             raise ValueError("Production session cookie must use the __Host- prefix")
-        if "*" in self.cors_origins:
-            raise ValueError("Wildcard CORS origin is not allowed in production")
+        for origin in self.cors_origins:
+            parsed = urlsplit(origin)
+            if (
+                parsed.scheme != "https"
+                or not parsed.hostname
+                or parsed.username is not None
+                or parsed.password is not None
+                or "*" in parsed.hostname
+                or parsed.path != ""
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise ValueError("Production CORS origins must be exact HTTPS origins")
         if self.reload:
             raise ValueError("APP_RELOAD must be false in production")
         return self

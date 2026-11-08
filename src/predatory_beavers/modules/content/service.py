@@ -5,7 +5,10 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
+from predatory_beavers.api.concurrency import require_version
 from predatory_beavers.api.errors import NotFoundError
+from predatory_beavers.api.idempotency import CreationLedger
+from predatory_beavers.api.search import text_search
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.audit.models import AuditAction
 from predatory_beavers.modules.audit.service import AuditService
@@ -16,6 +19,7 @@ from predatory_beavers.modules.content.schemas import ContentCreate, ContentRead
 class ContentService:
     def __init__(self, session: AsyncSession, uow: UnitOfWork, audit: AuditService) -> None:
         self._session = session
+        self._creations = CreationLedger(session)
         self._uow = uow
         self._audit = audit
 
@@ -26,12 +30,18 @@ class ContentService:
         public_only: bool,
         page: int = 1,
         page_size: int | None = None,
+        q: str | None = None,
+        active: bool | None = None,
     ) -> tuple[list[ContentBlock], int]:
         filters: list[ColumnElement[bool]] = [ContentBlock.is_deleted.is_(False)]
         if section is not None:
             filters.append(ContentBlock.section == section.value)
         if public_only:
             filters.append(ContentBlock.active.is_(True))
+        if q and q.strip():
+            filters.append(text_search(q, ContentBlock.title, ContentBlock.body))
+        if not public_only and active is not None:
+            filters.append(ContentBlock.active.is_(active))
         total = await self._session.scalar(select(func.count(ContentBlock.id)).where(*filters))
         statement = (
             select(ContentBlock)
@@ -59,16 +69,23 @@ class ContentService:
 
     async def create(self, payload: ContentCreate) -> ContentBlock:
         async with self._uow:
+            previous_id = await self._creations.reserve("content", payload)
+            if previous_id is not None:
+                previous = await self.get(previous_id)
+                await self._uow.commit()
+                return previous
             block = ContentBlock(**payload.model_dump(mode="json"))
             self._session.add(block)
             await self._session.flush()
             await self._record(AuditAction.CREATE, block, after=self._serialize(block))
+            await self._creations.finish("content", payload, block.id)
             await self._uow.commit()
             return block
 
     async def update(self, block_id: UUID, payload: ContentUpdate) -> ContentBlock:
         async with self._uow:
             block = await self.get(block_id)
+            require_version(block.updated_at, payload.expected_updated_at)
             before = self._serialize(block)
             for field, value in payload.model_dump(mode="json", exclude_unset=True).items():
                 setattr(block, field, value)
@@ -77,9 +94,10 @@ class ContentService:
             await self._uow.commit()
             return block
 
-    async def delete(self, block_id: UUID) -> None:
+    async def delete(self, block_id: UUID, expected_updated_at: datetime | None = None) -> None:
         async with self._uow:
             block = await self.get(block_id)
+            require_version(block.updated_at, expected_updated_at)
             before = self._serialize(block)
             block.is_deleted = True
             block.deleted_at = datetime.now(UTC)

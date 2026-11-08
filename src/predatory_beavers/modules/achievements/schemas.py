@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from predatory_beavers.api.concurrency import VersionedUpdate
+from predatory_beavers.api.idempotency import IdempotentCreate
 from predatory_beavers.modules.club.schemas import MediaAssetRead, TeamSummary
 
 
@@ -22,12 +24,12 @@ class AchievementRead(BaseModel):
     updated_at: datetime
 
 
-class AchievementCreate(BaseModel):
+class AchievementCreate(IdempotentCreate):
     team_id: UUID
     title: str = Field(min_length=1, max_length=300)
     media_asset_id: UUID
     achieved_at: date | None = None
-    sort_order: int = Field(default=0, ge=0)
+    sort_order: int = Field(default=0, ge=0, le=2_147_483_647)
     active: bool = True
 
     @field_validator("title")
@@ -39,12 +41,12 @@ class AchievementCreate(BaseModel):
         return stripped
 
 
-class AchievementUpdate(BaseModel):
+class AchievementUpdate(VersionedUpdate):
     team_id: UUID | None = None
     title: str | None = Field(default=None, min_length=1, max_length=300)
     media_asset_id: UUID | None = None
     achieved_at: date | None = None
-    sort_order: int | None = Field(default=None, ge=0)
+    sort_order: int | None = Field(default=None, ge=0, le=2_147_483_647)
     active: bool | None = None
 
     @field_validator(

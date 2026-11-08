@@ -22,6 +22,11 @@ from predatory_beavers.modules.auth.repository import AuthRepository
 from predatory_beavers.settings import Settings
 
 
+def session_csrf_token(session_token: str) -> str:
+    """Stable, domain-separated secret; the stored session hash cannot derive it."""
+    return hashlib.sha256(("pb-csrf-v1:" + session_token).encode("utf-8")).hexdigest()
+
+
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
@@ -144,7 +149,7 @@ class AuthService:
         now = datetime.now(UTC)
         expires_at = now + timedelta(seconds=self._settings.session_ttl_seconds)
         session_token = secrets.token_urlsafe(32)
-        csrf_token = secrets.token_urlsafe(32)
+        csrf_token = session_csrf_token(session_token)
         auth_session = Session(
             user_id=user.id,
             token_hash=hash_token(session_token),
@@ -191,7 +196,11 @@ class AuthService:
             raise InvalidSessionError
 
         now = datetime.now(UTC)
-        csrf_token = secrets.token_urlsafe(32)
+        csrf_token = session_csrf_token(session_token)
+        # Legacy sessions are upgraded once. Further restores in other tabs return
+        # the same token and never invalidate an in-flight editor request.
+        if hmac.compare_digest(auth_session.csrf_token_hash, hash_token(csrf_token)):
+            return CsrfResult(csrf_token=csrf_token, expires_at=auth_session.expires_at)
         try:
             await self._repository.rotate_csrf_token(
                 auth_session,

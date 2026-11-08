@@ -19,8 +19,10 @@ class ClubProvider(Provider):
         return PlayerRepository(session)
 
     @provide
-    def team_service(self, repository: TeamRepository) -> TeamService:
-        return TeamService(repository)
+    def team_service(
+        self, repository: TeamRepository, unit_of_work: UnitOfWork, audit_service: AuditService
+    ) -> TeamService:
+        return TeamService(repository, unit_of_work, audit_service)
 
     @provide
     def player_service(

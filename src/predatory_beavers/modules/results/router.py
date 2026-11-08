@@ -20,8 +20,8 @@ class ArchiveResultRead(BaseModel):
 
     id: UUID
     external_id: str
-    discipline: str
-    team: str
+    discipline: Literal["5x5", "3x3", "phygital"]
+    team: Literal["men", "women"]
     season: str
     year: int
     tournament: str

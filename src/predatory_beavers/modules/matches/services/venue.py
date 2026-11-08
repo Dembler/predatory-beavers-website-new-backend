@@ -1,5 +1,7 @@
+from datetime import datetime
 from uuid import UUID
 
+from predatory_beavers.api.concurrency import require_version
 from predatory_beavers.api.errors import ConflictError, NotFoundError
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.audit.models import AuditAction
@@ -25,9 +27,10 @@ class VenueService:
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         active: bool | None = True,
     ) -> tuple[list[Venue], int]:
-        return await self._repository.list(page=page, page_size=page_size, active=active)
+        return await self._repository.list(page=page, page_size=page_size, q=q, active=active)
 
     async def get(self, venue_id: UUID) -> Venue:
         venue = await self._repository.get(venue_id)
@@ -37,6 +40,11 @@ class VenueService:
 
     async def create(self, payload: VenueCreate) -> Venue:
         async with self._unit_of_work:
+            previous_id = await self._repository.creation_ledger.reserve("venues", payload)
+            if previous_id is not None:
+                previous = await self.get(previous_id)
+                await self._unit_of_work.commit()
+                return previous
             await self._ensure_external_identity_available(payload.source, payload.external_id)
             venue = await self._repository.add(Venue(**payload.model_dump()))
             await self._record(
@@ -44,14 +52,20 @@ class VenueService:
                 venue=venue,
                 after=VenueRead.model_validate(venue).model_dump(mode="json"),
             )
+            await self._repository.creation_ledger.finish("venues", payload, venue.id)
             await self._unit_of_work.commit()
             return venue
 
     async def update(self, venue_id: UUID, payload: VenueUpdate) -> Venue:
         async with self._unit_of_work:
             venue = await self.get(venue_id)
+            require_version(venue.updated_at, payload.expected_updated_at)
             before = VenueRead.model_validate(venue).model_dump(mode="json")
             changes = payload.model_dump(exclude_unset=True)
+            if changes.get("address", venue.address) != venue.address and not (
+                {"latitude", "longitude"} & changes.keys()
+            ):
+                changes.update(latitude=None, longitude=None)
             latitude = changes.get("latitude", venue.latitude)
             longitude = changes.get("longitude", venue.longitude)
             if (latitude is None) != (longitude is None):
@@ -75,9 +89,10 @@ class VenueService:
             await self._unit_of_work.commit()
             return updated
 
-    async def delete(self, venue_id: UUID) -> None:
+    async def delete(self, venue_id: UUID, expected_updated_at: datetime | None = None) -> None:
         async with self._unit_of_work:
             venue = await self.get(venue_id)
+            require_version(venue.updated_at, expected_updated_at)
             before = VenueRead.model_validate(venue).model_dump(mode="json")
             await self._repository.soft_delete(venue)
             await self._record(action=AuditAction.DELETE, venue=venue, before=before)

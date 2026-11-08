@@ -4,9 +4,12 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import predatory_beavers.modules.auth.models  # noqa: F401 -- audit metadata references users
 from predatory_beavers.api.errors import NotFoundError
 from predatory_beavers.db.base import Base
 from predatory_beavers.db.uow import SqlAlchemyUnitOfWork
+from predatory_beavers.modules.audit.repository import AuditRepository
+from predatory_beavers.modules.audit.service import AuditService
 from predatory_beavers.modules.club.models import Player, Team, TeamCategory
 from predatory_beavers.modules.club.repository import PlayerRepository, TeamRepository
 from predatory_beavers.modules.club.schemas import PlayerCreate, PlayerUpdate
@@ -31,7 +34,9 @@ def services(session: AsyncSession) -> tuple[TeamService, PlayerService, TeamRep
     team_repository = TeamRepository(session)
     player_repository = PlayerRepository(session)
     return (
-        TeamService(team_repository),
+        TeamService(
+            team_repository, SqlAlchemyUnitOfWork(session), AuditService(AuditRepository(session))
+        ),
         PlayerService(player_repository, team_repository, SqlAlchemyUnitOfWork(session)),
         team_repository,
     )

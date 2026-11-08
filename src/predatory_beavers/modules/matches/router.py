@@ -10,6 +10,7 @@ from predatory_beavers.modules.club.auth import AdminAuthorizer
 from predatory_beavers.modules.matches.models import MatchStatus
 from predatory_beavers.modules.matches.schemas import (
     CompetitionCreate,
+    CompetitionImpact,
     CompetitionRead,
     CompetitionUpdate,
     MatchCreate,
@@ -107,7 +108,7 @@ async def list_matches(
         public_only=True,
     )
     return PaginatedResponse[MatchRead].create(
-        items=[MatchRead.model_validate(item) for item in matches],
+        items=[MatchRead.from_public(item) for item in matches],
         total=total,
         page=page,
         page_size=page_size,
@@ -120,7 +121,7 @@ async def get_match(
     service: FromDishka[MatchService],
 ) -> ApiResponse[MatchRead]:
     match = await service.get_public(match_id)
-    return ApiResponse(message="Match retrieved", data=MatchRead.model_validate(match))
+    return ApiResponse(message="Match retrieved", data=MatchRead.from_public(match))
 
 
 @admin_router.get("/competitions", response_model=PaginatedResponse[CompetitionRead])
@@ -129,6 +130,7 @@ async def list_admin_competitions(
     service: FromDishka[CompetitionService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    q: str | None = Query(None, max_length=200),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     season: str | None = Query(None, min_length=1, max_length=32),
@@ -138,6 +140,7 @@ async def list_admin_competitions(
     competitions, total = await service.list(
         page=page,
         page_size=page_size,
+        q=q,
         season=season,
         active=active,
     )
@@ -162,6 +165,7 @@ async def create_competition(
     settings: FromDishka[Settings],
 ) -> ApiResponse[CompetitionRead]:
     await _require_admin_write(request, authorizer, settings)
+    payload.set_creation_key(request.headers.get("Idempotency-Key"))
     competition = await service.create(payload)
     return ApiResponse(
         message="Competition created",
@@ -215,9 +219,10 @@ async def delete_competition(
     service: FromDishka[CompetitionService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    expected_updated_at: datetime | None = None,
 ) -> Response:
     await _require_admin_write(request, authorizer, settings)
-    await service.delete(competition_id)
+    await service.delete(competition_id, expected_updated_at=expected_updated_at)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -227,12 +232,13 @@ async def list_admin_venues(
     service: FromDishka[VenueService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    q: str | None = Query(None, max_length=200),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     active: bool | None = Query(None),
 ) -> PaginatedResponse[VenueRead]:
     await _require_admin_read(request, authorizer, settings)
-    venues, total = await service.list(page=page, page_size=page_size, active=active)
+    venues, total = await service.list(page=page, page_size=page_size, q=q, active=active)
     return PaginatedResponse[VenueRead].create(
         items=[VenueRead.model_validate(item) for item in venues],
         total=total,
@@ -254,6 +260,7 @@ async def create_venue(
     settings: FromDishka[Settings],
 ) -> ApiResponse[VenueRead]:
     await _require_admin_write(request, authorizer, settings)
+    payload.set_creation_key(request.headers.get("Idempotency-Key"))
     venue = await service.create(payload)
     return ApiResponse(message="Venue created", data=VenueRead.model_validate(venue))
 
@@ -292,9 +299,10 @@ async def delete_venue(
     service: FromDishka[VenueService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    expected_updated_at: datetime | None = None,
 ) -> Response:
     await _require_admin_write(request, authorizer, settings)
-    await service.delete(venue_id)
+    await service.delete(venue_id, expected_updated_at=expected_updated_at)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
@@ -304,9 +312,11 @@ async def list_admin_matches(
     service: FromDishka[MatchService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    q: str | None = Query(None, max_length=200),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     team: str | None = Query(None, min_length=1, max_length=64),
+    competition_id: UUID | None = None,
     match_status: Annotated[MatchStatus | None, Query(alias="status")] = None,
     starts_from: Annotated[datetime | None, Query(alias="from")] = None,
     starts_to: Annotated[datetime | None, Query(alias="to")] = None,
@@ -316,7 +326,9 @@ async def list_admin_matches(
     matches, total = await service.list(
         page=page,
         page_size=page_size,
+        q=q,
         team=team,
+        competition_id=competition_id,
         status=match_status,
         starts_from=starts_from,
         starts_to=starts_to,
@@ -357,6 +369,7 @@ async def create_match(
     settings: FromDishka[Settings],
 ) -> ApiResponse[MatchRead]:
     await _require_admin_write(request, authorizer, settings)
+    payload.set_creation_key(request.headers.get("Idempotency-Key"))
     match = await service.create(payload)
     return ApiResponse(message="Match created", data=MatchRead.model_validate(match))
 
@@ -382,7 +395,29 @@ async def delete_match(
     service: FromDishka[MatchService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    expected_updated_at: datetime | None = None,
 ) -> Response:
     await _require_admin_write(request, authorizer, settings)
-    await service.delete(match_id)
+    await service.delete(match_id, expected_updated_at=expected_updated_at)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@admin_router.get(
+    "/competitions/{competition_id}/impact", response_model=ApiResponse[CompetitionImpact]
+)
+async def get_competition_impact(
+    competition_id: UUID,
+    request: Request,
+    service: FromDishka[CompetitionService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
+) -> ApiResponse[CompetitionImpact]:
+    await _require_admin_read(request, authorizer, settings)
+    total, public = await service.impact(competition_id)
+    return ApiResponse(
+        message="Competition impact retrieved",
+        data=CompetitionImpact(
+            matches_count=total,
+            published_matches_count=public,
+        ),
+    )

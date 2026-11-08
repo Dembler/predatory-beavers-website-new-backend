@@ -5,6 +5,7 @@ import pytest
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import predatory_beavers.modules.auth.models  # noqa: F401 -- audit metadata references users
 from predatory_beavers.api.errors import ConflictError, NotFoundError
 from predatory_beavers.db.base import Base
 from predatory_beavers.db.uow import SqlAlchemyUnitOfWork

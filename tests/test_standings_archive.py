@@ -8,6 +8,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
@@ -342,7 +344,9 @@ def test_source_database_guard_and_fresh_migration(tmp_path: Path, monkeypatch) 
     )
     assert result.returncode == 0, result.stdout + result.stderr
     with sqlite3.connect(database) as connection:
-        assert connection.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0014"
+        assert connection.execute("SELECT version_num FROM alembic_version").fetchone()[0] == (
+            ScriptDirectory.from_config(Config(str(ROOT / "alembic.ini"))).get_current_head()
+        )
         columns = {item[1] for item in connection.execute("PRAGMA table_info(standings_snapshots)")}
         assert {
             "source_url",

@@ -12,12 +12,19 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    false,
     text,
     true,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from predatory_beavers.db.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from predatory_beavers.db.base import (
+    Base,
+    OptimisticVersionMixin,
+    SoftDeleteMixin,
+    TimestampMixin,
+    UUIDPrimaryKeyMixin,
+)
 
 
 class TeamCategory(StrEnum):
@@ -25,7 +32,9 @@ class TeamCategory(StrEnum):
     WOMEN = "women"
 
 
-class MediaAsset(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class MediaAsset(
+    UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base
+):
     __tablename__ = "media_assets"
     __table_args__ = (
         CheckConstraint("size >= 0", name="media_asset_size_non_negative"),
@@ -33,6 +42,13 @@ class MediaAsset(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
         CheckConstraint("height IS NULL OR height > 0", name="media_asset_height_positive"),
     )
 
+    reused = False
+
+    # Existing deployments keep their already-public immutable URLs. New uploads
+    # require an editor session until attached to a published record.
+    legacy_public: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false(), nullable=False
+    )
     storage_key: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
     mime: Mapped[str] = mapped_column(String(128), nullable=False)
     size: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -42,7 +58,7 @@ class MediaAsset(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     alt_text: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
 
-class Team(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class Team(UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base):
     __tablename__ = "teams"
 
     slug: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
@@ -65,7 +81,7 @@ class Team(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
     players: Mapped[list["Player"]] = relationship(back_populates="team", lazy="raise")
 
 
-class Player(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class Player(UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base):
     __tablename__ = "players"
     __table_args__ = (
         CheckConstraint("sort_order >= 0", name="player_sort_order_non_negative"),

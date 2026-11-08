@@ -23,7 +23,7 @@ class HomeService:
         recent_results = await self._match_repository.recent_public_results(now, limit=3)
         return HomeData(
             generated_at=now,
-            next_match=MatchRead.model_validate(next_match) if next_match is not None else None,
-            recent_results=[MatchRead.model_validate(item) for item in recent_results],
+            next_match=MatchRead.from_public(next_match) if next_match is not None else None,
+            recent_results=[MatchRead.from_public(item) for item in recent_results],
             teams=[TeamRead.model_validate(item) for item in teams],
         )

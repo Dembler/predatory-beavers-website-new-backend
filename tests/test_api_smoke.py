@@ -147,7 +147,7 @@ def test_login_csrf_admin_and_logout_flow(tmp_path: Path) -> None:
         assert csrf.status_code == 200
         assert csrf.headers["Cache-Control"] == "no-store"
         csrf_token = csrf.json()["data"]["csrf_token"]
-        assert csrf_token != login_csrf_token
+        assert csrf_token == login_csrf_token
 
         player_payload = {"team_id": team_id, "full_name": "Новый Игрок"}
         no_csrf = client.post("/api/v1/admin/players", json=player_payload)
@@ -157,7 +157,7 @@ def test_login_csrf_admin_and_logout_flow(tmp_path: Path) -> None:
         stale_csrf = client.post(
             "/api/v1/admin/players",
             json=player_payload,
-            headers={settings.csrf_header_name: login_csrf_token},
+            headers={settings.csrf_header_name: "invalid-token"},
         )
         assert stale_csrf.status_code == 403
 

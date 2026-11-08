@@ -1,7 +1,9 @@
 from datetime import datetime
 from uuid import UUID
 
+from predatory_beavers.api.concurrency import require_version
 from predatory_beavers.api.errors import ConflictError, NotFoundError
+from predatory_beavers.api.publication import PublicationDependencyError
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.audit.models import AuditAction
 from predatory_beavers.modules.audit.service import AuditService
@@ -38,7 +40,9 @@ class MatchService:
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         team: str | None = None,
+        competition_id: UUID | None = None,
         status: MatchStatus | None = None,
         starts_from: datetime | None = None,
         starts_to: datetime | None = None,
@@ -53,7 +57,9 @@ class MatchService:
         return await self._repository.list(
             page=page,
             page_size=page_size,
+            q=q,
             team=team,
+            competition_id=competition_id,
             status=status,
             starts_from=starts_from,
             starts_to=starts_to,
@@ -75,12 +81,20 @@ class MatchService:
 
     async def create(self, payload: MatchCreate) -> Match:
         async with self._unit_of_work:
+            previous_id = await self._repository.creation_ledger.reserve("matches", payload)
+            if previous_id is not None:
+                previous = await self.get(previous_id)
+                await self._unit_of_work.commit()
+                return previous
             await self._require_references(
                 payload.team_id,
                 payload.competition_id,
                 payload.venue_id,
+                published=payload.active,
             )
             await self._ensure_external_identity_available(payload.source, payload.external_id)
+            await self._repository.require_media(payload.home_logo_asset_id)
+            await self._repository.require_media(payload.away_logo_asset_id)
             match = Match(**payload.model_dump())
             self._validate_match(match)
             created = await self._repository.add(match)
@@ -89,23 +103,36 @@ class MatchService:
                 match=created,
                 after=MatchRead.model_validate(created).model_dump(mode="json"),
             )
+            await self._repository.creation_ledger.finish("matches", payload, created.id)
             await self._unit_of_work.commit()
             return created
 
     async def update(self, match_id: UUID, payload: MatchUpdate) -> Match:
         async with self._unit_of_work:
             match = await self.get(match_id)
+            require_version(match.updated_at, payload.expected_updated_at)
             before = MatchRead.model_validate(match).model_dump(mode="json")
             changes = payload.model_dump(exclude_unset=True)
+            for field in ("home_logo_asset_id", "away_logo_asset_id"):
+                if field in payload.model_fields_set:
+                    await self._repository.require_media(getattr(payload, field))
             team_id = changes.get("team_id", match.team_id)
             competition_id = changes.get("competition_id", match.competition_id)
             venue_id = changes.get("venue_id", match.venue_id)
+            published = changes.get("active", match.active)
             if (
-                team_id != match.team_id
+                published
+                or team_id != match.team_id
                 or competition_id != match.competition_id
                 or venue_id != match.venue_id
             ):
-                await self._require_references(team_id, competition_id, venue_id)
+                await self._require_references(
+                    team_id,
+                    competition_id,
+                    venue_id,
+                    published=published,
+                    allow_unpublished_venue=match.active and venue_id == match.venue_id,
+                )
 
             source = changes.get("source", match.source)
             external_id = changes.get("external_id", match.external_id)
@@ -127,9 +154,10 @@ class MatchService:
             await self._unit_of_work.commit()
             return updated
 
-    async def delete(self, match_id: UUID) -> None:
+    async def delete(self, match_id: UUID, expected_updated_at: datetime | None = None) -> None:
         async with self._unit_of_work:
             match = await self.get(match_id)
+            require_version(match.updated_at, expected_updated_at)
             before = MatchRead.model_validate(match).model_dump(mode="json")
             await self._repository.soft_delete(match)
             await self._record(action=AuditAction.DELETE, match=match, before=before)
@@ -140,6 +168,9 @@ class MatchService:
         team_id: UUID,
         competition_id: UUID,
         venue_id: UUID | None,
+        *,
+        published: bool = False,
+        allow_unpublished_venue: bool = False,
     ) -> tuple[Team, Competition, Venue | None]:
         team = await self._team_repository.get(team_id)
         if team is None:
@@ -150,8 +181,16 @@ class MatchService:
         venue = None
         if venue_id is not None:
             venue = await self._venue_repository.get(venue_id)
-            if venue is None:
+            if venue is None and not allow_unpublished_venue:
                 raise NotFoundError("Venue not found")
+        if published and (
+            not team.active
+            or not competition.active
+            or (venue is not None and not venue.active and not allow_unpublished_venue)
+        ):
+            raise PublicationDependencyError(
+                "Сначала опубликуйте команду, турнир и выбранный зал; затем публикуйте матч."
+            )
         return team, competition, venue
 
     async def _ensure_external_identity_available(

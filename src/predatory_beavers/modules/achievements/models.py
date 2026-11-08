@@ -15,11 +15,19 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 
-from predatory_beavers.db.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from predatory_beavers.db.base import (
+    Base,
+    OptimisticVersionMixin,
+    SoftDeleteMixin,
+    TimestampMixin,
+    UUIDPrimaryKeyMixin,
+)
 from predatory_beavers.modules.club.models import MediaAsset, Team
 
 
-class Achievement(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class Achievement(
+    UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base
+):
     __tablename__ = "achievements"
     __table_args__ = (
         CheckConstraint("sort_order >= 0", name="achievement_sort_order_non_negative"),

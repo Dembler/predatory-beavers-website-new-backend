@@ -24,7 +24,7 @@ class StandingsRepository:
         statement: Select[tuple[StandingsSnapshot]],
     ) -> Select[tuple[StandingsSnapshot]]:
         return statement.options(
-            selectinload(StandingsSnapshot.team),
+            selectinload(StandingsSnapshot.team).selectinload(Team.logo),
             selectinload(StandingsSnapshot.competition),
         )
 

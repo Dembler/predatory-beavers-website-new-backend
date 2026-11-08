@@ -3,8 +3,10 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
+from predatory_beavers.api.concurrency import VersionedUpdate
+from predatory_beavers.api.idempotency import IdempotentCreate
 from predatory_beavers.modules.club.schemas import MediaAssetRead, TeamSummary
-from predatory_beavers.modules.matches.models import ClubSide, MatchStatus
+from predatory_beavers.modules.matches.models import ClubSide, Match, MatchStatus
 
 
 class MatchesSchema(BaseModel):
@@ -22,7 +24,7 @@ class CompetitionRead(MatchesSchema):
     updated_at: datetime
 
 
-class CompetitionCreate(BaseModel):
+class CompetitionCreate(IdempotentCreate):
     name: str = Field(min_length=1, max_length=200)
     season: str = Field(min_length=1, max_length=32)
     source: str = Field(default="manual", min_length=1, max_length=32, pattern=r"^[a-z0-9_-]+$")
@@ -56,7 +58,7 @@ class CompetitionCreate(BaseModel):
         return self
 
 
-class CompetitionUpdate(BaseModel):
+class CompetitionUpdate(VersionedUpdate):
     name: str | None = Field(default=None, min_length=1, max_length=200)
     season: str | None = Field(default=None, min_length=1, max_length=32)
     source: str | None = Field(
@@ -112,7 +114,7 @@ class VenueRead(MatchesSchema):
     updated_at: datetime
 
 
-class VenueCreate(BaseModel):
+class VenueCreate(IdempotentCreate):
     name: str = Field(min_length=1, max_length=200)
     address: str = Field(min_length=1, max_length=500)
     latitude: float | None = Field(default=None, ge=-90, le=90)
@@ -158,7 +160,7 @@ class VenueCreate(BaseModel):
         return self
 
 
-class VenueUpdate(BaseModel):
+class VenueUpdate(VersionedUpdate):
     name: str | None = Field(default=None, min_length=1, max_length=200)
     address: str | None = Field(default=None, min_length=1, max_length=500)
     latitude: float | None = Field(default=None, ge=-90, le=90)
@@ -234,12 +236,23 @@ class MatchRead(MatchesSchema):
     home_logo_url: HttpUrl | None
     away_logo_url: HttpUrl | None
     notes: str | None
+    active: bool
     featured: bool
     created_at: datetime
     updated_at: datetime
 
+    @classmethod
+    def from_public(cls, match: Match) -> "MatchRead":
+        """Redact an unpublished venue without changing the stored association."""
+        result = cls.model_validate(match)
+        venue = match.venue
+        if venue is None or not venue.active or venue.is_deleted:
+            result.venue = None
+            result.venue_id = None
+        return result
 
-class MatchCreate(BaseModel):
+
+class MatchCreate(IdempotentCreate):
     team_id: UUID
     competition_id: UUID
     venue_id: UUID | None = None
@@ -256,6 +269,7 @@ class MatchCreate(BaseModel):
     away_logo_asset_id: UUID | None = None
     notes: str | None = Field(default=None, max_length=5000)
     featured: bool = False
+    active: bool = True
 
     @field_validator("starts_at")
     @classmethod
@@ -292,7 +306,7 @@ class MatchCreate(BaseModel):
         return self
 
 
-class MatchUpdate(BaseModel):
+class MatchUpdate(VersionedUpdate):
     team_id: UUID | None = None
     competition_id: UUID | None = None
     venue_id: UUID | None = None
@@ -314,6 +328,7 @@ class MatchUpdate(BaseModel):
     away_logo_asset_id: UUID | None = None
     notes: str | None = Field(default=None, max_length=5000)
     featured: bool | None = None
+    active: bool | None = None
 
     @field_validator(
         "team_id",
@@ -325,6 +340,7 @@ class MatchUpdate(BaseModel):
         "status",
         "source",
         "featured",
+        "active",
         mode="before",
     )
     @classmethod
@@ -375,3 +391,8 @@ def _validate_score(
     if status in {MatchStatus.SCHEDULED, MatchStatus.POSTPONED, MatchStatus.CANCELLED}:
         if home_score is not None:
             raise ValueError(f"a {status.value} match cannot have a score")
+
+
+class CompetitionImpact(BaseModel):
+    matches_count: int
+    published_matches_count: int

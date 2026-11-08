@@ -13,6 +13,8 @@ from pydantic import (
     model_validator,
 )
 
+from predatory_beavers.api.concurrency import VersionedUpdate
+from predatory_beavers.api.idempotency import IdempotentCreate
 from predatory_beavers.modules.content.models import ContentSection
 
 
@@ -29,7 +31,7 @@ ContentLinkUrl = Annotated[
 ]
 
 
-class ContentCreate(BaseModel):
+class ContentCreate(IdempotentCreate):
     model_config = ConfigDict(extra="forbid")
 
     section: ContentSection
@@ -55,7 +57,7 @@ class ContentCreate(BaseModel):
         return value.strip() or None if isinstance(value, str) else value
 
 
-class ContentUpdate(BaseModel):
+class ContentUpdate(VersionedUpdate):
     model_config = ConfigDict(extra="forbid")
 
     section: ContentSection | None = None
@@ -82,7 +84,10 @@ class ContentUpdate(BaseModel):
     @model_validator(mode="after")
     def reject_null_fields(self) -> "ContentUpdate":
         for field in self.model_fields_set:
-            if field not in {"subtitle", "link_url", "link_label"} and getattr(self, field) is None:
+            if (
+                field not in {"subtitle", "link_url", "link_label", "expected_updated_at"}
+                and getattr(self, field) is None
+            ):
                 raise ValueError(f"{field} cannot be null")
         return self
 

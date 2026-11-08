@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator, model_validator
 
+from predatory_beavers.api.concurrency import VersionedUpdate
+from predatory_beavers.api.idempotency import IdempotentCreate
 from predatory_beavers.modules.club.models import TeamCategory
 
 
@@ -17,6 +19,8 @@ class MediaAssetRead(ClubSchema):
     width: int | None
     height: int | None
     alt_text: str | None
+    created_at: datetime
+    updated_at: datetime
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -30,21 +34,20 @@ class TeamSummary(ClubSchema):
     name: str
     category: TeamCategory
     active: bool
+    logo: MediaAssetRead | None
 
 
 class TeamRead(TeamSummary):
     logo_asset_id: UUID | None
-    logo: MediaAssetRead | None
     created_at: datetime
     updated_at: datetime
 
 
-class PlayerRead(ClubSchema):
+class PublicPlayerRead(ClubSchema):
     id: UUID
     team_id: UUID
     team: TeamSummary
     full_name: str
-    birth_date: date | None
     age_text: str | None
     position: str | None
     fact: str | None
@@ -56,7 +59,11 @@ class PlayerRead(ClubSchema):
     updated_at: datetime
 
 
-class PlayerCreate(BaseModel):
+class PlayerRead(PublicPlayerRead):
+    birth_date: date | None
+
+
+class PlayerCreate(IdempotentCreate):
     team_id: UUID
     full_name: str = Field(min_length=1, max_length=200)
     birth_date: date | None = None
@@ -91,7 +98,7 @@ class PlayerCreate(BaseModel):
         return value
 
 
-class PlayerUpdate(BaseModel):
+class PlayerUpdate(VersionedUpdate):
     team_id: UUID | None = None
     full_name: str | None = Field(default=None, min_length=1, max_length=200)
     birth_date: date | None = None
@@ -139,4 +146,24 @@ class PlayerUpdate(BaseModel):
         for field_name in ("team_id", "full_name", "sort_order", "active"):
             if field_name in self.model_fields_set and getattr(self, field_name) is None:
                 raise ValueError(f"{field_name} cannot be null")
+        return self
+
+
+class TeamUpdate(VersionedUpdate):
+    model_config = ConfigDict(extra="forbid")
+    name: str | None = Field(default=None, min_length=1, max_length=160)
+    logo_asset_id: UUID | None = None
+    active: bool | None = None
+
+    @field_validator("name")
+    @classmethod
+    def trim_name(cls, value: str | None) -> str | None:
+        if value is None or not value.strip():
+            raise ValueError("Team name cannot be blank")
+        return value.strip()
+
+    @model_validator(mode="after")
+    def reject_null_active(self) -> "TeamUpdate":
+        if "active" in self.model_fields_set and self.active is None:
+            raise ValueError("active cannot be null")
         return self

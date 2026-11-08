@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
@@ -40,6 +41,8 @@ async def list_admin_content(
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
     section: ContentSection | None = None,
+    q: str | None = Query(None, max_length=200),
+    active: bool | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
 ) -> PaginatedResponse[ContentRead]:
@@ -47,6 +50,8 @@ async def list_admin_content(
     blocks, total = await service.list(
         section=section,
         public_only=False,
+        q=q,
+        active=active,
         page=page,
         page_size=page_size,
     )
@@ -70,6 +75,7 @@ async def create_content(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
     )
+    payload.set_creation_key(request.headers.get("Idempotency-Key"))
     block = await service.create(payload)
     return ApiResponse(message="Content created", data=ContentRead.model_validate(block))
 
@@ -111,10 +117,11 @@ async def delete_content(
     service: FromDishka[ContentService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    expected_updated_at: datetime | None = None,
 ) -> Response:
     await authorizer.require_editor(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
     )
-    await service.delete(block_id)
+    await service.delete(block_id, expected_updated_at=expected_updated_at)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -199,7 +199,7 @@ async def test_login_rate_limit_and_active_session_cap(
 
 
 @pytest.mark.asyncio
-async def test_csrf_token_can_be_rotated_after_session_restore(
+async def test_csrf_token_is_stable_across_session_restores(
     password_security: PasswordSecurity,
 ) -> None:
     user = build_user(password_security)
@@ -215,7 +215,13 @@ async def test_csrf_token_can_be_rotated_after_session_restore(
 
     restored = await service.issue_csrf_token(login.session_token)
 
-    assert restored.csrf_token != login.csrf_token
+    assert restored.csrf_token == login.csrf_token
+    other_tab = await service.issue_csrf_token(login.session_token)
+    assert other_tab.csrf_token == restored.csrf_token
+    assert await service.authorize(login.session_token, login.csrf_token, {UserRole.ADMIN}) is user
+    assert (
+        await service.authorize(login.session_token, other_tab.csrf_token, {UserRole.ADMIN}) is user
+    )
     assert repository.sessions[0].csrf_token_hash == hash_token(restored.csrf_token)
     assert restored.expires_at == login.expires_at
-    assert unit_of_work.commits == 2
+    assert unit_of_work.commits == 1

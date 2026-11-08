@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.orm.exc import StaleDataError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from predatory_beavers.api.responses import ErrorBody
@@ -16,9 +17,12 @@ class AppError(Exception):
     code = "internal_error"
     detail = "Internal server error"
 
-    def __init__(self, detail: str | None = None) -> None:
+    def __init__(
+        self, detail: str | None = None, *, errors: Sequence[dict[str, object]] = ()
+    ) -> None:
         super().__init__(detail or self.detail)
         self.detail = detail or self.detail
+        self.errors = list(errors)
 
 
 class NotFoundError(AppError):
@@ -80,6 +84,16 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=exc.status_code,
             code=exc.code,
             detail=exc.detail,
+            errors=exc.errors,
+        )
+
+    @app.exception_handler(StaleDataError)
+    async def handle_stale_record(request: Request, exc: StaleDataError) -> JSONResponse:
+        return _error_response(
+            request,
+            status_code=status.HTTP_409_CONFLICT,
+            code="stale_record",
+            detail="This record changed in another session. Reload it before saving or deleting.",
         )
 
     @app.exception_handler(RequestValidationError)

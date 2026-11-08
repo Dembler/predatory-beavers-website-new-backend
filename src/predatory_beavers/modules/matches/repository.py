@@ -8,19 +8,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.elements import ColumnElement
 
-from predatory_beavers.modules.club.models import Team
+from predatory_beavers.api.errors import NotFoundError
+from predatory_beavers.api.idempotency import CreationLedger
+from predatory_beavers.api.search import text_search
+from predatory_beavers.modules.club.models import MediaAsset, Team
 from predatory_beavers.modules.matches.models import Competition, Match, MatchStatus, Venue
+from predatory_beavers.modules.matches.visibility import public_match_conditions
 
 
 class CompetitionRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self.creation_ledger = CreationLedger(session)
 
     async def list(
         self,
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         season: str | None = None,
         active: bool | None = True,
     ) -> tuple[list[Competition], int]:
@@ -29,6 +35,8 @@ class CompetitionRepository:
             filters.append(Competition.season == season)
         if active is not None:
             filters.append(Competition.active.is_(active))
+        if q and q.strip():
+            filters.append(text_search(q, Competition.name, Competition.season))
         total = await self._session.scalar(select(func.count(Competition.id)).where(*filters))
         statement = (
             select(Competition)
@@ -38,6 +46,20 @@ class CompetitionRepository:
             .limit(page_size)
         )
         return list(await self._session.scalars(statement)), int(total or 0)
+
+    async def impact(self, competition_id: UUID) -> tuple[int, int]:
+        filters = [Match.competition_id == competition_id, Match.is_deleted.is_(False)]
+        total = await self._session.scalar(select(func.count(Match.id)).where(*filters))
+        public = await self._session.scalar(
+            select(func.count(Match.id))
+            .join(Match.team)
+            .join(Match.competition)
+            .where(
+                *filters,
+                *public_match_conditions(),
+            )
+        )
+        return int(total or 0), int(public or 0)
 
     async def get(self, competition_id: UUID) -> Competition | None:
         statement = select(Competition).where(
@@ -76,17 +98,21 @@ class CompetitionRepository:
 class VenueRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self.creation_ledger = CreationLedger(session)
 
     async def list(
         self,
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         active: bool | None = True,
     ) -> tuple[list[Venue], int]:
         filters: list[ColumnElement[bool]] = [Venue.is_deleted.is_(False)]
         if active is not None:
             filters.append(Venue.active.is_(active))
+        if q and q.strip():
+            filters.append(text_search(q, Venue.name, Venue.address))
         total = await self._session.scalar(select(func.count(Venue.id)).where(*filters))
         statement = (
             select(Venue)
@@ -102,10 +128,11 @@ class VenueRepository:
         return cast(Venue | None, await self._session.scalar(statement))
 
     async def get_by_external_identity(self, source: str, external_id: str) -> Venue | None:
+        # External identities remain reserved by tombstones, as for matches and
+        # competitions. Import replay must never silently recreate deleted data.
         statement = select(Venue).where(
             Venue.source == source,
             Venue.external_id == external_id,
-            Venue.is_deleted.is_(False),
         )
         return cast(Venue | None, await self._session.scalar(statement))
 
@@ -128,11 +155,12 @@ class VenueRepository:
 class MatchRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self.creation_ledger = CreationLedger(session)
 
     @staticmethod
     def _with_details(statement: Select[tuple[Match]]) -> Select[tuple[Match]]:
         return statement.options(
-            selectinload(Match.team),
+            selectinload(Match.team).selectinload(Team.logo),
             selectinload(Match.competition),
             selectinload(Match.venue),
             selectinload(Match.home_logo),
@@ -141,20 +169,16 @@ class MatchRepository:
 
     @staticmethod
     def _public_filters() -> list[ColumnElement[bool]]:
-        return [
-            Match.is_deleted.is_(False),
-            Team.active.is_(True),
-            Team.is_deleted.is_(False),
-            Competition.active.is_(True),
-            Competition.is_deleted.is_(False),
-        ]
+        return public_match_conditions()
 
     async def list(
         self,
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         team: str | None = None,
+        competition_id: UUID | None = None,
         status: MatchStatus | None = None,
         starts_from: datetime | None = None,
         starts_to: datetime | None = None,
@@ -166,6 +190,8 @@ class MatchRepository:
             filters = self._public_filters()
         if team is not None:
             filters.append(Team.slug == team)
+        if competition_id is not None:
+            filters.append(Match.competition_id == competition_id)
         if status is not None:
             filters.append(Match.status == status)
         if starts_from is not None:
@@ -175,11 +201,22 @@ class MatchRepository:
         if featured is not None:
             filters.append(Match.featured.is_(featured))
 
+        if q and q.strip():
+            filters.append(
+                text_search(
+                    q,
+                    Match.home_team_name,
+                    Match.away_team_name,
+                    Match.home_team_name + " — " + Match.away_team_name,
+                    Competition.name,
+                )
+            )
         base = select(Match).join(Match.team).join(Match.competition).where(*filters)
         count_statement = select(func.count()).select_from(base.subquery())
         total = await self._session.scalar(count_statement)
+        order = (Match.starts_at, Match.id) if public_only else (Match.starts_at.desc(), Match.id)
         statement = self._with_details(
-            base.order_by(Match.starts_at, Match.id).offset((page - 1) * page_size).limit(page_size)
+            base.order_by(*order).offset((page - 1) * page_size).limit(page_size)
         )
         return list(await self._session.scalars(statement)), int(total or 0)
 
@@ -252,6 +289,7 @@ class MatchRepository:
         match.is_deleted = True
         match.deleted_at = datetime.now(UTC)
         match.featured = False
+        match.active = False
         await self._session.flush()
 
     async def _load_after_write(self, match_id: UUID) -> Match:
@@ -262,3 +300,16 @@ class MatchRepository:
         if match is None:
             raise RuntimeError("Persisted match could not be reloaded")
         return match
+
+    async def require_media(self, asset_id: UUID | None) -> None:
+        if (
+            asset_id is not None
+            and await self._session.scalar(
+                select(MediaAsset.id).where(
+                    MediaAsset.id == asset_id,
+                    MediaAsset.is_deleted.is_(False),
+                )
+            )
+            is None
+        ):
+            raise NotFoundError("Media asset not found")

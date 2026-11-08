@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -11,7 +12,9 @@ from predatory_beavers.modules.club.schemas import (
     PlayerCreate,
     PlayerRead,
     PlayerUpdate,
+    PublicPlayerRead,
     TeamRead,
+    TeamUpdate,
 )
 from predatory_beavers.modules.club.service import PlayerService, TeamService
 from predatory_beavers.settings import Settings
@@ -32,6 +35,7 @@ async def list_admin_players(
     service: FromDishka[PlayerService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    q: str | None = Query(None, max_length=200),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     team: str | None = Query(None, min_length=1, max_length=64),
@@ -44,6 +48,7 @@ async def list_admin_players(
     players, total = await service.list(
         page=page,
         page_size=page_size,
+        q=q,
         team=team,
         category=category,
         active=active,
@@ -93,14 +98,14 @@ async def list_teams(
     )
 
 
-@public_router.get("/players", response_model=PaginatedResponse[PlayerRead])
+@public_router.get("/players", response_model=PaginatedResponse[PublicPlayerRead])
 async def list_players(
     service: FromDishka[PlayerService],
     page: int = Query(1, ge=1),
     page_size: int = Query(24, ge=1, le=100),
     team: str | None = Query(None, min_length=1, max_length=64),
     category: Annotated[TeamCategory | None, Query()] = None,
-) -> PaginatedResponse[PlayerRead]:
+) -> PaginatedResponse[PublicPlayerRead]:
     players, total = await service.list(
         page=page,
         page_size=page_size,
@@ -108,21 +113,21 @@ async def list_players(
         category=category,
         active=True,
     )
-    return PaginatedResponse[PlayerRead].create(
-        items=[PlayerRead.model_validate(player) for player in players],
+    return PaginatedResponse[PublicPlayerRead].create(
+        items=[PublicPlayerRead.model_validate(player) for player in players],
         total=total,
         page=page,
         page_size=page_size,
     )
 
 
-@public_router.get("/players/{player_id}", response_model=ApiResponse[PlayerRead])
+@public_router.get("/players/{player_id}", response_model=ApiResponse[PublicPlayerRead])
 async def get_player(
     player_id: UUID,
     service: FromDishka[PlayerService],
-) -> ApiResponse[PlayerRead]:
+) -> ApiResponse[PublicPlayerRead]:
     player = await service.get_public(player_id)
-    return ApiResponse(message="Player retrieved", data=PlayerRead.model_validate(player))
+    return ApiResponse(message="Player retrieved", data=PublicPlayerRead.model_validate(player))
 
 
 @admin_router.post("", response_model=ApiResponse[PlayerRead], status_code=status.HTTP_201_CREATED)
@@ -137,6 +142,7 @@ async def create_player(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
     )
+    payload.set_creation_key(request.headers.get("Idempotency-Key"))
     player = await service.create(payload)
     return ApiResponse(message="Player created", data=PlayerRead.model_validate(player))
 
@@ -165,10 +171,66 @@ async def delete_player(
     service: FromDishka[PlayerService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    expected_updated_at: datetime | None = None,
 ) -> Response:
     await authorizer.require_editor(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
     )
-    await service.delete(player_id)
+    await service.delete(player_id, expected_updated_at=expected_updated_at)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+teams_admin_router = APIRouter(prefix="/admin/teams", route_class=DishkaRoute, tags=["admin-teams"])
+
+
+@teams_admin_router.get("", response_model=PaginatedResponse[TeamRead])
+async def list_admin_teams(
+    request: Request,
+    service: FromDishka[TeamService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
+    q: str | None = Query(None, max_length=200),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    active: bool | None = Query(None),
+) -> PaginatedResponse[TeamRead]:
+    await authorizer.require_editor_session(request.cookies.get(settings.session_cookie_name))
+    teams, total = await service.list(page=page, page_size=page_size, active=active, q=q)
+    return PaginatedResponse[TeamRead].create(
+        items=[TeamRead.model_validate(team) for team in teams],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@teams_admin_router.get("/{team_id}", response_model=ApiResponse[TeamRead])
+async def get_admin_team(
+    team_id: UUID,
+    request: Request,
+    service: FromDishka[TeamService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
+) -> ApiResponse[TeamRead]:
+    await authorizer.require_editor_session(request.cookies.get(settings.session_cookie_name))
+    return ApiResponse(
+        message="Team retrieved", data=TeamRead.model_validate(await service.get(team_id))
+    )
+
+
+@teams_admin_router.patch("/{team_id}", response_model=ApiResponse[TeamRead])
+async def update_admin_team(
+    team_id: UUID,
+    payload: TeamUpdate,
+    request: Request,
+    service: FromDishka[TeamService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
+) -> ApiResponse[TeamRead]:
+    await authorizer.require_editor(
+        request.cookies.get(settings.session_cookie_name),
+        request.headers.get(settings.csrf_header_name),
+    )
+    team = await service.update(team_id, payload)
+    return ApiResponse(message="Team updated", data=TeamRead.model_validate(team))

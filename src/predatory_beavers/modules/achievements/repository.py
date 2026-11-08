@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.elements import ColumnElement
 
+from predatory_beavers.api.idempotency import CreationLedger
+from predatory_beavers.api.search import text_search
 from predatory_beavers.modules.achievements.models import Achievement
 from predatory_beavers.modules.club.models import Team, TeamCategory
 
@@ -14,11 +16,12 @@ from predatory_beavers.modules.club.models import Team, TeamCategory
 class AchievementRepository:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self.creation_ledger = CreationLedger(session)
 
     @staticmethod
     def _with_details(statement: Select[tuple[Achievement]]) -> Select[tuple[Achievement]]:
         return statement.options(
-            selectinload(Achievement.team),
+            selectinload(Achievement.team).selectinload(Team.logo),
             selectinload(Achievement.media),
         )
 
@@ -27,6 +30,7 @@ class AchievementRepository:
         *,
         page: int,
         page_size: int,
+        q: str | None = None,
         team: str | None = None,
         category: TeamCategory | None = None,
         active: bool | None = True,
@@ -42,6 +46,8 @@ class AchievementRepository:
         if active is not None:
             filters.append(Achievement.active.is_(active))
 
+        if q and q.strip():
+            filters.append(text_search(q, Achievement.title))
         base = select(Achievement).join(Achievement.team).where(*filters)
         total = await self._session.scalar(select(func.count()).select_from(base.subquery()))
         statement = self._with_details(

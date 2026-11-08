@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -65,6 +66,7 @@ async def list_admin_achievements(
     service: FromDishka[AchievementService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    q: str | None = Query(None, max_length=200),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
     team: str | None = Query(None, min_length=1, max_length=64),
@@ -77,6 +79,7 @@ async def list_admin_achievements(
     achievements, total = await service.list(
         page=page,
         page_size=page_size,
+        q=q,
         team=team,
         category=category,
         active=active,
@@ -124,6 +127,7 @@ async def create_achievement(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
     )
+    payload.set_creation_key(request.headers.get("Idempotency-Key"))
     achievement = await service.create(payload)
     return ApiResponse(
         message="Achievement created",
@@ -158,10 +162,11 @@ async def delete_achievement(
     service: FromDishka[AchievementService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    expected_updated_at: datetime | None = None,
 ) -> Response:
     await authorizer.require_editor(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
     )
-    await service.delete(achievement_id)
+    await service.delete(achievement_id, expected_updated_at=expected_updated_at)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

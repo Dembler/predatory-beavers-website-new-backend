@@ -241,3 +241,6 @@ uv run alembic current
 контента прежнего сайта с последующим редактированием через админку. Следующие крупные
 срезы — при необходимости S3/MinIO и backup/restore runbook для SQLite и media-каталога.
 Telegram не входит в текущий объём работ.
+
+
+Editor reliability, media publication, replay keys and hardened deployment: [docs/editor-api.md](docs/editor-api.md).

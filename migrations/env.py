@@ -6,6 +6,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from predatory_beavers.api.idempotency import AdminCreationKey  # noqa: F401
 from predatory_beavers.db.base import Base
 from predatory_beavers.modules.achievements import models as achievements_models  # noqa: F401,E402
 from predatory_beavers.modules.audit import models as audit_models  # noqa: F401,E402

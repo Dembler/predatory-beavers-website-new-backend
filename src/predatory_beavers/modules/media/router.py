@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from datetime import datetime
 from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
@@ -6,11 +7,12 @@ from fastapi import APIRouter, Query, Request, Response, status
 from starlette.datastructures import UploadFile
 from starlette.formparsers import MultiPartException, MultiPartParser
 
+from predatory_beavers.api.errors import NotFoundError
 from predatory_beavers.api.responses import ApiResponse, PaginatedResponse
 from predatory_beavers.modules.club.auth import AdminAuthorizer
 from predatory_beavers.modules.club.schemas import MediaAssetRead
 from predatory_beavers.modules.media.errors import InvalidImageError, MediaTooLargeError
-from predatory_beavers.modules.media.schemas import MediaUpdate
+from predatory_beavers.modules.media.schemas import MediaUpdate, MediaUploadRead, MediaUsage
 from predatory_beavers.modules.media.service import MediaService
 from predatory_beavers.settings import Settings
 
@@ -25,11 +27,12 @@ async def list_admin_media(
     service: FromDishka[MediaService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    q: str | None = Query(None, max_length=200),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=100),
 ) -> PaginatedResponse[MediaAssetRead]:
     await authorizer.require_editor_session(request.cookies.get(settings.session_cookie_name))
-    assets, total = await service.list(page=page, page_size=page_size)
+    assets, total = await service.list(page=page, page_size=page_size, q=q)
     return PaginatedResponse[MediaAssetRead].create(
         items=[MediaAssetRead.model_validate(asset) for asset in assets],
         total=total,
@@ -62,41 +65,78 @@ async def delete_media(
     service: FromDishka[MediaService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
+    expected_updated_at: datetime | None = None,
 ) -> Response:
     await authorizer.require_editor(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
     )
-    await service.delete(asset_id)
+    await service.delete(asset_id, expected_updated_at=expected_updated_at)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+async def _content_response(
+    asset_id: UUID,
+    request: Request,
+    service: MediaService,
+    authorizer: AdminAuthorizer,
+    settings: Settings,
+) -> Response:
+    public = await service.is_public(asset_id)
+    if not public:
+        session_token = request.cookies.get(settings.session_cookie_name)
+        if not session_token:
+            raise NotFoundError("Media asset not found")
+        await authorizer.require_editor_session(session_token)
+    result = await service.get_content(asset_id, allow_private=not public)
+    return Response(
+        content=result.content,
+        media_type=result.mime,
+        headers={
+            "Cache-Control": await service.public_cache_control(asset_id)
+            if public
+            else "private, no-store",
+            "ETag": f'"{result.checksum}"',
+            "Vary": "Cookie",
+        },
+    )
 
 
 @content_router.get("/media/{asset_id}/content", response_class=Response)
 async def get_media_content(
     asset_id: UUID,
+    request: Request,
     service: FromDishka[MediaService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
 ) -> Response:
-    result = await service.get_content(asset_id)
-    return Response(
-        content=result.content,
-        media_type=result.mime,
-        headers={
-            "Cache-Control": "public, max-age=31536000, immutable",
-            "ETag": f'"{result.checksum}"',
-        },
-    )
+    return await _content_response(asset_id, request, service, authorizer, settings)
 
 
-@public_router.get(
-    "/media/{asset_id}/content",
-    response_class=Response,
-    deprecated=True,
-)
+@public_router.get("/media/{asset_id}/content", response_class=Response, deprecated=True)
 async def get_legacy_media_content(
     asset_id: UUID,
+    request: Request,
     service: FromDishka[MediaService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
 ) -> Response:
-    return await get_media_content(asset_id, service)
+    return await _content_response(asset_id, request, service, authorizer, settings)
+
+
+@admin_router.get("/{asset_id}/usage", response_model=ApiResponse[list[MediaUsage]])
+async def get_media_usage(
+    asset_id: UUID,
+    request: Request,
+    service: FromDishka[MediaService],
+    authorizer: FromDishka[AdminAuthorizer],
+    settings: FromDishka[Settings],
+) -> ApiResponse[list[MediaUsage]]:
+    await authorizer.require_editor_session(request.cookies.get(settings.session_cookie_name))
+    usage = await service.usage(asset_id)
+    return ApiResponse(
+        message="Media usage retrieved", data=[MediaUsage.model_validate(row) for row in usage]
+    )
 
 
 @admin_router.get("/{asset_id}", response_model=ApiResponse[MediaAssetRead])
@@ -116,7 +156,7 @@ async def get_admin_media(
 
 @admin_router.post(
     "",
-    response_model=ApiResponse[MediaAssetRead],
+    response_model=ApiResponse[MediaUploadRead],
     status_code=status.HTTP_201_CREATED,
     openapi_extra={
         "requestBody": {
@@ -141,7 +181,7 @@ async def upload_media(
     service: FromDishka[MediaService],
     authorizer: FromDishka[AdminAuthorizer],
     settings: FromDishka[Settings],
-) -> ApiResponse[MediaAssetRead]:
+) -> ApiResponse[MediaUploadRead]:
     await authorizer.require_editor(
         request.cookies.get(settings.session_cookie_name),
         request.headers.get(settings.csrf_header_name),
@@ -177,7 +217,7 @@ async def upload_media(
         asset = await service.upload_image(content, alt_text)
     finally:
         await form.close()
-    return ApiResponse(message="Media uploaded", data=MediaAssetRead.model_validate(asset))
+    return ApiResponse(message="Media uploaded", data=MediaUploadRead.model_validate(asset))
 
 
 class _MultipartBodyTooLarge(MultiPartException):

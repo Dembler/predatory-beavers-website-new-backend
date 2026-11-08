@@ -31,6 +31,9 @@ def _configure_sqlite(engine: AsyncEngine, busy_timeout_ms: int) -> None:
     @event.listens_for(engine.sync_engine, "connect")
     def set_sqlite_pragmas(dbapi_connection: Any, connection_record: Connection) -> None:
         del connection_record
+        dbapi_connection.create_function(
+            "casefold", 1, lambda value: str(value or "").casefold(), deterministic=True
+        )
         cursor = dbapi_connection.cursor()
         try:
             cursor.execute("PRAGMA foreign_keys=ON")

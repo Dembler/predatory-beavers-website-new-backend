@@ -3,7 +3,13 @@ from enum import StrEnum
 from sqlalchemy import Boolean, CheckConstraint, Index, Integer, String, Text, text, true
 from sqlalchemy.orm import Mapped, mapped_column
 
-from predatory_beavers.db.base import Base, SoftDeleteMixin, TimestampMixin, UUIDPrimaryKeyMixin
+from predatory_beavers.db.base import (
+    Base,
+    OptimisticVersionMixin,
+    SoftDeleteMixin,
+    TimestampMixin,
+    UUIDPrimaryKeyMixin,
+)
 
 
 class ContentSection(StrEnum):
@@ -15,7 +21,9 @@ class ContentSection(StrEnum):
     VIEWING_TIPS = "viewing_tips"
 
 
-class ContentBlock(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Base):
+class ContentBlock(
+    UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDeleteMixin, Base
+):
     __tablename__ = "content_blocks"
     __table_args__ = (
         CheckConstraint("sort_order >= 0", name="content_sort_order_non_negative"),
