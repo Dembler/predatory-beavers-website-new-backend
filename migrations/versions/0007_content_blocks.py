@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 import sqlalchemy as sa
-from alembic import op
+from alembic import context, op
 
 revision: str = "0007"
 down_revision: str | None = "0006"
@@ -45,6 +45,10 @@ def upgrade() -> None:
         "content_blocks",
         ["section", "active", "is_deleted", "sort_order"],
     )
+    # An explicit insert-only transfer supplies all editorial content from its snapshot.
+    # Ordinary installations retain the original starter content.
+    if context.get_x_argument(as_dictionary=True).get("skip_content_seed") == "true":
+        return
     now = datetime.now(UTC)
     initial = [
         (

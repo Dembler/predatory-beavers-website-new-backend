@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "reviewed_at": "2026-11-14T17:50:19.736258+00:00",
+  "items": [
+    {
+      "chapter_id": "223cf1a6-4a38-5579-bc41-b962d4959c54",
+      "file": "2024-assk-university.webp",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2024/03/17827",
+      "image_url": "https://www.vsu.ru/ru/news/17827/images/86764",
+      "source_label": "ВГУ · фото и итоги события",
+      "alt": "Участники внутривузовского этапа АССК в ВГУ, февраль–март 2024. Фото: ВГУ.",
+      "editorial_note": "Общее фото университетских соревнований АССК; не отдельное баскетбольное награждение.",
+      "width": 800,
+      "height": 533,
+      "original_sha256": "2426524ee53fd65369ebcff54fc519275f8b1ad3e2070bbdd60cffc3fe5c1a05",
+      "sha256": "9622269870bb2ae5b4774809339d193343af69a5687bfefc346fa81333e13ae9"
+    },
+    {
+      "chapter_id": "baece891-b40a-5c83-9712-c84551006608",
+      "file": "2024-cup-regions-krasnodar.webp",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2024/04/17849",
+      "image_url": "https://www.vsu.ru/ru/news/17849/images/86891",
+      "source_label": "ВГУ · фото и итоги события",
+      "alt": "Мужская сборная ВГУ с медалями Кубка регионов АСБ. Краснодар, 29–30 марта 2024. Фото: ВГУ.",
+      "editorial_note": "Золото Кубка регионов АСБ, подтверждённое статьёй ВГУ от 2 апреля 2024.",
+      "width": 800,
+      "height": 445,
+      "original_sha256": "4c75e0b780dda1a53f22347addb7c24ab157abe475afef7153438325ffbff44e",
+      "sha256": "755cfbc14586dca3965ad378a4940c4b3eaf8f651dcb7f77dcd6d3906f213af5"
+    },
+    {
+      "chapter_id": "e4b0adc1-a894-5cb4-899e-3e0b5f893bc2",
+      "file": "2025-student-marathon.webp",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2025/02/18927",
+      "image_url": "https://www.vsu.ru/ru/news/18927/images/92826",
+      "source_label": "ВГУ · фото и итоги события",
+      "alt": "Делегация ВГУ празднует победу на Студенческом марафоне в Ольгинке, 2025. Фото: ВГУ.",
+      "editorial_note": "Общая университетская делегация, не фото отдельного баскетбольного награждения. ВГУ выиграл в том числе фиджитал-баскетбол.",
+      "width": 800,
+      "height": 533,
+      "original_sha256": "6054ec4cb11d47c1f5afe01dfd28343bb1385e62c69e8977f1370fb910f05df2",
+      "sha256": "258c1b363854651178c8c0147a135393a3b377ed3daeaa81681de5eb1136f718"
+    },
+    {
+      "chapter_id": "8beeae5e-97b5-5b7e-904f-88c08c354631",
+      "file": "2026-smolensk-fortress.webp",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2026/09/20624",
+      "image_url": "https://www.vsu.ru/ru/news/20624/images/101660",
+      "source_label": "ВГУ · фото и итоги события",
+      "alt": "Мужская сборная ВГУ на награждении «Смоленской крепости»: бронза в баскетбольном двоеборье. 29–31 августа 2026. Фото: ВГУ.",
+      "editorial_note": "Бронза относится к фиджиталу. Другая мужская команда ВГУ в 3×3 заняла 4 место.",
+      "width": 800,
+      "height": 533,
+      "original_sha256": "46a7f51a128e383b0d1c6bf22e22cf128255b40fb9538c0585eecd4abb3bef9f",
+      "sha256": "7abf38d886182522840f3e65833efc85afceb0fe28166aade45250ed8eeb3481"
+    },
+    {
+      "chapter_id": "fd44ff16-384b-5120-af88-e3b016150f3b",
+      "file": "2026-orange-atom.webp",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2026/10/20726",
+      "image_url": "https://www.vsu.ru/ru/news/20726/images/102305",
+      "source_label": "ВГУ · фото и итоги события",
+      "alt": "Мужская сборная ВГУ на награждении Кубка «Оранжевый атом». Смоленск, 2–3 октября 2026. Фото: ВГУ.",
+      "editorial_note": "Две бронзы у мужчин: 3×3 и кибербаскетбол. Женская сборная заняла 4 место.",
+      "width": 800,
+      "height": 533,
+      "original_sha256": "21dde19e0f4072226da256d4764940b4f1c844ca888ba29a99c56e5cac20df9d",
+      "sha256": "309f84ee147225e35dfc9d8b5ace585d23426baf0d50206e6f31e7acdff201da"
+    },
+    {
+      "chapter_id": "1a7fd5a8-458c-5056-82ff-fdb848a14ded",
+      "file": "2026-universiade-voronezh.webp",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2026/07/20557",
+      "image_url": "https://www.vsu.ru/ru/news/20557/images/101263",
+      "source_label": "ВГУ · фото и итоги события",
+      "alt": "Делегация ВГУ на закрытии межвузовской Универсиады Воронежской области, 1 июля 2026. Фото: ВГУ.",
+      "editorial_note": "Общая церемония университета; не отдельное баскетбольное награждение. Баскетбольные результаты из статьи: мужчины — серебро, женщины — бронза.",
+      "width": 800,
+      "height": 533,
+      "original_sha256": "a9d352f4ee5caf97c4896fd993ef9f0541acf0f9a6bdde6efb48a397a7b13969",
+      "sha256": "acd0e730438092e834de2cf9a9923492ee7944de0ca3135fa2cd5bb39eb776b9"
+    }
+  ]
+}

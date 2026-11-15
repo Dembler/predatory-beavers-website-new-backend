@@ -29,6 +29,7 @@ def upgrade() -> None:
         ["source", "external_id"],
         unique=True,
         sqlite_where=sa.text("external_id IS NOT NULL"),
+        postgresql_where=sa.text("external_id IS NOT NULL"),
     )
 
     op.create_table(
@@ -93,6 +94,7 @@ def upgrade() -> None:
         ["provider", "team_slug", "competition_external_id"],
         unique=True,
         sqlite_where=sa.text("status IN ('PENDING', 'RUNNING')"),
+        postgresql_where=sa.text("status IN ('PENDING', 'RUNNING')"),
     )
 
 

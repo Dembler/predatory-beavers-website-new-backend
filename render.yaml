@@ -1,0 +1,52 @@
+# The same settings may be entered manually in Render's New Web Service form.
+services:
+  - type: web
+    name: predatory-beavers-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: python scripts/start_render.py
+    healthCheckPath: /health/ready
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: APP_RELOAD
+        value: "false"
+      - key: APP_DATABASE_SCHEMA
+        value: beavers
+      - key: APP_DATABASE_URL
+        sync: false
+      - key: APP_DATABASE_POOL_SIZE
+        value: "3"
+      - key: APP_DATABASE_MAX_OVERFLOW
+        value: "1"
+      - key: APP_MEDIA_STORAGE_BACKEND
+        value: supabase
+      - key: APP_SUPABASE_URL
+        sync: false
+      - key: APP_SUPABASE_SECRET_KEY
+        sync: false
+      - key: APP_SUPABASE_STORAGE_BUCKET
+        value: club-media
+      - key: APP_COOKIE_SECURE
+        value: "true"
+      - key: APP_COOKIE_SAMESITE
+        value: none
+      - key: APP_SESSION_COOKIE_NAME
+        value: __Host-pb_session
+      - key: APP_CORS_ORIGINS
+        value: '["https://dembler.github.io"]'
+      - key: APP_SPORTS_SYNC_ENABLED
+        value: "false"
+      - key: APP_SPORTS_SYNC_EXTERNAL_ENABLED
+        value: "true"
+      - key: APP_SPORTS_SYNC_CACHE_PATH
+        value: /app/data/sports-sync
+      - key: APP_SPORTS_SYNC_INTERVAL_SECONDS
+        value: "3600"
+      - key: APP_SPORTS_SYNC_FIBA_INTERVAL_SECONDS
+        value: "86400"
+      - key: APP_SPORTS_SYNC_BACKEND_ROOT
+        value: /app

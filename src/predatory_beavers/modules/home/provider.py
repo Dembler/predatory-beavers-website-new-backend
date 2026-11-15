@@ -1,4 +1,5 @@
 from dishka import Provider, Scope, provide
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from predatory_beavers.modules.club.repository import TeamRepository
 from predatory_beavers.modules.home.service import HomeService
@@ -11,5 +12,6 @@ class HomeProvider(Provider):
         self,
         team_repository: TeamRepository,
         match_repository: MatchRepository,
+        session: AsyncSession,
     ) -> HomeService:
-        return HomeService(team_repository, match_repository)
+        return HomeService(team_repository, match_repository, session)

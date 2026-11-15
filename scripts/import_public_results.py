@@ -2,7 +2,9 @@
 
 Preview (default) never writes to the database. --apply first takes a consistent SQLite
 backup, migrates, then inserts/updates archive-owned records in one transaction. Existing
-matches, competitions and venues are left unchanged, including any local editor changes.
+match fields are refreshed from a stored provider projection, preserving editor overrides.
+Upcoming fixtures live only in archive_results; this avoids a stale scheduled match copy
+masking a subsequently published result in the unified calendar.
 The source database data/predatory_beavers.db is never modified.
 """
 
@@ -21,10 +23,14 @@ from alembic import command
 from alembic.config import Config
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
+from predatory_beavers.modules.imports.models import MatchSourceSnapshot as _Snapshot  # noqa: F401
 from predatory_beavers.settings import get_settings
 
 ROOT = Path(__file__).resolve().parents[1]
 DATABASE = ROOT / "data/local.db"
+# A score, its publication status, kickoff and editorial note describe one result.
+# Refreshing only part of it after an editor changes it could contradict that edit.
+RESULT_FIELDS = frozenset({"starts_at", "status", "home_score", "away_score", "notes"})
 
 
 class PublicResult(BaseModel):
@@ -74,10 +80,23 @@ def stable_id(kind: str, identity: str) -> str:
     return uuid5(NAMESPACE_URL, f"predatory-beavers/{kind}/{identity}").hex
 
 
+def asb_status(game: dict[str, object], *, today: date | None = None) -> str:
+    """An unpublished 0:0 is never a result; future dated fixtures are schedules."""
+    official = game.get("official_status")
+    if official in {"Cancelled", "Canceled", "Deleted"}:
+        return "cancelled"
+    if game["GameStatus"] == 1:
+        return "finished"
+    event_date = datetime.strptime(str(game["GameDate"]), "%d.%m.%Y").date()
+    today = today or datetime.now(timezone(timedelta(hours=3))).date()
+    return "scheduled" if event_date >= today and official in {None, "Scheduled"} else "unpublished"
+
+
 def asb_result(game: dict[str, object]) -> PublicResult:
     home = str(game["TeamAid"]) == game["external_team_id"]
     event_date = datetime.strptime(str(game["GameDate"]), "%d.%m.%Y").date()
-    finished = game["GameStatus"] == 1
+    status = asb_status(game)
+    finished = status == "finished"
     return PublicResult(
         source="asb",
         external_id=str(game["GameID"]),
@@ -94,14 +113,14 @@ def asb_result(game: dict[str, object]) -> PublicResult:
         club_score=game["ScoreA" if home else "ScoreB"] if finished else None,
         opponent_score=game["ScoreB" if home else "ScoreA"] if finished else None,
         place=None,
-        status="finished" if finished else "unpublished",
+        status=status,
         source_url=game["source_url"],
-        source_label="АСБ · официальный архив",
+        source_label="АСБ · официальные матчи",
         emblem_url=game.get("TeamLogoA" if home else "TeamLogoB") or None,
         opponent_emblem_url=game.get("TeamLogoB" if home else "TeamLogoA") or None,
         notes=(
             str(game.get("CompNameRu") or "")
-            + (" · Итог не опубликован в источнике" if not finished else "")
+            + (" · Итог не опубликован в источнике" if status == "unpublished" else "")
         )
         or None,
     )
@@ -109,16 +128,44 @@ def asb_result(game: dict[str, object]) -> PublicResult:
 
 def load_sources() -> tuple[list[PublicResult], list[dict[str, object]], list[dict[str, object]]]:
     asb = json.loads((ROOT / "docs/results-asb.json").read_text(encoding="utf-8"))
-    curated = json.loads((ROOT / "docs/results-curated.json").read_text(encoding="utf-8"))
+    manifests = [
+        json.loads((ROOT / "docs" / filename).read_text(encoding="utf-8"))
+        for filename in (
+            "results-curated.json",
+            "results-3x3-official.json",
+            "results-phygital-official.json",
+            "results-fiba3x3.json",
+        )
+    ]
+    rows = [row for manifest in manifests for row in manifest["results"]]
+    reviewed = {(row["source"], row["external_id"]): row for row in rows}
+    corrections = json.loads(
+        (ROOT / "docs/results-public-corrections.json").read_text(encoding="utf-8")
+    )
+    for patch in corrections["patches"]:
+        key = (patch["source"], patch["external_id"])
+        if key not in reviewed:
+            raise ValueError(f"Reviewed correction has no source result: {key}")
+        reviewed[key].update(patch["updates"])
     results = [asb_result(game) for game in asb["games"]]
-    results += [PublicResult.model_validate(row) for row in curated["results"]]
+    results += [PublicResult.model_validate(row) for row in rows]
     identities = [(row.source, row.external_id) for row in results]
     if len(identities) != len(set(identities)):
         raise ValueError("Duplicate result identity in source manifest")
     legacy = json.loads(
         (ROOT / "docs/results-asb-legacy-coverage.json").read_text(encoding="utf-8")
     )
-    return results, asb["coverage"] + legacy + curated["coverage"], asb["games"]
+    # A newer review replaces older coverage of the same provider/team/season.
+    # Importing both versions would update the same database row twice per run.
+    coverage = {
+        (row["provider"], row["team"], row["season"]): row
+        for row in (
+            asb["coverage"]
+            + legacy
+            + [row for manifest in manifests for row in manifest["coverage"]]
+        )
+    }
+    return results, list(coverage.values()), asb["games"]
 
 
 def backup_database(database: Path) -> Path:
@@ -137,24 +184,167 @@ def migrate(database: Path) -> None:
     command.upgrade(config, "head")
 
 
+def match_projection(
+    game: dict[str, object], team_id: str, competition_id: str, venue_id: str | None
+) -> dict[str, object]:
+    """The provider-owned fields only; publication/media/editor flags stay local."""
+    status = asb_status(game)
+    if status not in {"finished", "scheduled", "cancelled"}:
+        raise ValueError("Only an explicit official match status can update a match")
+    if not game.get("HasTime") or not game.get("GameTimeMsk"):
+        raise ValueError("A match projection requires an official kickoff time")
+    starts = datetime.strptime(f"{game['GameDate']} {game['GameTimeMsk']}", "%d.%m.%Y %H:%M")
+    starts = starts.replace(tzinfo=timezone(timedelta(hours=3))).astimezone(UTC)
+    finished = status == "finished"
+    return {
+        "team_id": team_id,
+        "competition_id": competition_id,
+        "venue_id": venue_id,
+        "starts_at": starts.replace(tzinfo=None).isoformat(sep=" "),
+        "club_side": "HOME" if str(game["TeamAid"]) == game["external_team_id"] else "AWAY",
+        "home_team_name": game["TeamNameAru"],
+        "away_team_name": game["TeamNameBru"],
+        "home_score": game["ScoreA"] if finished else None,
+        "away_score": game["ScoreB"] if finished else None,
+        "status": status.upper(),
+        "source": "asb",
+        "external_id": str(game["GameID"]),
+        "home_logo_url": game.get("TeamLogoA") or None,
+        "away_logo_url": game.get("TeamLogoB") or None,
+        "notes": game.get("CompNameRu"),
+    }
+
+
+def previous_projection(
+    connection: sqlite3.Connection, game: dict[str, object] | None
+) -> dict[str, object] | None:
+    """Resolve an actual older source game; never use the edited row as a baseline."""
+    if game is None:
+        return None
+    team = connection.execute("SELECT id FROM teams WHERE slug=?", (game["team"],)).fetchone()
+    competition = connection.execute(
+        "SELECT id FROM competitions WHERE source='asb' AND external_id=?",
+        (str(game["season_comp_id"]),),
+    ).fetchone()
+    venue_id = None
+    if game.get("ArenaId"):
+        venue = connection.execute(
+            "SELECT id FROM venues WHERE source='asb' AND external_id=?",
+            (str(game["ArenaId"]),),
+        ).fetchone()
+        if venue is None:
+            return None
+        venue_id = venue["id"]
+    if team is None or competition is None:
+        return None
+    try:
+        return match_projection(game, team["id"], competition["id"], venue_id)
+    except ValueError:
+        return None
+
+
+def same_match_value(field: str, current: object, previous: object) -> bool:
+    # ORM/editor writes include microseconds, unlike the historical SQLite CLI.
+    if field == "starts_at" and current is not None and previous is not None:
+        return datetime.fromisoformat(str(current)) == datetime.fromisoformat(str(previous))
+    return current == previous
+
+
+def store_source_projection(
+    connection: sqlite3.Connection, match_id: str, projection: dict[str, object], checked_at: str
+) -> None:
+    connection.execute(
+        'INSERT INTO match_source_snapshots (match_id,source,external_id,"values",checked_at) '
+        'VALUES (?,?,?,?,?) ON CONFLICT(match_id) DO UPDATE SET "values"=excluded."values",'
+        "checked_at=excluded.checked_at",
+        (match_id, "asb", projection["external_id"], json.dumps(projection), checked_at),
+    )
+
+
+def refresh_match(
+    connection: sqlite3.Connection,
+    existing: sqlite3.Row,
+    values: dict[str, object],
+    previous_game: dict[str, object] | None,
+    now: str,
+) -> str:
+    # A deletion/draft is an editor publication decision, not a missing feed row.
+    if existing["is_deleted"] or not existing["active"]:
+        return "preserved"
+    snapshot = connection.execute(
+        "SELECT * FROM match_source_snapshots WHERE match_id=? AND source='asb' AND external_id=?",
+        (existing["id"], existing["external_id"]),
+    ).fetchone()
+    before = (
+        json.loads(snapshot["values"])
+        if snapshot
+        else previous_projection(connection, previous_game)
+    )
+    if before is None:
+        # No trustworthy old projection exists on first adoption. Keep the row
+        # intact rather than quietly treating an editor's values as ASB values.
+        return "unverified_preserved"
+    core_unchanged = all(
+        field in before and same_match_value(field, existing[field], before[field])
+        for field in RESULT_FIELDS
+    )
+    updates = {}
+    for field, value in values.items():
+        if field in RESULT_FIELDS and not core_unchanged:
+            continue
+        if field not in before or not same_match_value(field, existing[field], before[field]):
+            continue
+        if field in {"home_logo_url", "away_logo_url"}:
+            if value is None or existing[field.replace("_url", "_asset_id")] is not None:
+                continue
+        if not same_match_value(field, existing[field], value):
+            updates[field] = value
+    store_source_projection(connection, existing["id"], values, now)
+    if not updates:
+        return "preserved"
+    connection.execute(
+        "UPDATE matches SET "
+        + ",".join(field + "=?" for field in updates)
+        + ",updated_at=?,version_id=version_id+1 WHERE id=?",
+        (*updates.values(), now, existing["id"]),
+    )
+    return "updated"
+
+
 def apply_import(
     database: Path,
     results: list[PublicResult],
     coverage: list[dict[str, object]],
     games: list[dict[str, object]],
+    *,
+    previous_games: list[dict[str, object]] | None = None,
 ) -> dict[str, int]:
+    """Apply source data; previous_games is the manifest from BEFORE fetching.
+
+    Existing pre-snapshot matches are deliberately left unchanged without that
+    verified older source. An archive result alone cannot verify its kickoff
+    time. New imported matches always record their own first source snapshot.
+    """
+    if database.resolve() == (ROOT / "data/predatory_beavers.db").resolve():
+        raise ValueError("The preserved source database must never be modified")
+    previous_by_id = {str(game["GameID"]): game for game in previous_games or []}
     counts = {
         "archive_created": 0,
         "archive_updated": 0,
         "archive_unchanged": 0,
         "matches_created": 0,
+        "matches_updated": 0,
         "matches_preserved": 0,
+        "matches_unverified_preserved": 0,
         "matches_unpublished_skipped": 0,
+        "matches_unknown_time_skipped": 0,
+        "matches_scheduled_archive_only": 0,
     }
     now = datetime.now(UTC).replace(tzinfo=None).isoformat(sep=" ")
-    with sqlite3.connect(database) as connection:
+    with sqlite3.connect(database, timeout=30) as connection:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute("BEGIN IMMEDIATE")
         for result in results:
             values = result.model_dump(mode="json")
             existing = connection.execute(
@@ -198,7 +388,8 @@ def apply_import(
                 f"INSERT INTO archive_coverage ({','.join(values)}) "
                 f"VALUES ({','.join('?' for _ in values)}) "
                 "ON CONFLICT(provider,team,season) DO UPDATE SET records=excluded.records, "
-                "status=excluded.status,source_url=excluded.source_url,note=excluded.note "
+                "status=excluded.status,source_url=excluded.source_url,note=excluded.note, "
+                "updated_at=excluded.updated_at "
                 "WHERE records!=excluded.records OR status!=excluded.status OR "
                 "source_url!=excluded.source_url OR note!=excluded.note",
                 tuple(values.values()),
@@ -212,16 +403,28 @@ def apply_import(
                 (team_ids[slug], slug, "ВГУ — Хищные бобры", slug.upper(), now, now),
             )
         for game in games:
-            # GameStatus=0 does not establish a postponement or a 0:0 result.
-            # Retain the source record in the archive, outside the match calendar.
-            if game["GameStatus"] != 1:
-                counts["matches_unpublished_skipped"] += 1
-                continue
+            status = asb_status(game)
             existing = connection.execute(
-                "SELECT id FROM matches WHERE source='asb' AND external_id=?",
+                "SELECT * FROM matches WHERE source='asb' AND external_id=?",
                 (str(game["GameID"]),),
             ).fetchone()
-            if existing:
+            # New fixtures remain archive-only. A previously published result
+            # can still receive an official cancellation or schedule correction.
+            if status == "scheduled" and existing is None:
+                counts["matches_scheduled_archive_only"] += 1
+                continue
+            if status not in {"finished", "scheduled", "cancelled"} or (
+                status != "finished" and existing is None
+            ):
+                counts["matches_unpublished_skipped"] += 1
+                continue
+            # The match table requires a timestamp. Date-only fixtures remain in
+            # archive_results, where their actual precision is retained, rather
+            # than acquiring a fabricated 00:00 kickoff.
+            if not game.get("HasTime") or not game.get("GameTimeMsk"):
+                counts["matches_unknown_time_skipped"] += 1
+                continue
+            if existing and (existing["is_deleted"] or not existing["active"]):
                 counts["matches_preserved"] += 1
                 continue
             comp_id = connection.execute(
@@ -268,28 +471,25 @@ def apply_import(
                             now,
                         ),
                     )
-            game_time = str(game.get("GameTimeMsk") or "00:00")
-            starts = datetime.strptime(f"{game['GameDate']} {game_time}", "%d.%m.%Y %H:%M")
-            # All enumerated games are after 2014, when Moscow adopted permanent UTC+3.
-            # This fixed official timestamp conversion also works on Windows without tzdata.
-            starts = starts.replace(tzinfo=timezone(timedelta(hours=3))).astimezone(UTC)
+            projection = match_projection(game, team_ids[str(game["team"])], comp_id[0], venue_id)
+            if existing:
+                outcome = refresh_match(
+                    connection,
+                    existing,
+                    projection,
+                    previous_by_id.get(str(game["GameID"])),
+                    now,
+                )
+                if outcome == "updated":
+                    counts["matches_updated"] += 1
+                else:
+                    counts["matches_preserved"] += 1
+                    if outcome == "unverified_preserved":
+                        counts["matches_unverified_preserved"] += 1
+                continue
             values = {
                 "id": stable_id("match", "asb/" + str(game["GameID"])),
-                "team_id": team_ids[str(game["team"])],
-                "competition_id": comp_id[0],
-                "venue_id": venue_id,
-                "starts_at": starts.replace(tzinfo=None).isoformat(sep=" "),
-                "club_side": "HOME" if str(game["TeamAid"]) == game["external_team_id"] else "AWAY",
-                "home_team_name": game["TeamNameAru"],
-                "away_team_name": game["TeamNameBru"],
-                "home_score": game["ScoreA"],
-                "away_score": game["ScoreB"],
-                "status": "FINISHED",
-                "source": "asb",
-                "external_id": str(game["GameID"]),
-                "home_logo_url": game.get("TeamLogoA") or None,
-                "away_logo_url": game.get("TeamLogoB") or None,
-                "notes": game.get("CompNameRu"),
+                **projection,
                 "featured": 0,
                 "is_deleted": 0,
                 "created_at": now,
@@ -300,6 +500,7 @@ def apply_import(
                 f"VALUES ({','.join('?' for _ in values)})",
                 tuple(values.values()),
             )
+            store_source_projection(connection, str(values["id"]), projection, now)
             counts["matches_created"] += 1
     return counts
 

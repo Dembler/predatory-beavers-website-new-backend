@@ -9,6 +9,7 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from predatory_beavers.api.search import text_search
 from predatory_beavers.modules.club.models import MediaAsset, Player, Team
+from predatory_beavers.modules.content.models import ContentBlock
 
 
 class MediaRepository:
@@ -50,6 +51,13 @@ class MediaRepository:
 
         result: builtins.list[dict[str, object]] = []
         references = (
+            (
+                ContentBlock,
+                ContentBlock.photo_asset_id == asset_id,
+                "content_block",
+                "captains",
+                "photo_asset_id",
+            ),
             (Player, Player.photo_asset_id == asset_id, "player", "players", "photo_asset_id"),
             (Team, Team.logo_asset_id == asset_id, "team", "teams", "logo_asset_id"),
             (
@@ -72,8 +80,17 @@ class MediaRepository:
                 select(model).where(condition, model.is_deleted.is_(False))
             )
             for item in rows:
-                row = cast(Player | Team | Achievement | Match, item)
-                if isinstance(row, Player):
+                row = cast(Player | Team | Achievement | Match | ContentBlock, item)
+                if isinstance(row, ContentBlock):
+                    title, tab = row.title, row.section
+                    public_url = (
+                        f"/club#chapter-{row.id}"
+                        if row.section == "history"
+                        else "/contacts"
+                        if row.section in {"captains", "contact_channels"}
+                        else "/rules"
+                    )
+                elif isinstance(row, Player):
                     title, public_url = row.full_name, f"/players/local/{row.id}"
                 elif isinstance(row, Team):
                     title, public_url = row.name, f"/teams/{row.category.value}"
@@ -106,6 +123,13 @@ class MediaRepository:
             await self._session.scalar(
                 select(
                     or_(
+                        select(ContentBlock.id)
+                        .where(
+                            ContentBlock.photo_asset_id == asset_id,
+                            ContentBlock.active.is_(True),
+                            ContentBlock.is_deleted.is_(False),
+                        )
+                        .exists(),
                         select(Player.id)
                         .join(Player.team)
                         .where(

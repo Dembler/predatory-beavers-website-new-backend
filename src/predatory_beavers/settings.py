@@ -1,10 +1,14 @@
+import re
 from functools import lru_cache
+from ipaddress import ip_network
 from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 
 
 class Settings(BaseSettings):
@@ -12,6 +16,7 @@ class Settings(BaseSettings):
         env_prefix="APP_",
         env_file=".env",
         env_file_encoding="utf-8",
+        hide_input_in_errors=True,
         extra="ignore",
     )
 
@@ -22,13 +27,33 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = Field(default=8000, ge=1, le=65535)
     reload: bool = True
+    trusted_proxy_ips: str = "127.0.0.1"
     api_prefix: str = "/api/v1"
 
-    database_url: str = "sqlite+aiosqlite:///./data/local.db"
+    database_url: str = Field(default="sqlite+aiosqlite:///./data/local.db", repr=False)
     database_echo: bool = False
     database_busy_timeout_ms: int = Field(default=5000, ge=100, le=60_000)
+    database_pool_size: int = Field(default=3, ge=1, le=20)
+    database_max_overflow: int = Field(default=2, ge=0, le=20)
+    database_pool_timeout_seconds: int = Field(default=30, ge=1, le=120)
+    database_connect_timeout_seconds: int = Field(default=15, ge=1, le=120)
+    database_schema: str = "public"
 
+    sports_sync_enabled: bool = False
+    sports_sync_external_enabled: bool = False
+    sports_sync_cache_path: Path = Path("data/sports-sync")
+    sports_sync_interval_seconds: int = Field(default=3600, ge=60, le=86_400)
+    sports_sync_fiba_interval_seconds: int = Field(default=86_400, ge=3600, le=604_800)
+    sports_sync_timeout_seconds: int = Field(default=600, ge=30, le=1800)
+    sports_sync_backend_root: Path = Path(".")
+    fiba_api_key: str | None = Field(default=None, repr=False)
+
+    media_storage_backend: Literal["local", "supabase"] = "local"
     media_storage_path: Path = Path("data/media")
+    media_storage_timeout_seconds: float = Field(default=20.0, ge=1.0, le=60.0)
+    supabase_url: str | None = None
+    supabase_secret_key: SecretStr | None = Field(default=None, repr=False)
+    supabase_storage_bucket: str = "club-media"
     media_max_upload_bytes: int = Field(default=8 * 1024 * 1024, ge=1024)
     media_max_dimension: int = Field(default=4096, ge=256, le=16_384)
     media_webp_quality: int = Field(default=85, ge=1, le=100)
@@ -49,23 +74,105 @@ class Settings(BaseSettings):
     session_cookie_name: str = "pb_session"
     session_ttl_seconds: int = Field(default=43_200, ge=300)
     cookie_secure: bool = False
+    cookie_samesite: Literal["lax", "strict", "none"] = "lax"
     csrf_header_name: str = "X-CSRF-Token"
     auth_login_max_attempts: int = Field(default=10, ge=1, le=100)
     auth_login_window_seconds: int = Field(default=60, ge=1, le=3600)
     auth_login_max_concurrency: int = Field(default=4, ge=1, le=32)
     auth_max_active_sessions: int = Field(default=5, ge=1, le=50)
 
+    @model_validator(mode="after")
+    def validate_media_storage(self) -> "Settings":
+        if self.media_storage_backend != "supabase":
+            return self
+        if not self.supabase_url or self.supabase_secret_key is None:
+            raise ValueError("Supabase media storage requires its project URL and server secret")
+        # Match the REST adapter without constructing a network client during validation.
+        parsed = urlsplit(self.supabase_url)
+        if (
+            parsed.scheme != "https"
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path not in {"", "/"}
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("APP_SUPABASE_URL must be a root HTTPS URL")
+        secret = self.supabase_secret_key.get_secret_value()
+        if not secret.startswith("sb_secret_") or any(char.isspace() for char in secret):
+            raise ValueError("APP_SUPABASE_SECRET_KEY must be a server-side sb_secret key")
+        bucket = self.supabase_storage_bucket
+        if (
+            not 1 <= len(bucket) <= 63
+            or not bucket[0].isascii()
+            or not bucket[0].isalnum()
+            or any(char not in "abcdefghijklmnopqrstuvwxyz0123456789._-" for char in bucket)
+        ):
+            raise ValueError("APP_SUPABASE_STORAGE_BUCKET must be a valid bucket name")
+        return self
+
     @field_validator("database_url")
     @classmethod
-    def validate_sqlite_database_url(cls, value: str) -> str:
-        if not value.startswith("sqlite+aiosqlite:///"):
-            raise ValueError("APP_DATABASE_URL must use sqlite+aiosqlite")
+    def validate_database_url(cls, value: str) -> str:
+        value = value.strip()
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                value = "postgresql+psycopg://" + value[len(prefix) :]
+                break
+        try:
+            url = make_url(value)
+            valid = (
+                url.drivername == "sqlite+aiosqlite" and value.startswith("sqlite+aiosqlite:///")
+            ) or (
+                url.drivername == "postgresql+psycopg"
+                and bool(url.host and url.database and url.username)
+            )
+            # Force parsing of a malformed port without including the secret URL in errors.
+            _ = url.port
+        except (ArgumentError, ValueError):
+            valid = False
+        if not valid:
+            raise ValueError(
+                "APP_DATABASE_URL must use sqlite+aiosqlite or postgresql+psycopg "
+                "with a host, database and username"
+            )
+        return value
+
+    @field_validator("trusted_proxy_ips")
+    @classmethod
+    def validate_trusted_proxy_ips(cls, value: str) -> str:
+        entries = [entry.strip() for entry in value.split(",")]
+        try:
+            if not entries or any(not entry for entry in entries):
+                raise ValueError
+            networks = [ip_network(entry, strict=True) for entry in entries]
+            if any(network.prefixlen == 0 for network in networks):
+                raise ValueError
+        except ValueError as exc:
+            raise ValueError(
+                "APP_TRUSTED_PROXY_IPS must contain explicit IP addresses or CIDRs, "
+                "without wildcards or unrestricted networks"
+            ) from exc
+        return ",".join(entries)
+
+    @field_validator("database_schema")
+    @classmethod
+    def validate_database_schema(cls, value: str) -> str:
+        if (
+            not re.fullmatch(r"[a-z_][a-z0-9_]{0,62}", value)
+            or value.startswith("pg_")
+            or value == "information_schema"
+        ):
+            raise ValueError("APP_DATABASE_SCHEMA must be a non-system lowercase SQL identifier")
         return value
 
     @model_validator(mode="after")
     def validate_production_security(self) -> "Settings":
         if self.e2e_runtime_token and self.env != "test":
             raise ValueError("APP_E2E_RUNTIME_TOKEN is available only in test environments")
+        if self.cookie_samesite == "none" and not self.cookie_secure:
+            raise ValueError("APP_COOKIE_SECURE must be true when APP_COOKIE_SAMESITE is none")
         parsed_asb_url = urlsplit(self.asb_base_url)
         allowed_hosts = {host.strip().lower() for host in self.asb_allowed_hosts}
         if (
@@ -89,6 +196,13 @@ class Settings(BaseSettings):
 
         if self.env != "prod":
             return self
+        database = make_url(self.database_url)
+        if database.get_backend_name() == "postgresql" and database.query.get("sslmode") not in {
+            "require",
+            "verify-ca",
+            "verify-full",
+        }:
+            raise ValueError("Production PostgreSQL requires an explicit TLS sslmode")
         if not self.cookie_secure:
             raise ValueError("APP_COOKIE_SECURE must be true in production")
         if not self.session_cookie_name.startswith("__Host-"):

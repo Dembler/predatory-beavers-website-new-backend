@@ -154,3 +154,48 @@ def test_sync_rejects_ambiguous_venue_identity(sync_database: Path, tmp_path: Pa
     with pytest.raises(ValueError, match="Ambiguous venue"):
         sync_content(sync_database, manifest, apply=True)
     assert sync_database.read_bytes() == before
+
+
+@pytest.mark.parametrize("official_exists", [True, False])
+def test_sync_does_not_confuse_historical_asb_arena_with_same_name(
+    sync_database: Path, tmp_path: Path, official_exists: bool
+) -> None:
+    manifest = write_sync_manifest(tmp_path)
+    historical_id = "b" * 32
+    with sqlite3.connect(sync_database) as connection:
+        if not official_exists:
+            connection.execute("DELETE FROM venues WHERE id=?", ("a" * 32,))
+        connection.execute(
+            "INSERT INTO venues (id,name,address,description,source,external_id,"
+            "latitude,longitude,active,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                historical_id,
+                "Existing hall",
+                "Editor's historical address",
+                "Editor's historical description",
+                "asb",
+                "99",
+                50,
+                40,
+                0,
+                "2020-01-01",
+                "2020-01-01",
+            ),
+        )
+        before = connection.execute("SELECT * FROM venues WHERE id=?", (historical_id,)).fetchone()
+    sync_content(sync_database, manifest, apply=True)
+    with sqlite3.connect(sync_database) as connection:
+        assert (
+            connection.execute("SELECT * FROM venues WHERE id=?", (historical_id,)).fetchone()
+            == before
+        )
+        assert connection.execute(
+            "SELECT id,address,source,external_id FROM venues WHERE external_id='42'"
+        ).fetchone() == (
+            "a" * 32 if official_exists else stable_id("venue:existing"),
+            "Known address",
+            "asb",
+            "42",
+        )
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+    assert sync_content(sync_database, manifest, apply=True)["changes"] == 0

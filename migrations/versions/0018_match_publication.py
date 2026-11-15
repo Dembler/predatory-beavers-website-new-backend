@@ -14,7 +14,10 @@ def upgrade() -> None:
         "matches", sa.Column("active", sa.Boolean(), server_default=sa.true(), nullable=False)
     )
     op.create_index("ix_matches_active", "matches", ["active"])
-    op.execute(sa.text("UPDATE matches SET active = 0 WHERE is_deleted = 1"))
+    matches = sa.table(
+        "matches", sa.column("active", sa.Boolean()), sa.column("is_deleted", sa.Boolean())
+    )
+    op.execute(matches.update().where(matches.c.is_deleted.is_(True)).values(active=False))
 
 
 def downgrade() -> None:

@@ -15,6 +15,8 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 COPY alembic.ini run.py ./
 COPY migrations ./migrations
+COPY scripts ./scripts
+COPY docs ./docs
 
 RUN addgroup --system app && adduser --system --ingroup app app \
     && mkdir -p /app/data/media \

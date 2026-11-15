@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "fetched_at": "2026-11-05T10:45:07.217367+00:00",
+  "fetched_at": "2026-11-15T08:55:11.391798+00:00",
   "tables": [
     {
       "team": "men",
@@ -4338,6 +4338,223 @@
         }
       ],
       "games": []
+    },
+    {
+      "team": "men",
+      "external_team_id": "7433",
+      "season": "2026-2027",
+      "competition_id": "1458985",
+      "name": "Воронежская область (м) / Круговой турнир",
+      "path": [
+        "Чемпионат АСБ",
+        "Мужчины",
+        "Воронежская область (м)",
+        "Круговой турнир"
+      ],
+      "source_url": "https://asb.sportoteka.org/api/abc/comps/standings?tag=asb-cfo-36-m&season=2027&lang=ru",
+      "tournament_id": "1415975",
+      "tournament_name": "Воронежская область (м)",
+      "stage_name": "Круговой турнир",
+      "stage_kind": "group",
+      "stage_order": 0,
+      "last_game_at": "2026-11-12T16:30:00+03:00",
+      "last_game_precision": "time",
+      "rows": [
+        {
+          "position": 1,
+          "team_name": "ВУНЦ ВВС ВВА",
+          "external_team_id": "6871",
+          "team_logo_url": "/api/v1/standings/logos/1abbb6361dc148557163de3ff7d65e5a915c07446efb013416513bad73ee89af.webp",
+          "played": 1,
+          "wins": 1,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 2,
+          "points_for": 75,
+          "points_against": 25
+        },
+        {
+          "position": 2,
+          "team_name": "ВГУ",
+          "external_team_id": "7433",
+          "team_logo_url": "/api/v1/standings/logos/751bf49b8ed596d5b9023dd51eb3273c9593c7c400e302d875e6a9413be1ce28.webp",
+          "played": 1,
+          "wins": 1,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 2,
+          "points_for": 60,
+          "points_against": 51
+        },
+        {
+          "position": 3,
+          "team_name": "ВГПУ",
+          "external_team_id": "7635",
+          "team_logo_url": "/api/v1/standings/logos/e8f574ebcaba6173e19f6eb60365e70443237070f4f2b4f34b2e647e5bc36710.webp",
+          "played": 1,
+          "wins": 0,
+          "losses": 1,
+          "draws": 0,
+          "table_points": 1,
+          "points_for": 51,
+          "points_against": 60
+        },
+        {
+          "position": 4,
+          "team_name": "ВГУИТ",
+          "external_team_id": "7663",
+          "team_logo_url": "/api/v1/standings/logos/34611413143fa8eb4f4fbb9b3106242f2b963995663cf17f48f820b2180ea58c.webp",
+          "played": 1,
+          "wins": 0,
+          "losses": 1,
+          "draws": 0,
+          "table_points": 1,
+          "points_for": 25,
+          "points_against": 75
+        },
+        {
+          "position": 5,
+          "team_name": "ВГАС",
+          "external_team_id": "7436",
+          "team_logo_url": "/api/v1/standings/logos/bb311e400ac871c611b9e95285c42447b80d4f231a60b3518b70a8fee15b9f95.webp",
+          "played": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 0,
+          "points_for": 0,
+          "points_against": 0
+        },
+        {
+          "position": 6,
+          "team_name": "ВГАУ",
+          "external_team_id": "7647",
+          "team_logo_url": "/api/v1/standings/logos/591a5ac0185ecba72092bf09bc0d3e24c4b176caa232fe33b127d6ad85ef7830.webp",
+          "played": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 0,
+          "points_for": 0,
+          "points_against": 0
+        },
+        {
+          "position": 7,
+          "team_name": "ВГТУ",
+          "external_team_id": "7432",
+          "team_logo_url": "/api/v1/standings/logos/a155558512e7dc3b1db9d066cb569c1c1931baa98bf9ef1eb619d57f28f7253c.webp",
+          "played": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 0,
+          "points_for": 0,
+          "points_against": 0
+        },
+        {
+          "position": 8,
+          "team_name": "ВГТУ-2",
+          "external_team_id": "6870",
+          "team_logo_url": "https://img.infobasket.su/logo/66156.png",
+          "played": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 0,
+          "points_for": 0,
+          "points_against": 0
+        }
+      ],
+      "games": []
+    },
+    {
+      "team": "women",
+      "external_team_id": "7695",
+      "season": "2026-2027",
+      "competition_id": "1458989",
+      "name": "Воронежская область (ж) / Круговой турнир",
+      "path": [
+        "Чемпионат АСБ",
+        "Женщины",
+        "Воронежская область (ж)",
+        "Круговой турнир"
+      ],
+      "source_url": "https://asb.sportoteka.org/api/abc/comps/standings?tag=asb-cfo-36-w&season=2027&lang=ru",
+      "tournament_id": "1415977",
+      "tournament_name": "Воронежская область (ж)",
+      "stage_name": "Круговой турнир",
+      "stage_kind": "group",
+      "stage_order": 0,
+      "last_game_at": "2026-11-13T17:00:00+03:00",
+      "last_game_precision": "time",
+      "rows": [
+        {
+          "position": 1,
+          "team_name": "ВГАС",
+          "external_team_id": "7364",
+          "team_logo_url": "/api/v1/standings/logos/8be1ce3bfaea4d0141671173810e3e7f561bc7a4dd31ed297c4f1162972dd93b.webp",
+          "played": 1,
+          "wins": 1,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 2,
+          "points_for": 90,
+          "points_against": 25
+        },
+        {
+          "position": 2,
+          "team_name": "ВГТУ-Фурии",
+          "external_team_id": "7691",
+          "team_logo_url": "https://files.infobasket.su/logos/16438.png",
+          "played": 1,
+          "wins": 1,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 2,
+          "points_for": 48,
+          "points_against": 35
+        },
+        {
+          "position": 3,
+          "team_name": "ВГАУ",
+          "external_team_id": "7689",
+          "team_logo_url": "/api/v1/standings/logos/151b6f9bc19b0318d98928c39131f14fb0d7d3293c7346724c736f167c11a975.webp",
+          "played": 1,
+          "wins": 0,
+          "losses": 1,
+          "draws": 0,
+          "table_points": 1,
+          "points_for": 35,
+          "points_against": 48
+        },
+        {
+          "position": 4,
+          "team_name": "ВГУ-Хищные бобры",
+          "external_team_id": "7695",
+          "team_logo_url": "https://files.infobasket.su/logos/21127.png",
+          "played": 1,
+          "wins": 0,
+          "losses": 1,
+          "draws": 0,
+          "table_points": 1,
+          "points_for": 25,
+          "points_against": 90
+        },
+        {
+          "position": 5,
+          "team_name": "ВГПУ",
+          "external_team_id": "7694",
+          "team_logo_url": "/api/v1/standings/logos/6b678d81c26dfd313b5899ce49db600ce220f2d38e984b1e2180e7d498bf9c5b.webp",
+          "played": 0,
+          "wins": 0,
+          "losses": 0,
+          "draws": 0,
+          "table_points": 0,
+          "points_for": 0,
+          "points_against": 0
+        }
+      ],
+      "games": []
     }
   ],
   "coverage": [
@@ -5062,24 +5279,32 @@
     {
       "team": "men",
       "season": "2026-2027",
-      "status": "no_published_standings",
+      "status": "published",
       "source_url": "https://asb.sportoteka.org/api/abc/comps/standings?tag=asb-cfo-36-m&season=2027&lang=ru",
-      "note": "Current team membership is published in the official team competition index, but no numeric standings are published for the current regional competition. No previous-season table is labelled current.",
-      "records": 0,
+      "note": "Числовые таблицы текущего сезона проверены в официальном API АСБ Sportoteka.",
+      "records": 1,
       "checked_competition_ids": [
-        "1415975"
-      ]
+        "1458985"
+      ],
+      "numerical_table_count": 1,
+      "playoff_stage_count": 0,
+      "published_game_count": 0,
+      "tournament_count": 1
     },
     {
       "team": "women",
       "season": "2026-2027",
-      "status": "no_published_standings",
+      "status": "published",
       "source_url": "https://asb.sportoteka.org/api/abc/comps/standings?tag=asb-cfo-36-w&season=2027&lang=ru",
-      "note": "Current team membership is published in the official team competition index, but no numeric standings are published for the current regional competition. No previous-season table is labelled current.",
-      "records": 0,
+      "note": "Числовые таблицы текущего сезона проверены в официальном API АСБ Sportoteka.",
+      "records": 1,
       "checked_competition_ids": [
-        "1415977"
-      ]
+        "1458989"
+      ],
+      "numerical_table_count": 1,
+      "playoff_stage_count": 0,
+      "published_game_count": 0,
+      "tournament_count": 1
     }
   ],
   "tournament_coverage": [
@@ -5615,6 +5840,34 @@
       "source_url": "https://asb.infobasket.su/Widget/GetTeamComps/7695?season=42103",
       "checked_competition_ids": [
         "42364"
+      ],
+      "numerical_table_count": 1,
+      "playoff_stage_count": 0,
+      "published_game_count": 0,
+      "status": "published"
+    },
+    {
+      "team": "men",
+      "season": "2026-2027",
+      "tournament_id": "1415975",
+      "tournament_name": "Воронежская область (м)",
+      "source_url": "https://asb.sportoteka.org/api/abc/teams/comps?teamId=7433&tag=asb&season=2027&lang=ru",
+      "checked_competition_ids": [
+        "1458985"
+      ],
+      "numerical_table_count": 1,
+      "playoff_stage_count": 0,
+      "published_game_count": 0,
+      "status": "published"
+    },
+    {
+      "team": "women",
+      "season": "2026-2027",
+      "tournament_id": "1415977",
+      "tournament_name": "Воронежская область (ж)",
+      "source_url": "https://asb.sportoteka.org/api/abc/teams/comps?teamId=7695&tag=asb&season=2027&lang=ru",
+      "checked_competition_ids": [
+        "1458989"
       ],
       "numerical_table_count": 1,
       "playoff_stage_count": 0,

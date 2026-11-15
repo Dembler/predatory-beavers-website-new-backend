@@ -1,0 +1,45 @@
+# Optional TLS proxy for a VM. Run together with compose.production.yaml.
+services:
+  api:
+    environment:
+      APP_TRUSTED_PROXY_IPS: "${PB_PROXY_SUBNET:-172.30.250.0/24}"
+    networks: [https_proxy]
+
+  proxy:
+    image: caddy:2-alpine
+    environment:
+      API_DOMAIN: "${API_DOMAIN:?Set API_DOMAIN to the API hostname without a scheme}"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m"]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    networks: [https_proxy]
+
+networks:
+  # Only the API and HTTPS proxy join this bridge. It retains outbound NAT for
+  # official sports sources and ACME; do not change it to internal-only.
+  # Treat this host and Docker administrators as trusted. Never attach unrelated
+  # workloads: every address in this subnet may supply forwarded client headers.
+  # Set PB_PROXY_SUBNET to another unused private IPv4 CIDR if this range conflicts.
+  https_proxy:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "${PB_PROXY_SUBNET:-172.30.250.0/24}"
+
+volumes:
+  caddy_data:
+  caddy_config:

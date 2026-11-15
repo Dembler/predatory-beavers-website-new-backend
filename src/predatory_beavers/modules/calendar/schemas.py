@@ -32,6 +32,7 @@ class CalendarPage(BaseModel):
     total_pages: int = Field(ge=0)
     counts: CalendarCounts
     seasons: list[str]
+    current_season: str
     default_season: str
     selected_season: str
     at: datetime

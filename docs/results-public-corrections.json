@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "purpose": "Reviewable import overlay applied by load_sources to existing results-curated.json identities before PublicResult validation. Raw curated generation remains reproducible; this overlay never creates additional medals and an unknown target identity is an error.",
+  "patches": [
+    {
+      "source": "vsu",
+      "external_id": "20726-men",
+      "updates": { "season": "2026-2027" }
+    },
+    {
+      "source": "vsu",
+      "external_id": "20726-women",
+      "updates": { "season": "2026-2027" }
+    },
+    {
+      "source": "club_archive",
+      "external_id": "sponsors-xlsx-16-men-2024",
+      "updates": {
+        "season": "2024-2025",
+        "event_date": "2024-12-15",
+        "date_precision": "day",
+        "location": "Воронеж · учебно-спортивный комплекс ВГАС",
+        "source_url": "https://www.vsu.ru/ru/news/feed/2024/12/18838",
+        "source_label": "ВГУ · новости университета",
+        "notes": "Архив клуба, строка 16; независимо подтверждено ВГУ. 15 декабря 2024 года в УСК ВГАС состоялась Межвузовская универсиада области 2024–2025. ВГУ выиграл баскетбольное двоеборье: цифровой этап и физический этап 2х2 с одной корзиной. Состав: Никита Янишевский, Яков Горностаев, Андрей Кашкин, Егор Хрипушин. Счета отдельных игр не опубликованы."
+      }
+    },
+    {
+      "source": "vsu",
+      "external_id": "20624-phygital",
+      "updates": {
+        "event_date": "2026-08-30",
+        "date_precision": "day",
+        "location": "Смоленск · Дворец спорта «Юбилейный»",
+        "notes": "Бронза в баскетбольном двоеборье подтверждена ВГУ. Федеральная дирекция спортивных мероприятий указывает точную дату фестиваля 30 августа 2026 года и третье место БК ВГУ «Хищные бобры»: https://fd-sport.ru/novosti/v-smolenske-proshel-molodezhnyj-festival-basketbola-3h3-smolenskaya-krepost/. Период 29–31 августа в сообщении ВГУ относится к поездке/фестивалю, а не к точному дню матчей."
+      }
+    },
+    {
+      "source": "vsu",
+      "external_id": "20624-3x3",
+      "updates": {
+        "event_date": "2026-08-30",
+        "date_precision": "day",
+        "location": "Смоленск · Дворец спорта «Юбилейный»",
+        "notes": "ВГУ подтверждает четвертое место и четыре встречи в баскетболе 3х3. Федеральная дирекция спортивных мероприятий указывает точную дату фестиваля 30 августа 2026 года: https://fd-sport.ru/novosti/v-smolenske-proshel-molodezhnyj-festival-basketbola-3h3-smolenskaya-krepost/. Соперники и счета четырех встреч в публикациях не перечислены."
+      }
+    },
+    {
+      "source": "atom_sport",
+      "external_id": "1070-women",
+      "updates": {
+        "season": "2022-2023",
+        "notes": "В женском баскетболе 3х3 ВГУ занял первое место, ИГЭУ — второе, РХТУ — третье. ВГУ независимо подтверждает женское золото и указывает завершение спартакиады 24 июня 2023 года: https://www.vsu.ru/ru/news/feed/2023/07/16767. Точный день баскетбольных матчей в публикациях не указан; дата завершения всей спартакиады не подставлена вместо даты игры."
+      }
+    },
+    {
+      "source": "atom_sport",
+      "external_id": "1295-men-place",
+      "updates": {
+        "season": "2025-2026",
+        "notes": "Серебро ВГУ в Иванове 3–4 октября 2025 года подтверждено организатором и университетом: https://www.vsu.ru/ru/news/feed/2025/10/19615. Это отборочный тур, отдельный от московского финала 5–6 декабря. Счет финальной игры расходится у двух первичных источников (Атом-спорт 20:14, Федерация Ивановской области 21:14); место ВГУ в обоих источниках одинаковое."
+      }
+    },
+    {
+      "source": "atom_sport",
+      "external_id": "1295-men-final",
+      "recommendation": "Both official sources agree that VSU lost and won silver, but disagree on MSU's score. Preserve the organizer's numeric value only with an explicit conflict note, or temporarily clear both score fields pending the protocol. Do not silently change 20 to 21.",
+      "updates": {
+        "season": "2025-2026",
+        "event_date": "2025-10-04",
+        "date_precision": "day",
+        "notes": "Финал ивановского отборочного тура состоялся 4 октября 2025 года: https://ivanovo.russiabasket.ru/news/23255/serebro-na-oranzhevom-atome. Первичные источники расходятся в счете МГУ: организатор Атом-спорт публикует 20:14, Федерация баскетбола Ивановской области — 21:14. Сохранено значение организатора; счет требует сверки с протоколом. Это не московский финал 5–6 декабря 2025 года."
+      }
+    }
+  ],
+  "additional_evidence": [
+    {
+      "source": "club_archive",
+      "external_id": "sponsors-xlsx-12-women-2023",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2023/12/17379",
+      "finding": "ВГУ подтверждает участие в фестивале в Ставрополе, но опубликованные бронзовые награды относятся к мини-футболу и ГТО. Бронза женского баскетбола 3х3 в этой публикации не подтверждена. Не добавлять вторую медаль по этой статье; имеющаяся запись остается утверждением архива клуба."
+    },
+    {
+      "source": "club_archive",
+      "external_id": "sponsors-xlsx-26-men-2024",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2024/11/18672",
+      "finding": "ВГУ подтверждает участие сборной по баскетболу 3х3 в фестивале в Городце 5–8 ноября 2024 года, но не публикует ее итоговое место и счета. Шестое место в существующем архиве независимо не проверено."
+    }
+  ]
+}

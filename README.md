@@ -7,7 +7,7 @@ FastAPI-шаблону и migration blueprint, но не использует ш
 ## Что уже есть
 
 - FastAPI + Pydantic v2, API с префиксом `/api/v1`;
-- async SQLAlchemy 2, SQLite с контролем foreign keys и Alembic;
+- async SQLAlchemy 2, SQLite / PostgreSQL и Alembic;
 - Dishka DI и разделение `router → service → repository`;
 - сущности `teams`, `players`, `media_assets`, `competitions`, `venues`, `matches`,
   `achievements`;
@@ -27,7 +27,7 @@ FastAPI-шаблону и migration blueprint, но не использует ш
 - собственная авторизация: Argon2, непрозрачная server-side session, HttpOnly cookie,
   CSRF и роли `USER`/`EDITOR`/`ADMIN`;
 - собственные JSON-логи с `request_id`, HTTP-метриками и безопасными заголовками;
-- отключённый по умолчанию каркас worker и порты будущих интеграций ASB, Telegram и S3;
+- фоновое обновление АСБ раз в час и подготовленный адаптер FIBA 3×3 раз в сутки;
 - Docker Compose, миграция, тесты, Ruff, mypy и GitHub Actions.
 
 В репозитории намеренно нет `backend-auth`, `backend-shared` и
@@ -58,11 +58,21 @@ Copy-Item .env.example .env
 
 API: `http://localhost:8000`; Swagger: `http://localhost:8000/docs`.
 
+Автоматическое обновление, локальный автозапуск и доступ FIBA:
+[инструкция](docs/sports-auto-sync.md). Статус в админке: `/admin?tab=imports`.
+
+GitHub Pages + Render Free + Supabase, приватные фото и перенос текущих данных:
+[размещение сайта](docs/deployment.md). Шаблон Render: `.env.render.example`.
+
+Обновление текущих матчей и таблиц АСБ: `.venv/Scripts/python.exe scripts/refresh_sports.py`.
+Сезон 2026/27, источники и редактирование фотографий/контактов капитанов:
+[документация](docs/current-season-20261114.md).
+
 Рабочая БД создаётся в игнорируемом Git файле `data/local.db`, изображения сохраняются в `data/media`.
 Файл `data/predatory_beavers.db` хранится как исходный снимок данных; обычный запуск его не меняет.
-Для каждого SQLite-соединения backend включает foreign keys
-и busy timeout. Перед развёртыванием нужно настроить резервное копирование общего каталога
-`data`; API рассчитан на один пишущий экземпляр приложения.
+Для каждого SQLite-соединения backend включает foreign keys и busy timeout; SQLite-профиль
+рассчитан на один пишущий экземпляр. Облачный профиль использует PostgreSQL и private Storage.
+Резервное копирование требуется для выбранной базы и файлов изображений.
 
 Локальный запуск с готовыми исходными данными и администратором:
 

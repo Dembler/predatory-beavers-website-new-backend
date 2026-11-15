@@ -12,6 +12,7 @@ from predatory_beavers.api.search import text_search
 from predatory_beavers.db.uow import UnitOfWork
 from predatory_beavers.modules.audit.models import AuditAction
 from predatory_beavers.modules.audit.service import AuditService
+from predatory_beavers.modules.club.models import MediaAsset
 from predatory_beavers.modules.content.models import ContentBlock, ContentSection
 from predatory_beavers.modules.content.schemas import ContentCreate, ContentRead, ContentUpdate
 
@@ -74,7 +75,10 @@ class ContentService:
                 previous = await self.get(previous_id)
                 await self._uow.commit()
                 return previous
-            block = ContentBlock(**payload.model_dump(mode="json"))
+            photo = await self._require_photo(payload.photo_asset_id)
+            values = payload.model_dump(mode="json")
+            values["photo_asset_id"] = payload.photo_asset_id
+            block = ContentBlock(**values, photo=photo)
             self._session.add(block)
             await self._session.flush()
             await self._record(AuditAction.CREATE, block, after=self._serialize(block))
@@ -87,7 +91,11 @@ class ContentService:
             block = await self.get(block_id)
             require_version(block.updated_at, payload.expected_updated_at)
             before = self._serialize(block)
-            for field, value in payload.model_dump(mode="json", exclude_unset=True).items():
+            values = payload.model_dump(mode="json", exclude_unset=True)
+            if "photo_asset_id" in payload.model_fields_set:
+                block.photo = await self._require_photo(payload.photo_asset_id)
+                values["photo_asset_id"] = payload.photo_asset_id
+            for field, value in values.items():
                 setattr(block, field, value)
             await self._session.flush()
             await self._record(AuditAction.UPDATE, block, before, self._serialize(block))
@@ -105,6 +113,16 @@ class ContentService:
             await self._session.flush()
             await self._record(AuditAction.DELETE, block, before)
             await self._uow.commit()
+
+    async def _require_photo(self, asset_id: UUID | None) -> MediaAsset | None:
+        if asset_id is None:
+            return None
+        asset = await self._session.scalar(
+            select(MediaAsset).where(MediaAsset.id == asset_id, MediaAsset.is_deleted.is_(False))
+        )
+        if asset is None:
+            raise NotFoundError("Photo not found")
+        return asset
 
     @staticmethod
     def _serialize(block: ContentBlock) -> dict[str, object]:

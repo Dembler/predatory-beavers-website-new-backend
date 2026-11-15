@@ -92,9 +92,11 @@ def cache_photos(*, fetch: bool = False, refresh: bool = False) -> dict[str, int
                     "height": image.height,
                 }
     if fetch:
-        index_file.write_text(
+        temporary_index = index_file.with_suffix(".json.tmp")
+        temporary_index.write_text(
             json.dumps(entries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
+        temporary_index.replace(index_file)
     return {"verified": len(entries), "downloaded": downloaded}
 
 

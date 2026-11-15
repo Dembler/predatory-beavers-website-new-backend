@@ -63,7 +63,9 @@ def test_import_is_idempotent_preserves_existing_match_edits_and_backs_up(
     assert first["archive_created"] == len(results)
     finished_games = [game for game in games if game["GameStatus"] == 1]
     assert first["matches_created"] == len(finished_games)
-    assert first["matches_unpublished_skipped"] == len(games) - len(finished_games)
+    assert first["matches_unpublished_skipped"] + first["matches_scheduled_archive_only"] == len(
+        games
+    ) - len(finished_games)
     with sqlite3.connect(database) as connection:
         connection.execute(
             "UPDATE matches SET notes='Editor change',home_team_name='Edited name' "
@@ -131,31 +133,38 @@ def test_public_archive_filters_paginates_and_exposes_real_source_coverage(
         assert legacy[0]["records"] == 0
         assert legacy[0]["status"] == "historical_identity_unverified"
         honours = client.get("/api/v1/results-archive/honours").json()["data"]
-        assert honours["titles"] == 11
+        assert honours["titles"] == 17
         assert honours["championships"] == 1
-        assert honours["podiums"] == 33
+        assert honours["podiums"] == 42
         assert honours["silver"] == 10
-        assert honours["bronze"] == 12
+        assert honours["bronze"] == 15
         assert honours["from_year"] == 2011
         women_honours = client.get("/api/v1/results-archive/honours?team=women").json()["data"]
-        assert women_honours["titles"] == 2
+        assert women_honours["titles"] == 3
         assert all(item["team"] == "women" for item in women_honours["items"])
 
 
 def test_manifests_reject_personal_fields_and_do_not_mislabel_fallback_seasons() -> None:
-    results, _, games = importer.load_sources()
+    results, coverage, games = importer.load_sources()
     assert len({(row.source, row.external_id) for row in results}) == len(results)
+    coverage_keys = [(row["provider"], row["team"], row["season"]) for row in coverage]
+    assert len(coverage_keys) == len(set(coverage_keys))
     invalid = results[0].model_dump()
     invalid["player_birth_date"] = "2000-01-01"
     with pytest.raises(ValidationError):
         importer.PublicResult.model_validate(invalid)
-    assert not any(game["season"] == "2026-2027" for game in games)
+    current = [game for game in games if game["season"] == "2026-2027"]
+    assert len(current) >= 4
+    assert all(game["GameDate"].endswith("2026") for game in current)
+    assert len({game["GameID"] for game in games}) == len(games)
     unpublished = [row for row in results if row.source == "asb" and row.status == "unpublished"]
     assert len(unpublished) == 14
     assert all(row.club_score is None and row.opponent_score is None for row in unpublished)
     asb = json.loads((ROOT / "docs/results-asb.json").read_text(encoding="utf-8"))
-    assert len(games) == 162
-    assert all(item["records"] == 0 for item in asb["coverage"] if item["season"] == "2026-2027")
+    assert len(games) >= 166
+    assert all(item["records"] > 0 for item in asb["coverage"] if item["season"] == "2026-2027")
+    by_id = {row.external_id: row for row in results}
+    assert by_id["20726-men"].season == by_id["20726-women"].season == "2026-2027"
 
 
 def test_reviewed_sources_correct_format_and_do_not_duplicate_academic_reports() -> None:
@@ -166,6 +175,27 @@ def test_reviewed_sources_correct_format_and_do_not_duplicate_academic_reports()
     assert marathon.place == 1
     assert str(marathon.source_url) == "https://www.vsu.ru/ru/news/feed/2025/02/18927"
     assert by_id["sponsors-xlsx-8-men-2024"].discipline == "3x3"
+    phygital = by_id["sponsors-xlsx-16-men-2024"]
+    assert str(phygital.event_date) == "2024-12-15"
+    assert phygital.season == "2024-2025"
+    assert str(by_id["20624-phygital"].event_date) == "2026-08-30"
+    assert str(by_id["20624-3x3"].event_date) == "2026-08-30"
+    ivanovo = by_id["1295-men-final"]
+    assert str(ivanovo.event_date) == "2025-10-04"
+    assert ivanovo.opponent_score == 20
+    assert "21:14" in ivanovo.notes
+    moscow = [row for row in rows if row.source == "csst" and "московский финал" in row.tournament]
+    games = [row for row in moscow if row.opponent_name]
+    assert len(games) == 5
+    assert sorted((row.club_score, row.opponent_score) for row in games) == [
+        (14, 11),
+        (15, 21),
+        (20, 21),
+        (21, 7),
+        (21, 14),
+    ]
+    assert sorted(str(row.event_date) for row in games) == ["2025-12-05"] * 3 + ["2025-12-06"] * 2
+    assert [row.place for row in moscow if row.opponent_name is None] == [4]
     assk = by_id["sponsors-xlsx-10-men-2024"]
     assert str(assk.event_date) == "2024-11-30"
     assert str(assk.source_url).startswith("https://ssca.ru/")
@@ -207,5 +237,5 @@ def test_honours_api_checks_conflicting_nonpodium_place_before_counting(
         )
     with TestClient(create_app(settings)) as client:
         honours = client.get("/api/v1/results-archive/honours").json()["data"]
-        assert honours["podiums"] == 32
-        assert honours["bronze"] == 11
+        assert honours["podiums"] == 41
+        assert honours["bronze"] == 14

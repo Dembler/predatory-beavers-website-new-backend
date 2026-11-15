@@ -15,7 +15,8 @@ def upgrade() -> None:
         "media_assets",
         sa.Column("legacy_public", sa.Boolean(), nullable=False, server_default=sa.false()),
     )
-    op.execute(sa.text("UPDATE media_assets SET legacy_public = 1"))
+    assets = sa.table("media_assets", sa.column("legacy_public", sa.Boolean()))
+    op.execute(assets.update().values(legacy_public=True))
 
 
 def downgrade() -> None:

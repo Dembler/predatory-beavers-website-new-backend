@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "fetched_at": "2026-11-03T16:38:54.779441+00:00",
+  "version": 2,
+  "fetched_at": "2026-11-15T08:54:53.294398+00:00",
   "teams": [
     {
       "team": "men",
@@ -19,20 +19,19 @@
     {
       "provider": "asb",
       "team": "men",
-      "season": "2026-2027",
-      "records": 0,
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=0&format=json",
-      "status": "no_published_games",
-      "note": "Виджет вернул игры другого сезона; они исключены из этого года"
-    },
-    {
-      "provider": "asb",
-      "team": "men",
       "season": "2025-2026",
       "records": 11,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 11,
+      "modern_records": 11,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -41,7 +40,15 @@
       "records": 11,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 11,
+      "modern_records": 11,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -50,7 +57,15 @@
       "records": 16,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 16,
+      "modern_records": 16,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -59,7 +74,15 @@
       "records": 15,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=45555&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=45555&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2023&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 15,
+      "modern_records": 0,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -68,7 +91,15 @@
       "records": 12,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 12,
+      "modern_records": 12,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -77,7 +108,15 @@
       "records": 9,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=43372&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=43372&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2021&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 9,
+      "modern_records": 0,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -86,7 +125,15 @@
       "records": 11,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2020&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 11,
+      "modern_records": 2,
+      "scheduled_records": 2,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -95,16 +142,15 @@
       "records": 14,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=40000&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
-    },
-    {
-      "provider": "asb",
-      "team": "women",
-      "season": "2026-2027",
-      "records": 0,
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=0&format=json",
-      "status": "no_published_games",
-      "note": "Виджет вернул игры другого сезона; они исключены из этого года"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=40000&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2019&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 14,
+      "modern_records": 2,
+      "scheduled_records": 2,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -113,7 +159,15 @@
       "records": 8,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 8,
+      "modern_records": 8,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -122,7 +176,15 @@
       "records": 10,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 10,
+      "modern_records": 10,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -131,7 +193,15 @@
       "records": 8,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 8,
+      "modern_records": 8,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -140,7 +210,15 @@
       "records": 8,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=45555&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=45555&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2023&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 8,
+      "modern_records": 0,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -149,7 +227,15 @@
       "records": 10,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 10,
+      "modern_records": 10,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -158,7 +244,15 @@
       "records": 9,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=43372&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=43372&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2021&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 9,
+      "modern_records": 0,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     },
     {
       "provider": "asb",
@@ -167,7 +261,51 @@
       "records": 10,
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=42103&format=json",
       "status": "imported",
-      "note": "Все опубликованные игры официального TeamGames для сезона"
+      "checked_at": "2026-11-11T16:47:09.841294+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=42103&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2020&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 10,
+      "modern_records": 0,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
+    },
+    {
+      "provider": "asb",
+      "team": "men",
+      "season": "2026-2027",
+      "records": 3,
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=56293&format=json",
+      "status": "imported",
+      "checked_at": "2026-11-15T08:54:53.294398+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7433?compId=56293&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2027&lang=ru&maxResultCount=1000",
+        "https://asb.sportoteka.org/api/abc/comps/calendar?tag=asb-cfo-36-m&season=2027&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 11,
+      "modern_records": 3,
+      "scheduled_records": 2,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
+    },
+    {
+      "provider": "asb",
+      "team": "women",
+      "season": "2026-2027",
+      "records": 1,
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=56293&format=json",
+      "status": "imported",
+      "checked_at": "2026-11-15T08:54:53.294398+00:00",
+      "source_urls": [
+        "https://asb.infobasket.su/Widget/TeamGames/7695?compId=56293&format=json",
+        "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2027&lang=ru&maxResultCount=1000",
+        "https://asb.sportoteka.org/api/abc/comps/calendar?tag=asb-cfo-36-w&season=2027&lang=ru&maxResultCount=1000"
+      ],
+      "raw_widget_records": 8,
+      "modern_records": 1,
+      "scheduled_records": 0,
+      "note": "Проверены официальный архив TeamGames и новый календарь АСБ Sportoteka. Опубликованные игры объединены по GameID."
     }
   ],
   "games": [
@@ -194,7 +332,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968506,
@@ -219,7 +359,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968524,
@@ -244,7 +386,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968511,
@@ -269,7 +413,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968529,
@@ -294,7 +440,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968515,
@@ -319,7 +467,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968521,
@@ -344,7 +494,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 1022118,
@@ -369,7 +521,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 1022124,
@@ -394,7 +548,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 1047488,
@@ -419,7 +575,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 1047489,
@@ -444,7 +602,9 @@
       "external_team_id": "7433",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865380,
@@ -469,7 +629,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865367,
@@ -494,7 +656,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865364,
@@ -519,7 +683,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865385,
@@ -544,7 +710,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865370,
@@ -569,7 +737,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865375,
@@ -594,7 +764,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865389,
@@ -619,7 +791,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 884990,
@@ -644,7 +818,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 884992,
@@ -669,7 +845,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 901694,
@@ -694,7 +872,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 901702,
@@ -719,7 +899,9 @@
       "external_team_id": "7433",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797330,
@@ -744,7 +926,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797344,
@@ -769,7 +953,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797326,
@@ -794,7 +980,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797350,
@@ -819,7 +1007,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797367,
@@ -844,7 +1034,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797334,
@@ -869,7 +1061,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797362,
@@ -894,7 +1088,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797356,
@@ -919,7 +1115,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797338,
@@ -944,7 +1142,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 813767,
@@ -969,7 +1169,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 813769,
@@ -994,7 +1196,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 819228,
@@ -1019,7 +1223,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 819230,
@@ -1044,7 +1250,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 826994,
@@ -1069,7 +1277,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 826993,
@@ -1094,7 +1304,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 826999,
@@ -1119,7 +1331,9 @@
       "external_team_id": "7433",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 661273,
@@ -1519,7 +1733,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621278,
@@ -1544,7 +1760,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621264,
@@ -1569,7 +1787,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Forfeit",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621274,
@@ -1594,7 +1814,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621285,
@@ -1619,7 +1841,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621259,
@@ -1644,7 +1868,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621252,
@@ -1669,7 +1895,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Forfeit",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621282,
@@ -1694,7 +1922,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Forfeit",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 633677,
@@ -1719,7 +1949,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 633617,
@@ -1744,7 +1976,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 633618,
@@ -1769,7 +2003,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 633679,
@@ -1794,7 +2030,9 @@
       "external_team_id": "7433",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 586411,
@@ -2256,8 +2494,8 @@
       "TeamBid": 7581,
       "TeamNameAru": "ВГУ (Воронеж)",
       "TeamNameBru": "КГУ (Курск)",
-      "ScoreA": 0,
-      "ScoreB": 0,
+      "ScoreA": null,
+      "ScoreB": null,
       "TeamLogoA": "https://files.infobasket.su/Logos/17024.png",
       "TeamLogoB": "https://files.infobasket.su/Logos/5965.png",
       "ArenaRu": "С/З \"БГТУ\"",
@@ -2269,7 +2507,9 @@
       "external_team_id": "7433",
       "season": "2019-2020",
       "season_comp_id": "42103",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "official_status": "Scheduled",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2020&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 565271,
@@ -2281,8 +2521,8 @@
       "TeamBid": 7640,
       "TeamNameAru": "ВГУ (Воронеж)",
       "TeamNameBru": "КГУ (Калуга)",
-      "ScoreA": 0,
-      "ScoreB": 0,
+      "ScoreA": null,
+      "ScoreB": null,
       "TeamLogoA": "https://files.infobasket.su/Logos/17024.png",
       "TeamLogoB": "https://files.infobasket.su/Logos/16270.png",
       "ArenaRu": "С/З \"БГТУ\"",
@@ -2294,7 +2534,9 @@
       "external_team_id": "7433",
       "season": "2019-2020",
       "season_comp_id": "42103",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=42103&format=json",
+      "official_status": "Scheduled",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2020&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 513968,
@@ -2606,8 +2848,8 @@
       "TeamBid": 7433,
       "TeamNameAru": "КФ МГТУ (Калуга)",
       "TeamNameBru": "ВГУ (Воронеж)",
-      "ScoreA": 0,
-      "ScoreB": 0,
+      "ScoreA": null,
+      "ScoreB": null,
       "TeamLogoA": "https://img.infobasket.su/logo/0.png",
       "TeamLogoB": "https://img.infobasket.su/logo/0.png",
       "ArenaRu": "КФ МГТУ",
@@ -2619,7 +2861,9 @@
       "external_team_id": "7433",
       "season": "2018-2019",
       "season_comp_id": "40000",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=40000&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=40000&format=json",
+      "official_status": "Scheduled",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2019&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 525315,
@@ -2631,8 +2875,8 @@
       "TeamBid": 7629,
       "TeamNameAru": "ВГУ (Воронеж)",
       "TeamNameBru": "БГУОР (Брянск)",
-      "ScoreA": 0,
-      "ScoreB": 0,
+      "ScoreA": null,
+      "ScoreB": null,
       "TeamLogoA": "https://img.infobasket.su/logo/0.png",
       "TeamLogoB": "https://img.infobasket.su/logo/0.png",
       "ArenaRu": "КФ МГТУ",
@@ -2644,7 +2888,9 @@
       "external_team_id": "7433",
       "season": "2018-2019",
       "season_comp_id": "40000",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=40000&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7433?compId=40000&format=json",
+      "official_status": "Scheduled",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2019&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968539,
@@ -2669,7 +2915,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 990737,
@@ -2694,7 +2942,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968546,
@@ -2719,7 +2969,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968541,
@@ -2744,7 +2996,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968549,
@@ -2769,7 +3023,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968536,
@@ -2794,7 +3050,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968551,
@@ -2819,7 +3077,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "Forfeit",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 968543,
@@ -2844,7 +3104,9 @@
       "external_team_id": "7695",
       "season": "2025-2026",
       "season_comp_id": "49695",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=49695&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2026&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865395,
@@ -2869,7 +3131,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865399,
@@ -2894,7 +3158,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865392,
@@ -2919,7 +3185,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865400,
@@ -2944,7 +3212,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865402,
@@ -2969,7 +3239,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865405,
@@ -2994,7 +3266,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865390,
@@ -3019,7 +3293,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 865409,
@@ -3044,7 +3320,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 901544,
@@ -3069,7 +3347,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 901545,
@@ -3094,7 +3374,9 @@
       "external_team_id": "7695",
       "season": "2024-2025",
       "season_comp_id": "48154",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=48154&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2025&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797318,
@@ -3119,7 +3401,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797307,
@@ -3144,7 +3428,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797321,
@@ -3169,7 +3455,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797315,
@@ -3194,7 +3482,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797311,
@@ -3219,7 +3509,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 797302,
@@ -3244,7 +3536,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 812104,
@@ -3269,7 +3563,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 812107,
@@ -3294,7 +3590,9 @@
       "external_team_id": "7695",
       "season": "2023-2024",
       "season_comp_id": "46852",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=46852&format=json",
+      "official_status": "ResultConfirmed",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2024&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 670072,
@@ -3508,8 +3806,8 @@
       "TeamNameBru": "ВГУ (Воронеж)",
       "ScoreA": 0,
       "ScoreB": 20,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/7382.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/21127.png",
       "ArenaRu": "С/З \"ВГПУ\"",
       "ArenaId": 12195,
       "CompNameRu": "Круговой турнир",
@@ -3519,7 +3817,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Forfeit",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621289,
@@ -3533,8 +3833,8 @@
       "TeamNameBru": "ВГПУ (Воронеж)",
       "ScoreA": 41,
       "ScoreB": 26,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/21127.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/16528.png",
       "ArenaRu": "С/З \"ВГПУ\"",
       "ArenaId": 12195,
       "CompNameRu": "Круговой турнир",
@@ -3544,7 +3844,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621292,
@@ -3558,8 +3860,8 @@
       "TeamNameBru": "ВГУ (Воронеж)",
       "ScoreA": 47,
       "ScoreB": 22,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/11180.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/21127.png",
       "ArenaRu": "С/З \"ВГТУ\"",
       "ArenaId": 12372,
       "CompNameRu": "Круговой турнир",
@@ -3569,7 +3871,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621303,
@@ -3583,8 +3887,8 @@
       "TeamNameBru": "ВГАС-2 (Воронеж)",
       "ScoreA": 26,
       "ScoreB": 46,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/21127.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/13182.png",
       "ArenaRu": "С/З \"ВГТУ\"",
       "ArenaId": 12372,
       "CompNameRu": "Круговой турнир",
@@ -3594,7 +3898,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621299,
@@ -3608,8 +3914,8 @@
       "TeamNameBru": "ВГАУ (Воронеж)",
       "ScoreA": 66,
       "ScoreB": 48,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/21127.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/16493.png",
       "ArenaRu": "С/З \"ВГПУ\"",
       "ArenaId": 12195,
       "CompNameRu": "Круговой турнир",
@@ -3619,7 +3925,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 621297,
@@ -3633,8 +3941,8 @@
       "TeamNameBru": "ВГУ (Воронеж)",
       "ScoreA": 26,
       "ScoreB": 44,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/11857.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/21127.png",
       "ArenaRu": "С/З \"ВГУ\"",
       "ArenaId": 12371,
       "CompNameRu": "Круговой турнир",
@@ -3644,7 +3952,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 634225,
@@ -3658,8 +3968,8 @@
       "TeamNameBru": "ВГАУ (Воронеж)",
       "ScoreA": 70,
       "ScoreB": 35,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/21127.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/16493.png",
       "ArenaRu": "С/З \"ВГУ\"",
       "ArenaId": 12371,
       "CompNameRu": "4-6 места",
@@ -3669,7 +3979,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 634228,
@@ -3683,8 +3995,8 @@
       "TeamNameBru": "ВГУ (Воронеж)",
       "ScoreA": 26,
       "ScoreB": 57,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/16528.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/21127.png",
       "ArenaRu": "С/З \"ВГПУ\"",
       "ArenaId": 12195,
       "CompNameRu": "4-6 места",
@@ -3694,7 +4006,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 634230,
@@ -3708,8 +4022,8 @@
       "TeamNameBru": "ВГУ (Воронеж)",
       "ScoreA": 33,
       "ScoreB": 32,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/13182.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/21127.png",
       "ArenaRu": "С/З \"ВГТУ\"",
       "ArenaId": 12372,
       "CompNameRu": "1/2 финала (1)",
@@ -3719,7 +4033,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 634232,
@@ -3733,8 +4049,8 @@
       "TeamNameBru": "ВГМУ (Воронеж)",
       "ScoreA": 45,
       "ScoreB": 50,
-      "TeamLogoA": "https://img.infobasket.su/logo/0.png",
-      "TeamLogoB": "https://img.infobasket.su/logo/0.png",
+      "TeamLogoA": "https://files.infobasket.su/Logos/21127.png",
+      "TeamLogoB": "https://files.infobasket.su/Logos/11857.png",
       "ArenaRu": "С/З \"ВГИФК 2\"",
       "ArenaId": 12263,
       "CompNameRu": "Финал за 3 место",
@@ -3744,7 +4060,9 @@
       "external_team_id": "7695",
       "season": "2021-2022",
       "season_comp_id": "44427",
-      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json"
+      "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=44427&format=json",
+      "official_status": "Result",
+      "status_source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2022&lang=ru&maxResultCount=1000"
     },
     {
       "GameID": 586263,
@@ -4220,6 +4538,110 @@
       "season": "2019-2020",
       "season_comp_id": "42103",
       "source_url": "https://asb.infobasket.su/Widget/TeamGames/7695?compId=42103&format=json"
+    },
+    {
+      "GameID": 1138965,
+      "GameDate": "12.11.2026",
+      "HasTime": true,
+      "GameTimeMsk": "16:30",
+      "GameStatus": 1,
+      "official_status": "ResultConfirmed",
+      "TeamAid": 7433,
+      "TeamBid": 7635,
+      "TeamNameAru": "ВГУ (Воронеж)",
+      "TeamNameBru": "ВГПУ (Воронеж)",
+      "ScoreA": 60,
+      "ScoreB": 51,
+      "TeamLogoA": "https://files.infobasket.su/logos/17024.png",
+      "TeamLogoB": "https://files.infobasket.su/logos/16494.png",
+      "ArenaId": 12195,
+      "ArenaRu": "С/З \"ВГПУ\"",
+      "CompNameRu": "Круговой турнир",
+      "LeagueNameRu": "Воронежская область (м)",
+      "LeagueShortNameRu": "26/27",
+      "team": "men",
+      "external_team_id": "7433",
+      "season": "2026-2027",
+      "season_comp_id": "56293",
+      "source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2027&lang=ru&maxResultCount=1000"
+    },
+    {
+      "GameID": 1138942,
+      "GameDate": "20.11.2026",
+      "HasTime": true,
+      "GameTimeMsk": "19:30",
+      "GameStatus": 0,
+      "official_status": "Scheduled",
+      "TeamAid": 6870,
+      "TeamBid": 7433,
+      "TeamNameAru": "ВГТУ-2 (Воронеж)",
+      "TeamNameBru": "ВГУ (Воронеж)",
+      "ScoreA": null,
+      "ScoreB": null,
+      "TeamLogoA": "https://img.infobasket.su/logo/66156.png",
+      "TeamLogoB": "https://files.infobasket.su/logos/17024.png",
+      "ArenaId": 12372,
+      "ArenaRu": "С/З \"ВГТУ\"",
+      "CompNameRu": "Круговой турнир",
+      "LeagueNameRu": "Воронежская область (м)",
+      "LeagueShortNameRu": "26/27",
+      "team": "men",
+      "external_team_id": "7433",
+      "season": "2026-2027",
+      "season_comp_id": "56293",
+      "source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2027&lang=ru&maxResultCount=1000"
+    },
+    {
+      "GameID": 1138960,
+      "GameDate": "27.11.2026",
+      "HasTime": true,
+      "GameTimeMsk": "18:30",
+      "GameStatus": 0,
+      "official_status": "Scheduled",
+      "TeamAid": 7436,
+      "TeamBid": 7433,
+      "TeamNameAru": "ВГАС (Воронеж)",
+      "TeamNameBru": "ВГУ (Воронеж)",
+      "ScoreA": null,
+      "ScoreB": null,
+      "TeamLogoA": "https://files.infobasket.su/logos/16208.png",
+      "TeamLogoB": "https://files.infobasket.su/logos/17024.png",
+      "ArenaId": 11689,
+      "ArenaRu": "Учебно-спортивный Комплекс №2 ВГАС",
+      "CompNameRu": "Круговой турнир",
+      "LeagueNameRu": "Воронежская область (м)",
+      "LeagueShortNameRu": "26/27",
+      "team": "men",
+      "external_team_id": "7433",
+      "season": "2026-2027",
+      "season_comp_id": "56293",
+      "source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7433&tag=asb&season=2027&lang=ru&maxResultCount=1000"
+    },
+    {
+      "GameID": 1138973,
+      "GameDate": "13.11.2026",
+      "HasTime": true,
+      "GameTimeMsk": "17:00",
+      "GameStatus": 1,
+      "official_status": "ResultConfirmed",
+      "TeamAid": 7695,
+      "TeamBid": 7364,
+      "TeamNameAru": "ВГУ-Хищные бобры (Воронеж)",
+      "TeamNameBru": "ВГАС (Воронеж)",
+      "ScoreA": 25,
+      "ScoreB": 90,
+      "TeamLogoA": "https://files.infobasket.su/logos/21127.png",
+      "TeamLogoB": "https://img.infobasket.su/logo/24565.png",
+      "ArenaId": 11689,
+      "ArenaRu": "Учебно-спортивный Комплекс №2 ВГАС",
+      "CompNameRu": "Круговой турнир",
+      "LeagueNameRu": "Воронежская область (ж)",
+      "LeagueShortNameRu": "26/27",
+      "team": "women",
+      "external_team_id": "7695",
+      "season": "2026-2027",
+      "season_comp_id": "56293",
+      "source_url": "https://asb.sportoteka.org/api/abc/teams/games?teamId=7695&tag=asb&season=2027&lang=ru&maxResultCount=1000"
     }
   ]
 }

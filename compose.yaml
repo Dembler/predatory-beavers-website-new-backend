@@ -8,6 +8,11 @@ services:
       APP_DATABASE_URL: sqlite+aiosqlite:////app/data/local.db
       APP_MEDIA_STORAGE_PATH: /app/data/media
       APP_COOKIE_SECURE: "false"
+      APP_SPORTS_SYNC_ENABLED: "true"
+      APP_SPORTS_SYNC_INTERVAL_SECONDS: "${APP_SPORTS_SYNC_INTERVAL_SECONDS:-3600}"
+      APP_SPORTS_SYNC_FIBA_INTERVAL_SECONDS: "${APP_SPORTS_SYNC_FIBA_INTERVAL_SECONDS:-86400}"
+      APP_SPORTS_SYNC_TIMEOUT_SECONDS: "600"
+      APP_FIBA_API_KEY: "${APP_FIBA_API_KEY:-}"
     volumes: &backend_volumes
       - backend_data:/app/data
     restart: "no"

@@ -172,6 +172,36 @@ def apply() -> None:
         ],
         check=True,
     )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/sync_site_content.py"),
+            "--database",
+            str(DATABASE),
+            "--apply",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/seed_captain_portraits.py"),
+            "--database",
+            str(DATABASE),
+            "--apply",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/seed_history_photos.py"),
+            "--database",
+            str(DATABASE),
+            "--apply",
+        ],
+        check=True,
+    )
     inspect()
 
 

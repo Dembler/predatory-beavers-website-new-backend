@@ -7,7 +7,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 from sqlalchemy import DateTime, String, select, update
-from sqlalchemy.dialects.sqlite import insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -91,6 +92,11 @@ class CreationLedger:
             separators=(",", ":"),
         ).encode("utf-8")
         request_hash = hashlib.sha256(encoded).hexdigest()
+        insert = (
+            pg_insert
+            if self._session.get_bind().dialect.name == "postgresql"
+            else sqlite_insert
+        )
         # A write reservation serializes requests even when both arrive before the
         # first response. The losing request observes the committed entity ID.
         inserted = await self._session.scalar(

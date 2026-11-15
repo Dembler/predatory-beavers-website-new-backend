@@ -23,6 +23,127 @@ BASE = "https://asb.infobasket.su"
 CACHE = ROOT / "data/standings-research"
 MANIFEST = ROOT / "docs/asb-standings.json"
 TEAMS = {"men": 7433, "women": 7695}
+MODERN_BASE = "https://asb.sportoteka.org/api/abc"
+
+
+def modern_tables(payload, participation, games, *, team, team_id, season, source_url):
+    """Read full official totals; never infer standings from the team's games."""
+    year = int(season.split("-")[1])
+    if payload.get("status") != "Ok" or payload.get("totalCount") != len(payload.get("items", [])):
+        raise ValueError("Incomplete official standings response")
+    tables = []
+    for index, item in enumerate(payload["items"]):
+        stage = item["comp"]
+        if stage["season"] != year or stage["compType"] != "RoundRobin":
+            continue
+        standings = item.get("standings") or []
+        if not any(row["teamId"] == team_id for row in standings):
+            continue
+        rows = []
+        for row in standings:
+            fields = [
+                "totalGames",
+                "totalWin",
+                "totalDefeat",
+                "totalPoints",
+                "totalGoalPlus",
+                "totalGoalMinus",
+            ]
+            if any(not isinstance(row.get(field), int) for field in fields):
+                raise ValueError("Registration lists are not numerical standings")
+            rows.append(
+                dict(
+                    position=row["place"],
+                    team_name=row["name"],
+                    external_team_id=str(row["teamId"]),
+                    team_logo_url=team_logo_path(str(row["teamId"]), row["name"])
+                    or row.get("logo"),
+                    played=row["totalGames"],
+                    wins=row["totalWin"],
+                    losses=row["totalDefeat"],
+                    draws=row.get("totalDraw") or 0,
+                    table_points=row["totalPoints"],
+                    points_for=row["totalGoalPlus"],
+                    points_against=row["totalGoalMinus"],
+                )
+            )
+        played = [
+            g["game"]["defaultZoneDateTime"]
+            for g in games
+            if g["comp"]["id"] == stage["id"]
+            and g["game"]["gameStatus"] in {"Result", "ResultConfirmed", "Forfeit"}
+        ]
+        path = [
+            "Чемпионат АСБ",
+            "Мужчины" if team == "men" else "Женщины",
+            participation["name"],
+            stage["name"],
+        ]
+        tables.append(
+            dict(
+                team=team,
+                external_team_id=str(team_id),
+                season=season,
+                competition_id=str(stage["id"]),
+                name=" / ".join(path[2:]),
+                path=path,
+                source_url=source_url,
+                tournament_id=str(participation["compId"]),
+                tournament_name=participation["name"],
+                stage_name=stage["name"],
+                stage_kind="group",
+                stage_order=index,
+                last_game_at=max(played) if played else None,
+                last_game_precision="time" if played else None,
+                rows=rows,
+                games=[],
+            )
+        )
+    return tables
+
+
+async def collect_modern(fetch, *, at=None):
+    at = at or datetime.now(timezone(timedelta(hours=3)))
+    year = at.year + (at.month >= 7)
+    season = f"{year - 1}-{year}"
+    tables, audits = [], []
+    for team, team_id in TEAMS.items():
+        comps_url = f"{MODERN_BASE}/teams/comps?teamId={team_id}&tag=asb&season={year}&lang=ru"
+        participation = await fetch(comps_url)
+        if participation.get("status") != "Ok" or participation.get("totalCount") != len(
+            participation.get("items", [])
+        ):
+            raise ValueError("Incomplete official competition index")
+        games_url = (
+            f"{MODERN_BASE}/teams/games?teamId={team_id}&tag=asb"
+            f"&season={year}&lang=ru&maxResultCount=1000"
+        )
+        games = await fetch(games_url)
+        if games.get("status") != "Ok" or games.get("totalCount") != len(games.get("items", [])):
+            raise ValueError("Incomplete official team calendar")
+        for comp in participation["items"]:
+            url = f"{MODERN_BASE}/comps/standings?tag={comp['tag']}&season={year}&lang=ru"
+            stages = modern_tables(
+                await fetch(url),
+                comp,
+                games["items"],
+                team=team,
+                team_id=team_id,
+                season=season,
+                source_url=url,
+            )
+            tables.extend(stages)
+            audits.append(
+                dict(
+                    team=team,
+                    season=season,
+                    tournament_id=str(comp["compId"]),
+                    tournament_name=comp["name"],
+                    source_url=comps_url,
+                    checked_competition_ids=[s["competition_id"] for s in stages],
+                )
+            )
+    return tables, audits
 
 
 def walk(nodes, path=(), ancestors=()):
@@ -105,6 +226,80 @@ def playoff_games(pairs, season, source_url):
     return result
 
 
+async def refresh_current():
+    """Refresh current Sportoteka stages without depending on historical endpoints."""
+    document = json.loads(MANIFEST.read_text(encoding="utf8"))
+    fetched_at = datetime.now(UTC).isoformat()
+    CACHE.mkdir(exist_ok=True)
+    async with httpx.AsyncClient(timeout=40, trust_env=False) as client:
+
+        async def fetch(url):
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            filename = CACHE / (hashlib.sha256(url.encode()).hexdigest()[:20] + ".json")
+            filename.write_text(
+                json.dumps(
+                    dict(url=url, fetched_at=fetched_at, data=data), ensure_ascii=False, indent=2
+                )
+                + "\n",
+                encoding="utf8",
+            )
+            return data
+
+        tables, audits = await collect_modern(fetch)
+    refreshed_seasons = {audit["season"] for audit in audits}
+    old = {(t["team"], t["competition_id"]): t for t in document["tables"]}
+    new = {(t["team"], t["competition_id"]): t for t in tables}
+    missing = [
+        key for key, table in old.items() if table["season"] in refreshed_seasons and key not in new
+    ]
+    if missing:
+        raise ValueError(f"Previously verified current stages disappeared: {missing}")
+    old.update(new)
+    document["tables"] = sorted(
+        old.values(), key=lambda t: (t["season"], t["team"], t["stage_order"])
+    )
+    previous_audits = {
+        (a["team"], a["season"], a["tournament_id"]): a
+        for a in document.get("tournament_coverage", [])
+    }
+    for audit in audits:
+        stages = [
+            t
+            for t in tables
+            if t["team"] == audit["team"] and t["tournament_id"] == audit["tournament_id"]
+        ]
+        audit.update(
+            numerical_table_count=len(stages),
+            playoff_stage_count=0,
+            published_game_count=0,
+            status="published" if stages else "no_published_stages_for_verified_identity",
+        )
+        previous_audits[(audit["team"], audit["season"], audit["tournament_id"])] = audit
+    document["tournament_coverage"] = list(previous_audits.values())
+    for coverage in document["coverage"]:
+        stages = [
+            t for t in tables if (t["team"], t["season"]) == (coverage["team"], coverage["season"])
+        ]
+        if stages:
+            coverage.update(
+                records=len(stages),
+                numerical_table_count=len(stages),
+                playoff_stage_count=0,
+                published_game_count=0,
+                status="published",
+                tournament_count=len({t["tournament_id"] for t in stages}),
+                checked_competition_ids=[t["competition_id"] for t in stages],
+                note="Числовые таблицы текущего сезона проверены в официальном API АСБ Sportoteka.",
+            )
+    document["fetched_at"] = fetched_at
+    temporary = MANIFEST.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
+    temporary.replace(MANIFEST)
+    print(f"Refreshed {len(tables)} official current-season stages")
+
+
 async def collect(*, refresh: bool = False):
     CACHE.mkdir(exist_ok=True)
     document = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -115,10 +310,10 @@ async def collect(*, refresh: bool = False):
     async with httpx.AsyncClient(timeout=60, trust_env=False) as client:
 
         async def fetch(path):
-            url = BASE + path
+            url = path if path.startswith(MODERN_BASE + "/") else BASE + path
             filename = CACHE / (hashlib.sha256(url.encode()).hexdigest()[:20] + ".json")
             async with semaphore:
-                if filename.exists() and not refresh:
+                if filename.exists() and not refresh and not url.startswith(MODERN_BASE):
                     return json.loads(filename.read_text(encoding="utf8"))["data"]
                 for attempt in range(3):
                     try:
@@ -143,8 +338,12 @@ async def collect(*, refresh: bool = False):
 
         seasons = {}
         for row in results_archive["coverage"]:
-            if row["season"] >= "2018-2019" and row["season"] <= "2025-2026":
-                seasons[row["season"]] = parse_qs(urlsplit(row["source_url"]).query)["compId"][0]
+            if row["season"] >= "2018-2019":
+                for source in [row["source_url"], *row.get("source_urls", [])]:
+                    query = parse_qs(urlsplit(source).query)
+                    if "compId" in query:
+                        seasons[row["season"]] = query["compId"][0]
+                        break
         trees = dict(
             zip(
                 seasons,
@@ -155,6 +354,8 @@ async def collect(*, refresh: bool = False):
         jobs = []
         for slug, team_id in TEAMS.items():
             for season, season_id in seasons.items():
+                if not isinstance(trees[season], dict):
+                    continue
                 jobs.append((slug, team_id, season, season_id))
         comps = await asyncio.gather(
             *(fetch(f"/Widget/GetTeamComps/{team_id}?season={sid}") for _, team_id, _, sid in jobs)
@@ -296,6 +497,24 @@ async def collect(*, refresh: bool = False):
             )
             tables.append(table)
             print(slug, season, comp_id, kind, len(rows), len(games), flush=True)
+        current_tables, current_audits = await collect_modern(fetch)
+        tables.extend(current_tables)
+        audits.extend(current_audits)
+        current_season = (
+            f"{(now := datetime.now(UTC)).year - (now.month < 7)}-{now.year + (now.month >= 7)}"
+        )
+        for season in sorted(
+            {
+                t["season"]
+                for t in previous.values()
+                if t["source_url"].startswith(MODERN_BASE) and t["season"] != current_season
+            }
+        ):
+            historic, historic_audits = await collect_modern(
+                fetch, at=datetime(int(season[:4]), 9, 1, tzinfo=UTC)
+            )
+            tables.extend(historic)
+            audits.extend(historic_audits)
         # Preserve prior verified stages if the public tree no longer lists one.
         found = {(t["team"], t["competition_id"]) for t in tables}
         missing = [t for key, t in previous.items() if key not in found]
@@ -390,4 +609,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--refresh", action="store_true", help="Refetch official evidence responses"
     )
-    asyncio.run(collect(refresh=parser.parse_args().refresh))
+    parser.add_argument(
+        "--current", action="store_true", help="Refresh current Sportoteka tables only"
+    )
+    args = parser.parse_args()
+    asyncio.run(refresh_current() if args.current else collect(refresh=args.refresh))

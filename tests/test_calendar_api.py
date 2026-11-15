@@ -98,7 +98,11 @@ def test_feed_pages_deduplicates_and_preserves_calendar_edits(calendar_settings:
     def populate(session: AsyncSession, men: Team, women: Team, competition: Competition) -> None:
         session.add(match("same", men, competition))
         session.add(archive("same", tournament="Старая копия"))
-        session.add(archive("tournament-only", opponent_name=None))
+        session.add(
+            archive(
+                "tournament-only", opponent_name=None, club_score=None, opponent_score=None, place=3
+            )
+        )
         session.add_all([archive(f"history-{index}") for index in range(50)])
 
     seed(calendar_settings, populate)
@@ -116,27 +120,35 @@ def test_feed_pages_deduplicates_and_preserves_calendar_edits(calendar_settings:
             event.remove(ArchiveResult, "load", track_loaded)
         assert first.status_code == 200, first.text
         payload = first.json()
-        assert payload["total"] == 51
+        assert payload["total"] == 52
         assert payload["total_pages"] == 3
         assert len(payload["items"]) == 24
         assert len(loaded_archive_ids) == 23  # One calendar + 23 archive ORM rows, never all 50.
-        assert payload["counts"] == {"upcoming": 0, "changed": 0, "results": 51, "awaiting": 0}
+        assert payload["counts"] == {"upcoming": 0, "changed": 0, "results": 52, "awaiting": 0}
         assert payload["items"][0]["match"]["home_team_name"] == "Отредактированный ВГУ"
         all_items = payload["items"]
         for page in (2, 3):
             all_items += client.get("/api/v1/calendar", params={**params, "page": page}).json()[
                 "items"
             ]
-        assert len(all_items) == 51
+        assert len(all_items) == 52
         assert (
             len({(item["kind"], (item["match"] or item["result"])["id"]) for item in all_items})
-            == 51
+            == 52
         )
         assert not any(
             item["result"] and item["result"]["external_id"] == "same" for item in all_items
         )
         last_page = client.get("/api/v1/calendar", params={**params, "page": 9}).json()
-        assert last_page["page"] == 3 and len(last_page["items"]) == 3
+        assert last_page["page"] == 3 and len(last_page["items"]) == 4
+        tournament = next(
+            item["result"]
+            for item in all_items
+            if item["result"] and item["result"]["external_id"] == "tournament-only"
+        )
+        assert tournament["place"] == 3
+        assert tournament["opponent_name"] is None
+        assert tournament["club_score"] is tournament["opponent_score"] is None
         assert client.get("/api/v1/calendar?page_size=25").status_code == 422
 
 
@@ -189,10 +201,15 @@ def test_status_sections_time_boundary_and_defaults(calendar_settings: Settings)
         ).json()
         assert later["counts"]["upcoming"] == 2
         assert later["counts"]["awaiting"] == 3
-        women = client.get("/api/v1/calendar?team=women&discipline=3x3").json()
-        assert women["total"] == 1
-        assert women["default_season"] == "2024-2025"
-        assert women["seasons"] == ["2024-2025"]
+        women = client.get(
+            "/api/v1/calendar",
+            params={"team": "women", "discipline": "3x3", "at": AT.isoformat()},
+        ).json()
+        assert women["total"] == 0
+        assert women["current_season"] == women["default_season"] == "2026-2027"
+        assert women["seasons"] == ["2026-2027", "2024-2025"]
+        history = client.get("/api/v1/calendar?team=women&discipline=3x3&season=2024-2025").json()
+        assert history["total"] == 1
         assert client.get("/api/v1/calendar?at=2026-11-07T12:00:00").status_code == 422
 
 
@@ -259,10 +276,106 @@ def test_hidden_calendar_does_not_suppress_independent_archive(calendar_settings
 def test_empty_feed_and_invalid_filters(calendar_settings: Settings) -> None:
     seed(calendar_settings, lambda *_: None)
     with TestClient(create_app(calendar_settings)) as client:
-        response = client.get("/api/v1/calendar")
+        response = client.get("/api/v1/calendar", params={"at": AT.isoformat()})
         assert response.status_code == 200, response.text
         data = response.json()
         assert data["items"] == [] and data["total"] == 0 and data["total_pages"] == 0
-        assert data["default_season"] == data["selected_season"] == "all"
+        assert data["default_season"] == data["selected_season"] == "2026-2027"
+        assert data["seasons"] == ["2026-2027"]
         for params in ({"team": "bad"}, {"status": "bad"}, {"page": 0}, {"season": "2026"}):
             assert client.get("/api/v1/calendar", params=params).status_code == 422
+
+
+@pytest.mark.parametrize(
+    ("at", "expected"),
+    [
+        ("2026-06-30T20:59:59Z", "2025-2026"),
+        ("2026-06-30T21:00:00Z", "2026-2027"),
+    ],
+)
+def test_current_season_uses_moscow_boundary_even_with_only_history(
+    calendar_settings: Settings, at: str, expected: str
+) -> None:
+    seed(calendar_settings, lambda session, *_: session.add(archive("old")))
+    with TestClient(create_app(calendar_settings)) as client:
+        payload = client.get("/api/v1/calendar", params={"at": at}).json()
+        assert payload["current_season"] == payload["default_season"] == expected
+        assert expected in payload["seasons"]
+        assert "2025-2026" in payload["seasons"]
+        assert payload["total"] == (1 if expected == "2025-2026" else 0)
+
+
+def test_day_only_fixtures_keep_their_precision_and_correct_section(
+    calendar_settings: Settings,
+) -> None:
+    def populate(session: AsyncSession, *_: object) -> None:
+        for external_id, event_date, status in (
+            ("today", date(2026, 11, 8), "scheduled"),
+            ("future", date(2026, 11, 9), "scheduled"),
+            ("past", date(2026, 11, 7), "scheduled"),
+            ("cancelled", date(2026, 11, 10), "cancelled"),
+        ):
+            session.add(
+                archive(
+                    external_id,
+                    discipline="3x3",
+                    season="2026-2027",
+                    event_date=event_date,
+                    status=status,
+                    club_score=None,
+                    opponent_score=None,
+                )
+            )
+
+    seed(calendar_settings, populate)
+    with TestClient(create_app(calendar_settings)) as client:
+        payload = client.get("/api/v1/calendar", params={"at": "2026-11-07T21:30:00Z"}).json()
+        assert payload["counts"] == {"upcoming": 2, "changed": 1, "results": 0, "awaiting": 1}
+        assert [entry["result"]["external_id"] for entry in payload["items"][:2]] == [
+            "today",
+            "future",
+        ]
+        assert all(entry["result"]["date_precision"] == "day" for entry in payload["items"])
+        assert all(entry["result"]["club_score"] is None for entry in payload["items"])
+
+
+def test_current_season_includes_tournament_places_without_inventing_games(
+    calendar_settings: Settings,
+) -> None:
+    def populate(session: AsyncSession, *_: object) -> None:
+        for external_id, team, place, event_date in (
+            ("20726-men", "men", 3, date(2026, 10, 3)),
+            ("20726-women", "women", 4, date(2026, 10, 3)),
+            ("20708-sukhumi-men", "men", 3, date(2026, 9, 27)),
+        ):
+            session.add(
+                archive(
+                    external_id,
+                    source="vsu",
+                    discipline="3x3",
+                    team=team,
+                    season="2026-2027",
+                    event_date=event_date,
+                    opponent_name=None,
+                    club_score=None,
+                    opponent_score=None,
+                    place=place,
+                    status="participated",
+                )
+            )
+        session.add(archive("previous-season", opponent_name=None))
+
+    seed(calendar_settings, populate)
+    with TestClient(create_app(calendar_settings)) as client:
+        payload = client.get("/api/v1/calendar", params={"at": AT.isoformat()}).json()
+        assert payload["counts"] == {"upcoming": 0, "changed": 0, "results": 3, "awaiting": 0}
+        rows = {item["result"]["external_id"]: item["result"] for item in payload["items"]}
+        assert set(rows) == {"20726-men", "20726-women", "20708-sukhumi-men"}
+        assert rows["20726-men"]["place"] == 3
+        assert rows["20726-women"]["place"] == 4
+        assert all(row["opponent_name"] is None for row in rows.values())
+        assert all(row["club_score"] is row["opponent_score"] is None for row in rows.values())
+        women = client.get("/api/v1/calendar?team=women&discipline=3x3&season=2026-2027").json()
+        assert women["total"] == 1
+        assert women["items"][0]["result"]["external_id"] == "20726-women"
+        assert client.get("/api/v1/calendar?discipline=5x5&season=2026-2027").json()["total"] == 0

@@ -1,7 +1,9 @@
 import asyncio
+import sqlite3
 from datetime import UTC, datetime, timedelta
 from io import BytesIO
 from pathlib import Path
+from uuid import uuid4
 
 from fastapi.testclient import TestClient
 from PIL import Image
@@ -158,6 +160,38 @@ def test_media_achievement_and_home_flow(tmp_path: Path) -> None:
         assert home_data["next_match"]["id"] == upcoming.json()["data"]["id"]
         assert home_data["recent_results"][0]["id"] == finished.json()["data"]["id"]
         assert [team["slug"] for team in home_data["teams"]] == ["men"]
+
+        # A freshly published official fixture may exist only in the archive.
+        # It must replace a later calendar game on the homepage without creating a stale copy.
+        archive_id = uuid4()
+        with sqlite3.connect(database_path) as connection:
+            connection.execute(
+                "INSERT INTO archive_results (id,source,external_id,discipline,team,season,year,"
+                "tournament,event_date,date_precision,team_name,opponent_name,status,source_label,"
+                "created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    archive_id.hex,
+                    "asb",
+                    "future-archive-fixture",
+                    "5x5",
+                    "men",
+                    "2026-2027",
+                    now.year,
+                    "АСБ",
+                    (now + timedelta(days=1)).date().isoformat(),
+                    "day",
+                    "ВГУ",
+                    "ВГТУ",
+                    "scheduled",
+                    "АСБ",
+                    now.isoformat(),
+                    now.isoformat(),
+                ),
+            )
+        official_home = client.get("/api/v1/home").json()["data"]
+        assert official_home["next_match"] is None
+        assert official_home["next_result"]["id"] == str(archive_id)
+        assert official_home["next_result"]["club_score"] is None
 
 
 def test_media_rejects_non_image(tmp_path: Path) -> None:

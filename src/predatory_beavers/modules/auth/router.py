@@ -43,7 +43,7 @@ async def login(
         path="/",
         secure=settings.cookie_secure,
         httponly=True,
-        samesite="lax",
+        samesite=settings.cookie_samesite,
     )
     return ApiResponse(
         message="Login successful",
@@ -77,7 +77,7 @@ async def logout(
         path="/",
         secure=settings.cookie_secure,
         httponly=True,
-        samesite="lax",
+        samesite=settings.cookie_samesite,
     )
     return ApiResponse(message="Logout successful", data=LogoutData())
 

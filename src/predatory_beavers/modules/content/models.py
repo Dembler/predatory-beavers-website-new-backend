@@ -1,7 +1,19 @@
 from enum import StrEnum
+from uuid import UUID
 
-from sqlalchemy import Boolean, CheckConstraint, Index, Integer, String, Text, text, true
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    text,
+    true,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from predatory_beavers.db.base import (
     Base,
@@ -10,6 +22,7 @@ from predatory_beavers.db.base import (
     TimestampMixin,
     UUIDPrimaryKeyMixin,
 )
+from predatory_beavers.modules.club.models import MediaAsset
 
 
 class ContentSection(StrEnum):
@@ -41,5 +54,12 @@ class ContentBlock(
     subtitle: Mapped[str | None] = mapped_column(String(200), nullable=True)
     link_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     link_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    photo_asset_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("media_assets.id", ondelete="SET NULL"), nullable=True
+    )
+    photo: Mapped[MediaAsset | None] = relationship(lazy="selectin")
+    contacts: Mapped[list[dict[str, str | None]]] = mapped_column(
+        JSON, nullable=False, default=list, server_default=text("'[]'")
+    )
     sort_order: Mapped[int] = mapped_column(Integer, default=0, server_default=text("0"))
     active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=true())

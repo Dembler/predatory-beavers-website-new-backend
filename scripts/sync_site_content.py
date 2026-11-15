@@ -77,7 +77,17 @@ def plan_sync(connection: sqlite3.Connection, manifest: dict[str, Any]) -> list[
             if (
                 row["id"] == venue_id
                 or (external_id and row["source"] == "asb" and row["external_id"] == external_id)
-                or normalized_name(row["name"]) in names
+                or (
+                    normalized_name(row["name"]) in names
+                    # ASB reuses hall names across distinct arena IDs/seasons.
+                    # A name alias cannot override a known provider identity.
+                    and not (
+                        external_id
+                        and row["source"] == "asb"
+                        and row["external_id"] is not None
+                        and row["external_id"] != external_id
+                    )
+                )
             )
         ]
         if len(candidates) > 1:
@@ -160,6 +170,8 @@ def sync_content(database: Path, manifest_path: Path, *, apply: bool = False) ->
         for action in actions:
             table, entity_id = action["table"], action["id"]
             values = action["values"] | {"updated_at": now}
+            if "contacts" in values:
+                values["contacts"] = json.dumps(values["contacts"], ensure_ascii=False)
             if action["before"] is None:
                 values |= {"id": entity_id, "created_at": now, "is_deleted": False}
                 columns = ",".join(f'"{key}"' for key in values)

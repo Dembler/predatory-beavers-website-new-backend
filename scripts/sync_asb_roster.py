@@ -167,13 +167,13 @@ def historical_statistics(
     return members
 
 
-def collect() -> list[RosterSnapshotInput]:
+def collect(*, teams: list[tuple[str, int]] | None = None) -> list[RosterSnapshotInput]:
     now = datetime.now(UTC)
     snapshots = []
     season = current_season()
     end_year = int(season.split("-")[1])
     with httpx.Client(timeout=35, trust_env=False, follow_redirects=False) as client:
-        for slug, team_id in [("men", 7433), ("women", 7695)]:
+        for slug, team_id in teams if teams is not None else [("men", 7433), ("women", 7695)]:
             comps_url = f"{BASE}/comps?teamId={team_id}&season={end_year}&lang=ru"
             response = client.get(comps_url)
             response.raise_for_status()

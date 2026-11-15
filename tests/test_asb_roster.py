@@ -92,15 +92,52 @@ def test_real_roster_is_current_only_idempotent_and_has_no_personal_fields(
         player = next(player for player in roster["players"] if player["statistics_season"])
         assert player["photo_url"].startswith("/api/v1/asb-roster/men/players/")
         assert player["statistics_season"] <= "2026-2027"
-        assert player["statistics_source_url"].startswith(
-            "https://asb.infobasket.su/Widget/TeamStats/7433?"
+        expected = next(
+            member
+            for member in snapshots[0].players
+            if member.external_player_id == player["external_player_id"]
         )
+        assert player["statistics_source_url"] == str(expected.statistics_source_url)
         assert not {"birth_date", "birthday", "age", "contacts"} & set(player)
         detail = client.get(f"/api/v1/asb-roster/men/players/{player['id']}")
         assert detail.status_code == 200
         assert detail.json()["data"]["player"] == player
         assert client.get(f"/api/v1/asb-roster/women/players/{player['id']}").status_code == 404
         assert client.get(f"/api/v1/asb-roster/men/players/{uuid4()}").status_code == 404
+
+
+def test_imported_player_statistics_keep_each_source_season_and_published_totals(
+    roster_db: tuple[Path, Settings], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    database, settings = roster_db
+    monkeypatch.setattr(
+        "predatory_beavers.modules.roster.router.current_season", lambda: "2026-2027"
+    )
+    snapshots = sync.load_manifest()
+    sync.apply_sync(database, snapshots)
+    with TestClient(create_app(settings)) as client:
+        for snapshot in snapshots:
+            roster = client.get(f"/api/v1/asb-roster/{snapshot.team}").json()["data"]
+            imported = {player["external_player_id"]: player for player in roster["players"]}
+            assert len(imported) == len(snapshot.players)
+            for expected in snapshot.players:
+                player = imported[expected.external_player_id]
+                assert player["statistics_season"] == expected.statistics_season
+                assert player["statistics_source_url"] == (
+                    str(expected.statistics_source_url) if expected.statistics_source_url else None
+                )
+                assert player["games_played"] == expected.games_played
+                for total, average, divisor in [
+                    (expected.points_total, "points_per_game", 1),
+                    (expected.assists_total, "assists_per_game", 1),
+                    (expected.rebounds_total, "rebounds_per_game", 1),
+                    (expected.seconds_total, "minutes_per_game", 60),
+                ]:
+                    assert player[average] == (
+                        round(total / expected.games_played / divisor, 2)
+                        if total is not None and expected.games_played
+                        else None
+                    )
 
 
 def test_all_bundled_photos_are_local_correct_portraits_and_current_members_only(

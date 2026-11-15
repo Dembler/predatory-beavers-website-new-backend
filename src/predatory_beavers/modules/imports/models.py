@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
-from sqlalchemy import JSON, Enum, ForeignKey, Index, String, Text, text
+from sqlalchemy import JSON, DateTime, Enum, ForeignKey, Index, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import Uuid
 
@@ -27,6 +27,7 @@ class ImportJob(UUIDPrimaryKeyMixin, TimestampMixin, Base):
             "competition_external_id",
             unique=True,
             sqlite_where=text("status IN ('PENDING', 'RUNNING')"),
+            postgresql_where=text("status IN ('PENDING', 'RUNNING')"),
         ),
     )
 
@@ -56,3 +57,27 @@ class ImportJob(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     request_id: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     started_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(UTCDateTime(), nullable=True)
+
+
+class MatchSourceSnapshot(Base):
+    """Last verified provider projection, separate from an editor's match values."""
+
+    __tablename__ = "match_source_snapshots"
+
+    match_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey("matches.id", ondelete="CASCADE"), primary_key=True
+    )
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    external_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    values: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    checked_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class CloudSportsState(Base):
+    """Private scheduler control documents; never exposed by a public endpoint."""
+
+    __tablename__ = "cloud_sync_state"
+
+    key: Mapped[str] = mapped_column(String(200), primary_key=True)
+    value: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

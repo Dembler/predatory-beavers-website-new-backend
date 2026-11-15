@@ -1,9 +1,15 @@
 .env
+.env.*
+!.env.example
+!.env.sqlite.example
+!.env.production.example
+!.env.render.example
 .idea/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
 .venv/
+.data/
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -38,3 +44,21 @@ data/standings-before-preservation.json
 data/standings-import-audit.json
 
 data/fix-tests-*/
+data/history-photos-tests-*/
+
+data/sports-sync/
+data/sports-sync-*.json
+data/opencode-autosync-*.jsonl
+
+data/deployment/
+data/opencode-deploy-*.jsonl
+data/deployment-cookie-tests-*/
+data/deployment-proxy-tests-*/
+data/calendar-portable-tests-*/
+data/player-stats-final-*/
+data/player-stats-pytest-*/
+data/opencode-player-stats-review-*.jsonl
+data/cloud-*/
+data/calendar-portable-cache-*/
+data/standings-setup-cache/
+data/standings-stage-pytest-cache/

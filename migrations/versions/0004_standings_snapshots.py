@@ -93,6 +93,7 @@ def upgrade() -> None:
         ["team_id", "competition_id"],
         unique=True,
         sqlite_where=sa.text("is_current = 1 AND is_deleted = 0"),
+        postgresql_where=sa.text("is_current AND NOT is_deleted"),
     )
 
 

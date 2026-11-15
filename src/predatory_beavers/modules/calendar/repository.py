@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import (
@@ -8,6 +8,7 @@ from sqlalchemy import (
     case,
     cast,
     exists,
+    extract,
     func,
     literal,
     or_,
@@ -20,6 +21,7 @@ from sqlalchemy.sql.elements import ColumnElement, SQLColumnExpression
 from sqlalchemy.sql.selectable import CTE
 
 from predatory_beavers.modules.calendar.schemas import CalendarCounts, CalendarEntry, CalendarPage
+from predatory_beavers.modules.calendar.sql import MoscowTimestamp, TimestampOrder, YearStartOrder
 from predatory_beavers.modules.club.models import Team, TeamCategory
 from predatory_beavers.modules.matches.models import Competition, Match, MatchStatus
 from predatory_beavers.modules.matches.schemas import MatchRead
@@ -36,13 +38,22 @@ def _declared_season(value: SQLColumnExpression[Any]) -> ColumnElement[Any]:
     # The source may use either separator and spaces around it. A year alone
     # deliberately remains ambiguous and must never become a fabricated date.
     normalized = func.replace(func.replace(value, " ", ""), "/", "-")
+    nondigits = func.replace(normalized, "-", "")
+    for digit in "0123456789":
+        nondigits = func.replace(nondigits, digit, "")
+    shape = and_(
+        func.length(normalized) == 9,
+        func.substr(normalized, 5, 1) == "-",
+        func.length(func.replace(normalized, "-", "")) == 8,
+        nondigits == "",
+    )
+    # PostgreSQL may reorder AND operands. Guard each integer cast with CASE so
+    # an ambiguous source such as "202x-2027" never reaches a numeric cast.
+    first = cast(case((shape, func.substr(normalized, 1, 4)), else_=None), Integer)
+    last = cast(case((shape, func.substr(normalized, 6, 4)), else_=None), Integer)
     return case(
         (
-            and_(
-                normalized.op("GLOB")("[0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]"),
-                cast(func.substr(normalized, 6, 4), Integer)
-                == cast(func.substr(normalized, 1, 4), Integer) + 1,
-            ),
+            and_(shape, last == first + 1),
             normalized,
         ),
         else_=None,
@@ -50,9 +61,9 @@ def _declared_season(value: SQLColumnExpression[Any]) -> ColumnElement[Any]:
 
 
 def _date_season(value: SQLColumnExpression[Any], *, moscow: bool = False) -> ColumnElement[str]:
-    modifiers = ("+3 hours",) if moscow else ()
-    year = cast(func.strftime("%Y", value, *modifiers), Integer)
-    month = cast(func.strftime("%m", value, *modifiers), Integer)
+    local = MoscowTimestamp(value) if moscow else value
+    year = cast(extract("year", local), Integer)
+    month = cast(extract("month", local), Integer)
     return _season(case((month >= 7, year), else_=year - 1))
 
 
@@ -91,7 +102,7 @@ class CalendarRepository:
                 literal("5x5").label("discipline"),
                 func.lower(cast(Match.status, String)).label("status"),
                 match_section.label("section"),
-                func.julianday(Match.starts_at).label("date_order"),
+                TimestampOrder(Match.starts_at).label("date_order"),
                 match_season.label("season_low"),
                 match_season.label("season_high"),
             )
@@ -120,11 +131,9 @@ class CalendarRepository:
                 Match.external_id != "",
             )
         ).correlate(ArchiveResult)
-        archive_conditions = [
-            ArchiveResult.opponent_name.is_not(None),
-            ArchiveResult.opponent_name != "",
-            ~public_copy,
-        ]
+        # Tournament placements are calendar evidence too. They have no single
+        # opponent and must retain their place instead of becoming fake games.
+        archive_conditions = [~public_copy]
         if team:
             archive_conditions.append(ArchiveResult.team == team)
         if discipline:
@@ -136,10 +145,19 @@ class CalendarRepository:
             ArchiveResult.status.label("status"),
             case(
                 (ArchiveResult.status.in_(["finished", "participated"]), "results"),
+                (ArchiveResult.status.in_(["cancelled", "postponed"]), "changed"),
+                (
+                    and_(
+                        ArchiveResult.status == "scheduled",
+                        ArchiveResult.event_date
+                        >= at.astimezone(timezone(timedelta(hours=3))).date(),
+                    ),
+                    "upcoming",
+                ),
                 else_="awaiting",
             ).label("section"),
-            func.julianday(
-                func.coalesce(ArchiveResult.event_date, cast(ArchiveResult.year, String) + "-01-01")
+            func.coalesce(
+                TimestampOrder(ArchiveResult.event_date), YearStartOrder(ArchiveResult.year)
             ).label("date_order"),
             low.label("season_low"),
             high.label("season_high"),
@@ -172,23 +190,13 @@ class CalendarRepository:
                 .order_by(seasons_query.c.season.desc())
             )
         )
-        default: str | None = None
-        if discipline in (None, "5x5"):
-            default = await self.session.scalar(
-                select(feed.c.season_low)
-                .where(feed.c.kind == "calendar", feed.c.section == "upcoming")
-                .order_by(feed.c.date_order, feed.c.id)
-                .limit(1)
-            )
-            if default is None:
-                default = await self.session.scalar(
-                    select(func.max(feed.c.season_low)).where(
-                        feed.c.discipline == "5x5",
-                        feed.c.status == "finished",
-                        feed.c.season_low == feed.c.season_high,
-                    )
-                )
-        default = default or (seasons[0] if seasons else "all")
+        # Keep the real current season visible even before a provider publishes
+        # its fixtures. An older populated season must not masquerade as current.
+        today = at.astimezone(timezone(timedelta(hours=3))).date()
+        start = today.year if today.month >= 7 else today.year - 1
+        current_season = f"{start}-{start + 1}"
+        seasons = sorted(set(seasons) | {current_season}, reverse=True)
+        default = current_season
         selected = season or default
         filters = []
         if status:
@@ -288,6 +296,7 @@ class CalendarRepository:
             total_pages=total_pages,
             counts=counts,
             seasons=seasons,
+            current_season=current_season,
             default_season=default,
             selected_season=selected,
             at=at,

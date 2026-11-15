@@ -12,7 +12,7 @@ import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from import_public_results import migrate, stable_id
 from pydantic import (
@@ -120,12 +120,20 @@ class OfficialTable(BaseModel):
         if end != start + 1:
             raise ValueError("Invalid consecutive academic season")
         url = urlsplit(str(self.source_url))
-        if (
-            url.scheme != "https"
-            or url.hostname != "asb.infobasket.su"
-            or url.path
-            != f"/Widget/{'PlayOff' if self.games else 'CompTeamResults'}/{self.competition_id}"
-        ):
+        query = parse_qs(url.query)
+        legacy = url.hostname == "asb.infobasket.su" and url.path == (
+            f"/Widget/{'PlayOff' if self.games else 'CompTeamResults'}/{self.competition_id}"
+        )
+        modern = (
+            url.hostname == "asb.sportoteka.org"
+            and url.path == "/api/abc/comps/standings"
+            and query.get("season") == [str(end)]
+            and len(query.get("tag", [])) == 1
+            and query["tag"][0].startswith("asb-")
+            and query["tag"][0].endswith("-m" if self.team == "men" else "-w")
+            and not self.games
+        )
+        if url.scheme != "https" or url.username or url.password or not (legacy or modern):
             raise ValueError("Source URL must identify this official ASB competition")
         if self.last_game_at is not None:
             if self.last_game_at.utcoffset() is None:

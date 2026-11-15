@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "source": "vsu",
+      "external_id": "20699-univerliga-phygital",
+      "discipline": "phygital",
+      "team": "men",
+      "season": "2026-2027",
+      "year": 2026,
+      "tournament": "УниверЛига · межвузовский Фестиваль инновационных видов спорта",
+      "event_date": "2026-09-28",
+      "date_precision": "day",
+      "location": "Фиджитал-центр",
+      "team_name": "ВГУ — Хищные бобры",
+      "opponent_name": null,
+      "club_score": null,
+      "opponent_score": null,
+      "place": 1,
+      "status": "finished",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2026/09/20699",
+      "source_label": "ВГУ · новости университета",
+      "emblem_url": "/images/brand/club-emblem.webp",
+      "opponent_emblem_url": null,
+      "notes": "ВГУ прямо сообщает дату 28 сентября и первое место именно в фиджитал-баскетболе. Состав: Илья Кузнецов, Захар Дудкин, Максим Шибанов; тренер Мария Янишевская. Фестиваль открывал сезон УниверЛиги 2026–2027. Соперники и счета не опубликованы."
+    }
+  ],
+  "coverage": [
+    {
+      "provider": "official_phygital_discovery",
+      "team": "men",
+      "season": "2026-2027",
+      "records": 1,
+      "status": "partial",
+      "source_url": "https://www.vsu.ru/ru/news/feed/2026/09/20699",
+      "note": "Подтвержден итог межвузовского фестиваля 28.09.2026; протоколы отдельных игр не опубликованы."
+    }
+  ]
+}

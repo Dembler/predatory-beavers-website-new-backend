@@ -1,9 +1,12 @@
+import asyncio
 import logging
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
+from pathlib import Path
 
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
+from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncEngine
 from starlette.middleware.cors import CORSMiddleware
 
@@ -12,6 +15,7 @@ from predatory_beavers.api.errors import register_exception_handlers
 from predatory_beavers.api.health import router as health_router
 from predatory_beavers.api.middleware import RequestContextMiddleware, SecurityHeadersMiddleware
 from predatory_beavers.api.v1.router import api_v1_router
+from predatory_beavers.integrations.object_storage.client import ObjectStorage
 from predatory_beavers.modules.achievements.provider import AchievementsProvider
 from predatory_beavers.modules.audit.provider import AuditProvider
 from predatory_beavers.modules.auth.provider import AuthProvider
@@ -25,6 +29,8 @@ from predatory_beavers.modules.media.router import content_router as media_conte
 from predatory_beavers.modules.standings.provider import StandingsProvider
 from predatory_beavers.observability import configure_logging
 from predatory_beavers.settings import Settings, get_settings
+from predatory_beavers.worker.cloud_state import refresh_portrait_cache
+from predatory_beavers.worker.sports_sync import SportsSyncConfig, run_sports_sync
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +54,41 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        sync_task: asyncio.Task[None] | None = None
+        cache_task: asyncio.Task[None] | None = None
+        local_database = make_url(app_settings.database_url).get_backend_name() == "sqlite"
+        if app_settings.sports_sync_enabled and local_database and app_settings.env != "test":
+            database = Path(app_settings.database_url.removeprefix("sqlite+aiosqlite:///"))
+            config = SportsSyncConfig(
+                backend_root=app_settings.sports_sync_backend_root,
+                database=database,
+                interval_seconds=app_settings.sports_sync_interval_seconds,
+                timeout_seconds=app_settings.sports_sync_timeout_seconds,
+            )
+            sync_task = asyncio.create_task(run_sports_sync(config), name="sports-sync")
+        if (
+            app_settings.sports_sync_external_enabled
+            and not local_database
+            and app_settings.env != "test"
+        ):
+            engine = await container.get(AsyncEngine)
+            storage = await container.get(ObjectStorage)
+            cache_task = asyncio.create_task(
+                refresh_portrait_cache(
+                    engine, storage, app_settings.sports_sync_cache_path / "roster-photos"
+                ),
+                name="cloud-portrait-cache",
+            )
         logger.info("Application startup completed", extra={"environment": app_settings.env})
         try:
             yield
         finally:
+            for task in (sync_task, cache_task):
+                if task is None:
+                    continue
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
             engine = await container.get(AsyncEngine)
             await engine.dispose()
             await container.close()

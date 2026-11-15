@@ -20,6 +20,7 @@ class StandingsSnapshot(UUIDPrimaryKeyMixin, TimestampMixin, SoftDeleteMixin, Ba
             "competition_id",
             unique=True,
             sqlite_where=text("is_current = 1 AND is_deleted = 0"),
+            postgresql_where=text("is_current AND NOT is_deleted"),
         ),
         Index(
             "ix_standings_team_fetched_at",

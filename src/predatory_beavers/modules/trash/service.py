@@ -231,7 +231,7 @@ class TrashService:
                         "Сначала восстановите связанный зал или смените его в записи."
                     )
         media_ids: list[UUID | None] = []
-        if isinstance(record, Player):
+        if isinstance(record, (Player, ContentBlock)):
             media_ids = [record.photo_asset_id]
         elif isinstance(record, Achievement):
             media_ids = [record.media_asset_id]

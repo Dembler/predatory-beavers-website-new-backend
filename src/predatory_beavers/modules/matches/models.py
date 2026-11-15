@@ -56,6 +56,7 @@ class Competition(
             "external_id",
             unique=True,
             sqlite_where=text("external_id IS NOT NULL"),
+            postgresql_where=text("external_id IS NOT NULL"),
         ),
     )
 
@@ -94,6 +95,7 @@ class Venue(UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDel
             "external_id",
             unique=True,
             sqlite_where=text("external_id IS NOT NULL"),
+            postgresql_where=text("external_id IS NOT NULL"),
         ),
     )
 
@@ -141,6 +143,7 @@ class Match(UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDel
             "external_id",
             unique=True,
             sqlite_where=text("external_id IS NOT NULL"),
+            postgresql_where=text("external_id IS NOT NULL"),
         ),
     )
 

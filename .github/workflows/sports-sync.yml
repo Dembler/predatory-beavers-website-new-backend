@@ -1,0 +1,56 @@
+name: Refresh official sports data
+
+on:
+  schedule:
+    # UTC: hourly ASB; FIBA at 06:41 Moscow time once a day.
+    - cron: '17 * * * *'
+    - cron: '41 3 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: Official source to check
+        type: choice
+        options: [all, asb, fiba]
+        default: all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sports-sync
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # Session pooler/direct PostgreSQL URI; never the public anon key.
+      APP_DATABASE_URL: ${{ secrets.SPORTS_DATABASE_URL }}
+      APP_DATABASE_SCHEMA: ${{ vars.APP_DATABASE_SCHEMA || 'beavers' }}
+      APP_SUPABASE_URL: ${{ vars.APP_SUPABASE_URL }}
+      APP_SUPABASE_SECRET_KEY: ${{ secrets.APP_SUPABASE_SECRET_KEY }}
+      APP_SUPABASE_STORAGE_BUCKET: ${{ vars.APP_SUPABASE_STORAGE_BUCKET || 'club-media' }}
+      APP_MEDIA_STORAGE_BACKEND: supabase
+      APP_FIBA_API_KEY: ${{ secrets.APP_FIBA_API_KEY }}
+      # This CLI does not start a web server or use browser session settings.
+      APP_ENV: dev
+      APP_RELOAD: 'false'
+      APP_SPORTS_SYNC_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install .
+      - name: Run the selected independent source jobs
+        shell: bash
+        env:
+          REQUESTED_SOURCE: ${{ inputs.source }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          source="${REQUESTED_SOURCE:-all}"
+          if [ "$EVENT_SCHEDULE" = '17 * * * *' ]; then source=asb; fi
+          if [ "$EVENT_SCHEDULE" = '41 3 * * *' ]; then source=fiba; fi
+          python scripts/cloud_sports_sync.py --source "$source" --force
