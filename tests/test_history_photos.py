@@ -100,9 +100,7 @@ def write_manifest(tmp_path: Path, chapter_ids: list[UUID]) -> tuple[Path, Path]
 def table_rows(database: Path, table: str) -> list[dict[str, object]]:
     with sqlite3.connect(database) as connection:
         connection.row_factory = sqlite3.Row
-        return [
-            dict(row) for row in connection.execute(f'SELECT * FROM "{table}" ORDER BY rowid')
-        ]
+        return [dict(row) for row in connection.execute(f'SELECT * FROM "{table}" ORDER BY rowid')]
 
 
 def test_history_preview_does_not_write_database_or_media(

@@ -119,7 +119,9 @@ def test_production_postgres_accepts_explicit_tls(mode: str) -> None:
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="psycopg Windows event-loop compatibility")
-@pytest.mark.parametrize("database", ["sqlite+aiosqlite:///:memory:", "postgresql://u:p@localhost/db"])
+@pytest.mark.parametrize(
+    "database", ["sqlite+aiosqlite:///:memory:", "postgresql://u:p@localhost/db"]
+)
 def test_windows_server_changes_policy_only_for_postgres(database: str) -> None:
     settings = Settings(_env_file=None, env="test", reload=False, database_url=database)
     with (

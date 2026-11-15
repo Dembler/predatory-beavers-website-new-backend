@@ -93,9 +93,7 @@ class CreationLedger:
         ).encode("utf-8")
         request_hash = hashlib.sha256(encoded).hexdigest()
         insert = (
-            pg_insert
-            if self._session.get_bind().dialect.name == "postgresql"
-            else sqlite_insert
+            pg_insert if self._session.get_bind().dialect.name == "postgresql" else sqlite_insert
         )
         # A write reservation serializes requests even when both arrive before the
         # first response. The losing request observes the committed entity ID.
