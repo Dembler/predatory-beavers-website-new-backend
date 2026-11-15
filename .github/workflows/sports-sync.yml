@@ -43,7 +43,11 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-      - run: python -m pip install .
+          cache-dependency-path: uv.lock
+      - name: Install the tested locked dependencies
+        run: |
+          python -m pip install uv==0.12.1
+          python -m uv sync --locked --no-dev --no-editable
       - name: Run the selected independent source jobs
         shell: bash
         env:
@@ -53,4 +57,4 @@ jobs:
           source="${REQUESTED_SOURCE:-all}"
           if [ "$EVENT_SCHEDULE" = '17 * * * *' ]; then source=asb; fi
           if [ "$EVENT_SCHEDULE" = '41 3 * * *' ]; then source=fiba; fi
-          python scripts/cloud_sports_sync.py --source "$source" --force
+          python -m uv run --no-sync python scripts/cloud_sports_sync.py --source "$source" --force
