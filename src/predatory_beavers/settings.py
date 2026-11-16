@@ -1,3 +1,4 @@
+import os
 import re
 from functools import lru_cache
 from ipaddress import ip_network
@@ -38,6 +39,36 @@ class Settings(BaseSettings):
     database_pool_timeout_seconds: int = Field(default=30, ge=1, le=120)
     database_connect_timeout_seconds: int = Field(default=15, ge=1, le=120)
     database_schema: str = "public"
+
+    # Internal Bobrik prototype. Public release has separate gates in docs/bobrik.
+    mascot_enabled: bool = False
+    mascot_session_cookie: str = "bobrik_session"
+    mascot_session_ttl_hours: int = Field(default=24, ge=1, le=168)
+    chat_max_input_chars: int = Field(default=1000, ge=1, le=1000)
+    chat_deadline_seconds: float = Field(default=20, ge=1, le=120)
+    chat_max_output_tokens: int = Field(default=500, ge=32, le=2000)
+    chat_rate_limit_hour: int = Field(default=20, ge=1, le=100)
+    llm_provider: Literal["opencode", "deepseek"] = "opencode"
+    llm_base_url: str = "https://opencode.ai/inference/go/openai/v1"
+    llm_api_key: SecretStr | None = Field(default=None, repr=False)
+    llm_chat_model: str = "deepseek-v4.1-flash"
+    llm_editor_model: str = "deepseek-v4.1-flash"
+    llm_budget_mode: Literal["unlimited"] = "unlimited"
+
+    @field_validator("llm_base_url")
+    @classmethod
+    def validate_llm_base_url(cls, value: str) -> str:
+        parsed = urlsplit(value)
+        if (
+            parsed.scheme != "https"
+            or not parsed.hostname
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("APP_LLM_BASE_URL must be an HTTPS URL without credentials")
+        return value.rstrip("/")
 
     sports_sync_enabled: bool = False
     sports_sync_external_enabled: bool = False
@@ -227,4 +258,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    return Settings(_env_file=os.environ.get("APP_CONFIG_FILE", ".env"))

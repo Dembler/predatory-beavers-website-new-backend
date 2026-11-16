@@ -62,3 +62,7 @@ data/cloud-*/
 data/calendar-portable-cache-*/
 data/standings-setup-cache/
 data/standings-stage-pytest-cache/
+# Local Bobrik runtime secrets
+.env.bobrik
+!.env.bobrik.example
+opencode.json

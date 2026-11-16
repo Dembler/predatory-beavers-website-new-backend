@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ title }} — Хищные Бобры</title><meta name="description" content="{{ description }}">
+<link rel="canonical" href="{{ canonical }}"><meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}"><meta property="og:url" content="{{ canonical }}">
+<meta property="og:type" content="{{ 'article' if article else 'website' }}">
+{% if structured %}<script type="application/ld+json">{{ structured | safe }}</script>{% endif %}
+<style>
+@font-face{font-family:Roboto;src:url('/fonts/roboto-variable.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:Oswald;src:url('/fonts/oswald-variable.woff2') format('woff2');font-weight:200 700;font-display:swap}
+:root{color-scheme:light;font-family:Roboto,Arial,sans-serif;color:#042a4e;background:#f5f7fb}*{box-sizing:border-box}body{margin:0}
+header{background:#042a4e;color:#fff;padding:20px clamp(20px,5vw,80px);border-bottom:4px solid #cb1914}
+nav{display:flex;align-items:center;gap:22px;flex-wrap:wrap}nav a{color:#fff}.brand{display:flex;align-items:center;gap:12px;font-family:Oswald,Arial,sans-serif;font-size:20px;text-decoration:none}.brand-mark{width:44px;height:44px;display:block;background:url('/images/brand/club-emblem.webp') center/contain no-repeat;flex:none}
+a{color:#9f130f;text-underline-offset:4px}main{max-width:900px;margin:auto;padding:44px 22px 80px}h1,h2{font-family:Oswald,Roboto,Arial,sans-serif}h1{font-size:clamp(32px,5vw,50px);font-weight:600;line-height:1.14;margin:12px 0 24px}h2{margin:30px 0 12px;font-size:27px;font-weight:500}
+p{font-size:18px;line-height:1.75;white-space:pre-line}.eyebrow{font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:#a5201b}.lead{font-size:22px;color:#465474}.card{background:#fff;padding:26px;border:1px solid #dbe2ee;border-radius:18px;margin-bottom:20px}.sources{font-size:15px;line-height:1.8}.caveat{border-left:3px solid #cb1914;padding-left:16px;color:#5a4d32}.empty{padding:36px 0;color:#526079}footer{border-top:1px solid #dbe2ee;padding:22px;font-size:14px}a:focus-visible{outline:3px solid #cb1914;outline-offset:5px}
+</style></head><body>
+<header><nav aria-label="Главная навигация"><a href="/" class="brand"><span class="brand-mark" aria-hidden="true"></span>БК ВГУ «Хищные Бобры»</a><a href="/matches">Матчи</a><a href="/club">О клубе</a><a href="/news">Колонка Бобрика</a></nav></header>
+<main><div class="eyebrow">Из первых лап</div><h1>{{ title }}</h1>
+{% if article %}
+<p class="lead">{{ article.draft.lead }}</p>
+{% for paragraph in article.paragraphs %}<section>{% if paragraph.heading %}<h2>{{ paragraph.heading }}</h2>{% endif %}<p>{{ paragraph.body }}</p></section>{% endfor %}
+{% if article.sheet.caveats %}<aside class="caveat" aria-label="Область данных">{% for caveat in article.sheet.caveats %}<p>{{ caveat }}</p>{% endfor %}</aside>{% endif %}
+<section class="sources"><h2>Источники</h2><ul>{% for source in article.sheet.sources %}<li><a href="{{ source.url }}">{{ source.title }}</a></li>{% endfor %}</ul></section>
+{% else %}<p class="lead">Бобровая неделя: клубные истории, результаты и взгляд с берега площадки.</p>
+{% for item in items %}<article class="card"><h2><a href="/news/{{ item.slug }}">{{ item.title }}</a></h2><p>{{ item.lead }}</p></article>{% else %}<p class="empty">Бобрик собирает первую колонку. Проверенные редактором выпуски скоро появятся здесь.</p>{% endfor %}{% endif %}
+</main><footer>Бобрик — ИИ-маскот клуба. Материалы проходят проверку редактора перед публикацией.</footer></body></html>

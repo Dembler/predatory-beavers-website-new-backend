@@ -8,7 +8,10 @@ from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncEngine
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 from predatory_beavers.api.dependency_injection import build_container
 from predatory_beavers.api.errors import register_exception_handlers
@@ -21,8 +24,12 @@ from predatory_beavers.modules.audit.provider import AuditProvider
 from predatory_beavers.modules.auth.provider import AuthProvider
 from predatory_beavers.modules.club.provider import ClubProvider
 from predatory_beavers.modules.content.provider import ContentProvider
+from predatory_beavers.modules.editorial.provider import EditorialProvider
+from predatory_beavers.modules.editorial.router import router as editorial_router
+from predatory_beavers.modules.editorial.web import router as news_router
 from predatory_beavers.modules.home.provider import HomeProvider
 from predatory_beavers.modules.imports.provider import ImportsProvider
+from predatory_beavers.modules.mascot.router import router as mascot_router
 from predatory_beavers.modules.matches.provider import MatchesProvider
 from predatory_beavers.modules.media.provider import MediaProvider
 from predatory_beavers.modules.media.router import content_router as media_content_router
@@ -35,6 +42,17 @@ from predatory_beavers.worker.sports_sync import SportsSyncConfig, run_sports_sy
 logger = logging.getLogger(__name__)
 
 
+class EditorialNoStoreMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+        response = await call_next(request)
+        prefix = request.app.state.settings.api_prefix
+        if request.url.path.startswith(
+            ("/news", prefix + "/articles", prefix + "/admin/articles", prefix + "/admin/editorial")
+        ):
+            response.headers["Cache-Control"] = "private, no-store"
+        return response
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     app_settings = settings or get_settings()
     configure_logging(level=app_settings.log_level, json_logs=app_settings.log_json)
@@ -44,6 +62,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         AuditProvider(),
         ClubProvider(),
         ContentProvider(),
+        EditorialProvider(),
         MatchesProvider(),
         MediaProvider(),
         AchievementsProvider(),
@@ -124,6 +143,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(media_content_router)
     app.include_router(api_v1_router, prefix=app_settings.api_prefix)
+    if app_settings.mascot_enabled and app_settings.env in ("dev", "test"):
+        app.add_middleware(EditorialNoStoreMiddleware)
+        app.include_router(mascot_router, prefix=app_settings.api_prefix)
+        app.include_router(editorial_router, prefix=app_settings.api_prefix)
+        app.include_router(news_router)
     register_exception_handlers(app)
     return app
 
