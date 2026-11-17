@@ -362,6 +362,7 @@ def test_jobs_fail_independently_and_retain_last_success(monkeypatch, database, 
         return run
 
     monkeypatch.setattr(refresh, "sync_games", dataset("games", "men"))
+    monkeypatch.setattr(refresh, "sync_match_statistics", dataset("match_statistics"))
     monkeypatch.setattr(refresh, "sync_standings", dataset("standings", "women"))
     monkeypatch.setattr(refresh, "sync_roster", dataset("roster"))
 
@@ -379,6 +380,8 @@ def test_jobs_fail_independently_and_retain_last_success(monkeypatch, database, 
     assert calls == [
         ("games", "men"),
         ("games", "women"),
+        ("match_statistics", "men"),
+        ("match_statistics", "women"),
         ("standings", "men"),
         ("standings", "women"),
         ("roster", "men"),
@@ -412,7 +415,7 @@ def test_full_preview_does_not_migrate_backup_write_database_or_record_success(
     monkeypatch.setattr(roster, "apply_sync", forbidden)
     monkeypatch.setattr(refresh, "fetch_games", lambda *args: [fixture_game()])
     monkeypatch.setattr(roster, "collect", lambda **kwargs: [roster_snapshot()])
-    for name in ("sync_standings", "sync_portraits", "sync_fiba"):
+    for name in ("sync_match_statistics", "sync_standings", "sync_portraits", "sync_fiba"):
         monkeypatch.setattr(refresh, name, lambda *args, **kwargs: {"preview": True})
     report = refresh.run_refresh(database, preview=True)
     assert report["status"] == "succeeded"
@@ -467,6 +470,7 @@ def test_source_interval_skips_only_not_due_jobs_without_losing_their_status(
         return run
 
     monkeypatch.setattr(refresh, "sync_games", dataset("games"))
+    monkeypatch.setattr(refresh, "sync_match_statistics", dataset("match_statistics"))
     monkeypatch.setattr(refresh, "sync_standings", dataset("standings"))
     monkeypatch.setattr(refresh, "sync_roster", dataset("roster"))
     monkeypatch.setattr(refresh, "sync_portraits", lambda *args, **kwargs: {"verified": 2})

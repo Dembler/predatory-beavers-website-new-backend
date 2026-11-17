@@ -4,11 +4,13 @@ from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Query
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from predatory_beavers.api.responses import ApiResponse, PaginatedResponse
+from predatory_beavers.modules.matches.statistics import public_period_scores
+from predatory_beavers.modules.matches.statistics_schemas import ScoreByPeriod
 from predatory_beavers.modules.results.honours import honours_summary
 from predatory_beavers.modules.results.models import ArchiveCoverage, ArchiveResult
 
@@ -32,6 +34,7 @@ class ArchiveResultRead(BaseModel):
     opponent_name: str | None
     club_score: int | None
     opponent_score: int | None
+    score_by_periods: list[ScoreByPeriod] = Field(default_factory=list)
     place: int | None
     status: str
     source: str
@@ -162,8 +165,12 @@ async def list_archive(
             .limit(page_size)
         )
     ).all()
+    scores = await public_period_scores(session, results)
+    items = [ArchiveResultRead.model_validate(row) for row in results]
+    for item in items:
+        item.score_by_periods = scores.get(item.id, [])
     return PaginatedResponse.create(
-        items=[ArchiveResultRead.model_validate(row) for row in results],
+        items=items,
         total=total or 0,
         page=page,
         page_size=page_size,

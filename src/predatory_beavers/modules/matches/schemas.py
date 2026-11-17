@@ -7,6 +7,7 @@ from predatory_beavers.api.concurrency import VersionedUpdate
 from predatory_beavers.api.idempotency import IdempotentCreate
 from predatory_beavers.modules.club.schemas import MediaAssetRead, TeamSummary
 from predatory_beavers.modules.matches.models import ClubSide, Match, MatchStatus
+from predatory_beavers.modules.matches.statistics_schemas import ScoreByPeriod
 
 
 class MatchesSchema(BaseModel):
@@ -226,6 +227,7 @@ class MatchRead(MatchesSchema):
     away_team_name: str
     home_score: int | None
     away_score: int | None
+    score_by_periods: list[ScoreByPeriod] = Field(default_factory=list)
     status: MatchStatus
     source: str
     external_id: str | None
@@ -242,9 +244,12 @@ class MatchRead(MatchesSchema):
     updated_at: datetime
 
     @classmethod
-    def from_public(cls, match: Match) -> "MatchRead":
+    def from_public(
+        cls, match: Match, *, score_by_periods: list[ScoreByPeriod] | None = None
+    ) -> "MatchRead":
         """Redact an unpublished venue without changing the stored association."""
         result = cls.model_validate(match)
+        result.score_by_periods = score_by_periods or []
         venue = match.venue
         if venue is None or not venue.active or venue.is_deleted:
             result.venue = None

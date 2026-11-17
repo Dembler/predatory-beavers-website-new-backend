@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     CheckConstraint,
     Enum,
@@ -14,6 +16,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     false,
     text,
     true,
@@ -217,3 +220,22 @@ class Match(UUIDPrimaryKeyMixin, TimestampMixin, OptimisticVersionMixin, SoftDel
         foreign_keys=[away_logo_asset_id],
         lazy="raise",
     )
+
+
+class MatchStatistics(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    """Validated public sport statistics only; no raw personal protocol data."""
+
+    __tablename__ = "match_statistics"
+    __table_args__ = (
+        UniqueConstraint("source", "external_id"),
+        CheckConstraint("team IN ('men','women')", name="match_statistics_team"),
+        CheckConstraint("discipline = '5x5'", name="match_statistics_discipline"),
+    )
+
+    source: Mapped[str] = mapped_column(String(32), nullable=False)
+    external_id: Mapped[str] = mapped_column(String(200), nullable=False)
+    team: Mapped[str] = mapped_column(String(16), nullable=False, index=True)
+    season: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    discipline: Mapped[str] = mapped_column(String(16), nullable=False)
+    payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
+    fetched_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False)

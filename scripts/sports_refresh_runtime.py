@@ -165,6 +165,28 @@ def sync_games(database: Path, runtime: Path, *, team: str, preview: bool) -> di
     return counts
 
 
+def sync_match_statistics(
+    database: Path, runtime: Path, *, team: str, preview: bool
+) -> dict[str, Any]:
+    import collect_asb_match_statistics as protocols
+
+    games = load_json(runtime / "docs/results-asb.json")["games"]
+    selected = [g for g in games if g["team"] == team and g["season"] == season_now()]
+    payload = protocols.collect(selected, season=season_now())
+    coverage = payload["coverage"]
+    # Apply good independent protocols while retaining missing/rejected last-good rows.
+    counts = protocols.apply_statistics(database, payload, apply=not preview)
+    if not preview:
+        atomic_json(runtime / f"docs/asb-match-statistics-{team}.json", payload)
+    return {
+        "status": "partial" if any(r["status"] != "collected" for r in coverage) else "succeeded",
+        "received": len(coverage),
+        "collected": len(payload["statistics"]),
+        "counts": counts,
+        "preview": preview,
+    }
+
+
 def sync_standings(database: Path, runtime: Path, *, team: str, preview: bool) -> dict[str, Any]:
     import collect_asb_standings as collector
     import import_asb_standings as importer
@@ -365,6 +387,15 @@ def run_refresh(database: Path, *, preview: bool = False) -> dict[str, Any]:
             (
                 f"asb_games_{team}",
                 lambda team=team: sync_games(database, runtime, team=team, preview=preview),
+            )
+            for team in TEAMS
+        ]
+        + [
+            (
+                f"asb_match_statistics_{team}",
+                lambda team=team: sync_match_statistics(
+                    database, runtime, team=team, preview=preview
+                ),
             )
             for team in TEAMS
         ]

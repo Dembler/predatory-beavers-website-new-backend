@@ -8,6 +8,7 @@ from predatory_beavers.modules.club.schemas import TeamRead
 from predatory_beavers.modules.home.schemas import HomeData
 from predatory_beavers.modules.matches.repository import MatchRepository
 from predatory_beavers.modules.matches.schemas import MatchRead
+from predatory_beavers.modules.matches.statistics import public_period_scores
 from predatory_beavers.modules.results.models import ArchiveResult
 from predatory_beavers.modules.results.router import ArchiveResultRead
 
@@ -49,10 +50,19 @@ class HomeService:
         elif next_result is not None:
             next_match = None
         recent_results = await self._match_repository.recent_public_results(now, limit=3)
+        records = list(recent_results)
+        if next_match is not None:
+            records.append(next_match)
+        scores = await public_period_scores(self._session, records)
         return HomeData(
             generated_at=now,
-            next_match=MatchRead.from_public(next_match) if next_match is not None else None,
+            next_match=MatchRead.from_public(next_match, score_by_periods=scores.get(next_match.id))
+            if next_match is not None
+            else None,
             next_result=ArchiveResultRead.model_validate(next_result) if next_result else None,
-            recent_results=[MatchRead.from_public(item) for item in recent_results],
+            recent_results=[
+                MatchRead.from_public(item, score_by_periods=scores.get(item.id))
+                for item in recent_results
+            ],
             teams=[TeamRead.model_validate(item) for item in teams],
         )

@@ -25,6 +25,7 @@ from predatory_beavers.modules.calendar.sql import MoscowTimestamp, TimestampOrd
 from predatory_beavers.modules.club.models import Team, TeamCategory
 from predatory_beavers.modules.matches.models import Competition, Match, MatchStatus
 from predatory_beavers.modules.matches.schemas import MatchRead
+from predatory_beavers.modules.matches.statistics import public_period_scores
 from predatory_beavers.modules.matches.visibility import public_match_conditions
 from predatory_beavers.modules.results.models import ArchiveResult
 from predatory_beavers.modules.results.router import ArchiveResultRead
@@ -268,6 +269,16 @@ class CalendarRepository:
             if archive_ids
             else {}
         )
+        scores = await public_period_scores(self.session, [*matches.values(), *results.values()])
+        public_matches = {
+            key: MatchRead.from_public(value, score_by_periods=scores.get(key))
+            for key, value in matches.items()
+        }
+        public_results = {
+            key: ArchiveResultRead.model_validate(value) for key, value in results.items()
+        }
+        for key, value in public_results.items():
+            value.score_by_periods = scores.get(key, [])
         items = [
             CalendarEntry(
                 kind=row["kind"],
@@ -279,12 +290,8 @@ class CalendarRepository:
                     if selected != "all"
                     else "unknown"
                 ),
-                match=MatchRead.from_public(matches[row["id"]])
-                if row["kind"] == "calendar"
-                else None,
-                result=ArchiveResultRead.model_validate(results[row["id"]])
-                if row["kind"] == "archive"
-                else None,
+                match=public_matches[row["id"]] if row["kind"] == "calendar" else None,
+                result=public_results[row["id"]] if row["kind"] == "archive" else None,
             )
             for row in rows
         ]

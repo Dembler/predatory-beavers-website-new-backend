@@ -4,6 +4,7 @@ from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Query, Request, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from predatory_beavers.api.responses import ApiResponse, PaginatedResponse
 from predatory_beavers.modules.club.auth import AdminAuthorizer
@@ -25,10 +26,25 @@ from predatory_beavers.modules.matches.service import (
     MatchService,
     VenueService,
 )
+from predatory_beavers.modules.matches.statistics import get_public_statistics, public_period_scores
+from predatory_beavers.modules.matches.statistics_schemas import GameStatisticsRead
 from predatory_beavers.settings import Settings
 
 public_router = APIRouter(route_class=DishkaRoute, tags=["matches"])
 admin_router = APIRouter(prefix="/admin", route_class=DishkaRoute, tags=["admin-matches"])
+
+
+@public_router.get(
+    "/game-statistics/{source}/{external_id}",
+    response_model=ApiResponse[GameStatisticsRead | None],
+)
+async def game_statistics(
+    source: str,
+    external_id: str,
+    session: FromDishka[AsyncSession],
+) -> ApiResponse[GameStatisticsRead | None]:
+    data = await get_public_statistics(session, source, external_id)
+    return ApiResponse(message="Official game statistics retrieved", data=data)
 
 
 async def _require_admin_read(
@@ -91,6 +107,7 @@ async def list_venues(
 @public_router.get("/matches", response_model=PaginatedResponse[MatchRead])
 async def list_matches(
     service: FromDishka[MatchService],
+    session: FromDishka[AsyncSession],
     page: int = Query(1, ge=1),
     page_size: int = Query(24, ge=1, le=100),
     team: str | None = Query(None, min_length=1, max_length=64),
@@ -107,8 +124,11 @@ async def list_matches(
         starts_to=starts_to,
         public_only=True,
     )
+    scores = await public_period_scores(session, matches)
     return PaginatedResponse[MatchRead].create(
-        items=[MatchRead.from_public(item) for item in matches],
+        items=[
+            MatchRead.from_public(item, score_by_periods=scores.get(item.id)) for item in matches
+        ],
         total=total,
         page=page,
         page_size=page_size,
@@ -119,9 +139,14 @@ async def list_matches(
 async def get_match(
     match_id: UUID,
     service: FromDishka[MatchService],
+    session: FromDishka[AsyncSession],
 ) -> ApiResponse[MatchRead]:
     match = await service.get_public(match_id)
-    return ApiResponse(message="Match retrieved", data=MatchRead.from_public(match))
+    scores = await public_period_scores(session, [match])
+    return ApiResponse(
+        message="Match retrieved",
+        data=MatchRead.from_public(match, score_by_periods=scores.get(match.id)),
+    )
 
 
 @admin_router.get("/competitions", response_model=PaginatedResponse[CompetitionRead])

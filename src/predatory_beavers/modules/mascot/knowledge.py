@@ -13,10 +13,11 @@ import json
 import math
 import re
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta, timezone
 from difflib import SequenceMatcher
 from fractions import Fraction
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -195,6 +196,14 @@ class KnowledgeDoc:
     club_score: int | None = None
     opponent_score: int | None = None
     club_side: str | None = None
+    match_id: str | None = None
+    player_name: str | None = None
+    player_id: str | None = None
+    player_team_side: str | None = None
+    period_number: int | None = None
+    statistics_scope: str | None = None
+    statistics_season: str | None = None
+    statistic_metric: str | None = None
 
 
 def normalize_text(value: str) -> str:
@@ -281,6 +290,14 @@ def _append_passages(
     club_score: int | None = None,
     opponent_score: int | None = None,
     club_side: str | None = None,
+    match_id: str | None = None,
+    player_name: str | None = None,
+    player_id: str | None = None,
+    player_team_side: str | None = None,
+    period_number: int | None = None,
+    statistics_scope: str | None = None,
+    statistics_season: str | None = None,
+    statistic_metric: str | None = None,
 ) -> None:
     for index, passage in enumerate(_passages(text), start=1):
         documents.append(
@@ -305,6 +322,14 @@ def _append_passages(
                 club_score=club_score,
                 opponent_score=opponent_score,
                 club_side=club_side,
+                match_id=match_id,
+                player_name=player_name,
+                player_id=player_id,
+                player_team_side=player_team_side,
+                period_number=period_number,
+                statistics_scope=statistics_scope,
+                statistics_season=statistics_season,
+                statistic_metric=statistic_metric,
             )
         )
 
@@ -392,6 +417,11 @@ async def build_corpus(session: AsyncSession, *, now: datetime | None = None) ->
                         match.away_score if match.club_side.value == "home" else match.home_score
                     ),
                     club_side=match.club_side.value,
+                    match_id=(
+                        f"{match.source}:{match.external_id}"
+                        if match.external_id
+                        else str(match.id)
+                    ),
                 )
             )
 
@@ -441,6 +471,7 @@ async def build_corpus(session: AsyncSession, *, now: datetime | None = None) ->
             is_title=result.place == 1,
             club_score=result.club_score,
             opponent_score=result.opponent_score,
+            match_id=f"{result.source}:{result.external_id}" if result.opponent_name else None,
             starts_at=(
                 datetime.combine(result.event_date, datetime.min.time(), tzinfo=_MOSCOW)
                 if result.event_date and result.date_precision == "day"
@@ -461,6 +492,7 @@ async def build_corpus(session: AsyncSession, *, now: datetime | None = None) ->
             url=_URLS["team"],
             team_category=team.category.value,
         )
+    await _append_match_statistics(session, documents)
     await _append_current_rosters(session, documents, now=now)
     venues = (
         await session.scalars(
@@ -499,13 +531,290 @@ async def build_corpus(session: AsyncSession, *, now: datetime | None = None) ->
     return documents
 
 
+_STAT_LABELS = (
+    ("points", "Очки"),
+    ("rebounds", "Подборы"),
+    ("assists", "Передачи"),
+    ("steals", "Перехваты"),
+    ("blocks", "Блок-шоты"),
+    ("turnovers", "Потери"),
+    ("fouls", "Фолы"),
+    ("offensive_rebounds", "Подборы в нападении"),
+    ("defensive_rebounds", "Подборы в защите"),
+    ("minutes_seconds", "Время на площадке, секунд"),
+    ("free_throws_made", "Штрафные, попадания"),
+    ("free_throws_attempted", "Штрафные, попытки"),
+    ("two_points_made", "Двухочковые, попадания"),
+    ("two_points_attempted", "Двухочковые, попытки"),
+    ("three_points_made", "Трёхочковые, попадания"),
+    ("three_points_attempted", "Трёхочковые, попытки"),
+    ("plus_minus", "Плюс-минус"),
+)
+
+
+async def _append_match_statistics(session: AsyncSession, documents: list[KnowledgeDoc]) -> None:
+    # The public helper shares parent visibility, identity/orientation validation
+    # and field projection with the lazy public API. It never performs a fetch.
+    from predatory_beavers.modules.matches.statistics import public_statistics
+
+    for protocol in await public_statistics(session):
+        _append_game_protocol(documents, protocol.model_dump(mode="json"))
+
+
+def _append_game_protocol(documents: list[KnowledgeDoc], protocol: dict[str, Any]) -> None:
+    """Index only the validated public DTO, never provider events or personal data."""
+    identity = f"{protocol['source']}:{protocol['external_id']}"
+    parents = [doc for doc in documents if doc.match_id == identity and _is_fixture(doc)]
+    if not parents:
+        return
+    parent = next((doc for doc in parents if doc.kind == "match"), parents[0])
+    if parent.match_status != "finished":
+        return
+    title = f"{protocol['home_team_name']} — {protocol['away_team_name']}"
+    local_start = _local_start(parent)
+    day = local_start.date().isoformat() if local_start else "дата не уточнена"
+    final = (
+        f"Итог (хозяева:гости): {protocol['home_score']}:{protocol['away_score']}. "
+        if protocol.get("home_score") is not None and protocol.get("away_score") is not None
+        else "Итоговый счёт не опубликован. "
+    )
+    scope = f"Официальный протокол АСБ. {title}; {protocol['season']}; {day}. " + final
+    metadata: dict[str, Any] = {
+        "url": protocol["source_url"],
+        "match_id": identity,
+        "starts_at": parent.starts_at,
+        "match_status": parent.match_status,
+        "team_category": protocol["team"],
+        "season": protocol["season"],
+        "discipline": protocol["discipline"],
+        "event_year": parent.event_year,
+        "date_precision": parent.date_precision,
+        "opponent_name": parent.opponent_name,
+        "competition_name": parent.competition_name,
+        "source_label": protocol["source_label"],
+        "source_url": protocol["source_url"],
+    }
+    _append_passages(
+        documents,
+        doc_id=f"game-coverage:{identity}",
+        kind="match_stats_coverage",
+        title=f"Официальный протокол: {title}",
+        text=scope
+        + "Источник: официальный протокол АСБ. "
+        + (
+            "Счета периодов опубликованы. "
+            if protocol["period_scores"]
+            else "Счета периодов не опубликованы. "
+        )
+        + f"Индивидуальная статистика по периодам: {protocol['player_periods_status']}. "
+        "Показатели матча и четверти не заменяются сезонными средними; "
+        "неопубликованное значение неизвестно, а не равно нулю.",
+        statistics_scope="game",
+        **metadata,
+    )
+    for period in protocol["period_scores"]:
+        number = period["number"]
+        _append_passages(
+            documents,
+            doc_id=f"game-period:{identity}:{number}",
+            kind="match_period",
+            title=f"{title} — {period['label']}",
+            text=scope + f"{period['label']}; "
+            f"{'четверть' if period['kind'] == 'quarter' else 'овертайм'}, период {number}. "
+            f"Счёт периода (хозяева:гости): {period['home_score']}:{period['away_score']}. "
+            f"Очки только за этот период, не нарастающий итог: "
+            f"{protocol['home_team_name']} {period['home_score']}, "
+            f"{protocol['away_team_name']} {period['away_score']}. "
+            "Порядок: хозяева : гости. Эти командные очки не определяют очки отдельных игроков.",
+            statistics_scope="period",
+            period_number=number,
+            **metadata,
+        )
+    players = protocol["box_score"]
+    for player in players:
+        name = player["full_name"]
+        player_id = player["external_player_id"]
+        side = player["team_side"]
+        team_name = protocol[f"{side}_team_name"]
+        label = (
+            f"{name}, №{player['jersey_number'] or 'не указан'}, {team_name}, ID АСБ {player_id}"
+        )
+        did_not_play = player.get("played") is False
+        participation = (
+            " Не выходил на площадку (DNP); это не сыгранные нули." if did_not_play else ""
+        )
+        stats_rows = [(None, {} if did_not_play else player["statistics"])] + [
+            (item["period"], item["statistics"])
+            for item in player["period_statistics"]
+            if not did_not_play
+        ]
+        for number, stats in stats_rows:
+            period_label = "весь матч" if number is None else f"период {number}"
+            source_note = (
+                " Очки и броски за этот период опубликованы; прочие поля помечены отдельно."
+                if number is not None
+                and stats.get("points") is not None
+                and any(stats.get(key) is not None for key, _ in _STAT_LABELS[10:16])
+                else " Только официальный протокол; неизвестное не равно нулю."
+            )
+            fields = [
+                f"{label_stat}: {stats[key]}"
+                for key, label_stat in _STAT_LABELS
+                if stats.get(key) is not None
+            ]
+            missing = [label_stat for key, label_stat in _STAT_LABELS if stats.get(key) is None]
+            if missing:
+                fields.append("Не опубликовано: " + ", ".join(missing))
+            # Usually one compact passage per player/period. Repeat the exact
+            # scope on every overflow passage instead of five fixed chunks.
+            for offset, field_group in enumerate(_passages("; ".join(fields))):
+                _append_passages(
+                    documents,
+                    doc_id=f"game-player:{identity}:{side}:{player_id}:{number}:{offset}",
+                    kind="match_player_stats",
+                    title=f"{label} — {period_label}",
+                    text=scope
+                    + f"Игрок: {label}; {period_label}. "
+                    + field_group
+                    + ". "
+                    + participation
+                    + source_note,
+                    player_name=name,
+                    player_id=player_id,
+                    player_team_side=side,
+                    period_number=number,
+                    statistics_scope="game" if number is None else "period",
+                    **metadata,
+                )
+    period_numbers = {None} | {
+        item["period"] for player in players for item in player["period_statistics"]
+    }
+    for number in period_numbers:
+        for comparison_scope in ("all", "club", "opponent"):
+            eligible = [
+                player
+                for player in players
+                if comparison_scope == "all"
+                or (player["team_side"] == protocol["club_side"]) == (comparison_scope == "club")
+            ]
+            values = [
+                (
+                    player,
+                    {}
+                    if player.get("played") is False
+                    else player["statistics"]
+                    if number is None
+                    else next(
+                        (
+                            item["statistics"]
+                            for item in player["period_statistics"]
+                            if item["period"] == number
+                        ),
+                        {},
+                    ),
+                )
+                for player in eligible
+            ]
+            group_label = {
+                "all": "все участники обеих команд",
+                "club": "игроки ВГУ",
+                "opponent": "игроки соперника",
+            }[comparison_scope]
+            for metric, metric_label in _STAT_LABELS[:3] + (_STAT_LABELS[9],):
+                comparable = [
+                    (player, stats[metric])
+                    for player, stats in values
+                    if stats.get(metric) is not None
+                ]
+                prefix = (
+                    scope
+                    + ("Весь матч. " if number is None else f"Только период {number}. ")
+                    + f"{group_label}; метрика: {metric_label}. "
+                )
+                # Explicit per-metric missingness permits honest sparse answers,
+                # including period assists/minutes without borrowing game totals.
+                entries = [
+                    f"{player['full_name']} (№{player['jersey_number'] or '?'}, "
+                    f"ID АСБ {player['external_player_id']}): "
+                    + (
+                        "не выходил на площадку (DNP)"
+                        if player.get("played") is False
+                        else str(stats[metric])
+                        if stats.get(metric) is not None
+                        else "не опубликовано"
+                    )
+                    for player, stats in values
+                ]
+                for index, group in enumerate(_bounded_groups(entries, 360)):
+                    _append_passages(
+                        documents,
+                        doc_id=f"game-summary:{identity}:{number}:{comparison_scope}:{metric}:{index}",
+                        kind="match_player_summary",
+                        title=f"{title} — {metric_label}",
+                        text=prefix
+                        + "; ".join(group)
+                        + ". Неизвестное не равно нулю; это не сезонные средние.",
+                        period_number=number,
+                        statistics_scope=f"summary_{comparison_scope}",
+                        statistic_metric=metric,
+                        **metadata,
+                    )
+                if not comparable:
+                    continue
+                maximum = max(value for _, value in comparable)
+                leaders = [player for player, value in comparable if value == maximum]
+                unknown = sum(
+                    player.get("played") is not False and stats.get(metric) is None
+                    for player, stats in values
+                )
+                did_not_play_names = [
+                    player["full_name"] for player in eligible if player.get("played") is False
+                ]
+                participation_note = (
+                    f"Не выходили на площадку (DNP): {', '.join(did_not_play_names)}. "
+                    if did_not_play_names
+                    else ""
+                )
+                names = "; ".join(
+                    f"{player['full_name']} (№{player['jersey_number'] or '?'}, "
+                    f"{protocol[player['team_side'] + '_team_name']}, "
+                    f"ID АСБ {player['external_player_id']})"
+                    for player in leaders
+                )
+                _append_passages(
+                    documents,
+                    doc_id=f"game-points:{identity}:{number}:{comparison_scope}:{metric}",
+                    kind="match_points_comparison",
+                    title=f"{title} — максимум: {metric_label}",
+                    text=prefix + f"Среди {len(comparable)} игроков с опубликованным показателем "
+                    f"максимум {maximum}; "
+                    f"разделяют {len(leaders)}: {names}. "
+                    f"Показатель неизвестен у {unknown} игроков; DNP в это число не входит. "
+                    + participation_note
+                    + "Максимум этой группы и периода; не рекорд клуба.",
+                    period_number=number,
+                    statistics_scope=f"comparison_{comparison_scope}",
+                    statistic_metric=metric,
+                    **metadata,
+                )
+
+
+def _bounded_groups(values: list[str], maximum: int) -> list[list[str]]:
+    groups: list[list[str]] = []
+    for value in values:
+        if not groups or sum(len(item) + 2 for item in groups[-1]) + len(value) > maximum:
+            groups.append([])
+        groups[-1].append(value)
+    return groups
+
+
 async def _append_current_rosters(
     session: AsyncSession,
     documents: list[KnowledgeDoc],
     *,
     now: datetime | None = None,
 ) -> None:
-    """Only the same current, published, listed ASB members as the public roster.
+    """Current published ASB members, or an explicitly historical public fallback.
 
     Historical members never silently become the current team. Birth dates,
     personal contacts, photo origins and provider identifiers are not included.
@@ -518,6 +827,18 @@ async def _append_current_rosters(
                 AsbRosterSnapshot.season == season,
             )
         )
+        if not snapshot or not snapshot.is_published:
+            snapshot = await session.scalar(
+                select(AsbRosterSnapshot)
+                .where(
+                    AsbRosterSnapshot.team == category,
+                    AsbRosterSnapshot.season <= season,
+                    AsbRosterSnapshot.is_published.is_(True),
+                )
+                .order_by(AsbRosterSnapshot.season.desc())
+                .limit(1)
+            )
+        selected_season = snapshot.season if snapshot else season
         members = []
         if snapshot and snapshot.is_published:
             members = list(
@@ -532,15 +853,20 @@ async def _append_current_rosters(
                     )
                 ).all()
             )
-        title = f"Состав {label} команды ВГУ — сезон {season}"
+        title = f"Состав {label} команды ВГУ — сезон {selected_season}"
         summary = (
             f"По сохранённому опубликованному снимку состав {label} команды ВГУ "
-            f"относится к сезону {season}. "
+            f"относится к сезону {selected_season}. "
             f"В заявке {len(members)} игроков: {', '.join(member.full_name for member in members)}."
             if members
             else f"Состав {label} команды ВГУ на сезон {season} не опубликован или не подтверждён. "
             "Список прошлых сезонов не подтверждает текущий состав."
         )
+        if members and selected_season != season:
+            summary += (
+                f" Это последний опубликованный состав; текущий сезон {season} "
+                "не подтверждён. Эта заявка не является текущим составом."
+            )
         if snapshot and snapshot.is_published:
             summary += (
                 f" Снимок проверен {snapshot.checked_at.isoformat()}; "
@@ -548,27 +874,40 @@ async def _append_current_rosters(
             )
         _append_passages(
             documents,
-            doc_id=f"roster:{category}:{season}",
+            doc_id=f"roster:{category}:{selected_season}",
             kind="roster",
             title=title,
             text=summary,
             url=f"/teams/{category}",
             team_category=category,
-            season=season,
+            season=selected_season,
             discipline="5x5",
         )
         for member in members:
             public = player_read(member)
             pieces = [
                 f"По сохранённому опубликованному снимку {public.full_name} включён "
-                f"в состав {label} команды ВГУ на сезон {season}. "
+                f"в состав {label} команды ВГУ на сезон {selected_season}. "
                 "Последующие изменения заявки не подтверждены."
             ]
+            if selected_season != season:
+                pieces.append(
+                    f"Это последний опубликованный исторический состав, не текущий: "
+                    f"заявка сезона {season} не подтверждена."
+                )
             if public.statistics_season:
                 pieces.append(
                     f"Индивидуальная статистика относится к сезону {public.statistics_season}, "
-                    "он может отличаться от сезона состава."
+                    "он может отличаться от сезона состава. Это сезонные средние, "
+                    "не показатели отдельного матча или четверти."
                 )
+                stat_pieces = [
+                    f"{public.full_name}: сезонная статистика {label} команды ВГУ "
+                    f"за {public.statistics_season}; опубликованная заявка {selected_season}. "
+                    "Показатели в среднем за матч за этот сезон статистики. "
+                    "Это не статистика отдельного матча или четверти; "
+                    "отсутствие показателя не означает ноль."
+                ]
                 for label_stat, value in (
                     ("Матчей", public.games_played),
                     ("Очков в среднем за матч", public.points_per_game),
@@ -577,7 +916,23 @@ async def _append_current_rosters(
                     ("Минут в среднем за матч", public.minutes_per_game),
                 ):
                     if value is not None:
-                        pieces.append(f"{label_stat}: {value}")
+                        stat_pieces.append(f"{label_stat}: {value}")
+                _append_passages(
+                    documents,
+                    doc_id=f"season-player-stats:{member.id}",
+                    kind="player_season_stats",
+                    title=f"{public.full_name} — сезонная статистика {public.statistics_season}",
+                    text=" ".join(stat_pieces),
+                    url=f"/teams/{category}/players/{member.id}",
+                    team_category=category,
+                    season=public.statistics_season,
+                    statistics_season=public.statistics_season,
+                    statistics_scope="season",
+                    player_name=public.full_name,
+                    source_label="Опубликованная статистика АСБ",
+                    source_url=public.statistics_source_url,
+                    discipline="5x5",
+                )
             else:
                 pieces.append(
                     "Индивидуальная статистика не опубликована; "
@@ -591,10 +946,11 @@ async def _append_current_rosters(
                 text=" ".join(pieces),
                 url=f"/teams/{category}/players/{member.id}",
                 team_category=category,
-                season=season,
+                season=selected_season,
+                player_name=public.full_name,
                 discipline="5x5",
             )
-        _append_points_comparisons(documents, members, category=category, season=season)
+        _append_points_comparisons(documents, members, category=category, season=selected_season)
 
 
 def _append_points_comparisons(
@@ -682,6 +1038,14 @@ def corpus_hash(documents: list[KnowledgeDoc]) -> str:
             "club_score": doc.club_score,
             "opponent_score": doc.opponent_score,
             "club_side": doc.club_side,
+            "match_id": doc.match_id,
+            "player_name": doc.player_name,
+            "player_id": doc.player_id,
+            "player_team_side": doc.player_team_side,
+            "period_number": doc.period_number,
+            "statistics_scope": doc.statistics_scope,
+            "statistics_season": doc.statistics_season,
+            "statistic_metric": doc.statistic_metric,
         }
         for doc in sorted(documents, key=lambda doc: doc.doc_id)
     ]
@@ -761,6 +1125,262 @@ def _comparison_guard(category: str | None, season: str | None) -> KnowledgeDoc:
         team_category=category,
         season=season,
         discipline="5x5",
+    )
+
+
+_GAME_STAT_KINDS = {
+    "match_period",
+    "match_player_stats",
+    "match_stats_coverage",
+    "match_points_comparison",
+    "match_player_summary",
+}
+
+
+def _requested_period(normalized: str) -> int | None:
+    """Period numbers refer to official periods, never fractions of final scores."""
+    overtime = re.search(r"\b(?:от|ot)\s*([1-9])\b", normalized)
+    if overtime:
+        return 4 + int(overtime.group(1))
+    if not re.search(r"четверт|период|оверта", normalized):
+        return None
+    if "оверта" in normalized:
+        numbered_overtime = re.search(
+            r"\b([1-9])(?:\s*[-–]?\s*[аяйюеи]{1,2})?\s*оверта", normalized
+        )
+        if numbered_overtime:
+            return 4 + int(numbered_overtime.group(1))
+        for stem, number in (("перв", 5), ("втор", 6), ("трет", 7)):
+            if any(word.startswith(stem) for word in _WORD_RE.findall(normalized)):
+                return number
+    numbered = re.search(r"\b([1-9])(?:\s*[-–]?\s*[аяйюеи]{1,2})?\s*(?:четверт|период)", normalized)
+    if numbered:
+        return int(numbered.group(1))
+    for stems, number in (
+        (("перв",), 1),
+        (("втор",), 2),
+        (("трет", "треть", "третя"), 3),
+        (("четвертую", "четвертой", "четвертая", "четвертом"), 4),
+        (("пят",), 5),
+        (("шест",), 6),
+    ):
+        if any(
+            word.startswith(stems) for word in _WORD_RE.findall(normalized) if word != "четверть"
+        ):
+            return number
+    return None
+
+
+def _requested_statistic(normalized: str) -> str:
+    for stems, metric in (
+        (("передач", "ассист"), "assists"),
+        (("подбор", "подбир"), "rebounds"),
+        (("минут", "секунд"), "minutes_seconds"),
+        (("перехват",), "steals"),
+        (("блок",), "blocks"),
+        (("потер",), "turnovers"),
+    ):
+        if any(word.startswith(stems) for word in _WORD_RE.findall(normalized)):
+            return metric
+    return "points"
+
+
+def _game_statistics_sources(
+    scoped: list[KnowledgeDoc],
+    *,
+    normalized: str,
+    current: datetime,
+    period: int | None,
+    period_query: bool,
+    player_names: set[str],
+    player_query: bool,
+    comparison: bool,
+    latest: bool,
+    limit: int,
+) -> list[KnowledgeDoc]:
+    fixtures = _unique_fixtures(
+        [
+            doc
+            for doc in scoped
+            if _is_fixture(doc)
+            and doc.match_status == "finished"
+            and (local := _local_start(doc)) is not None
+            and local <= current
+        ]
+    )
+    if latest and len({doc.team_category for doc in fixtures if doc.team_category}) > 1:
+        fixtures = []  # A two-team personal-stat question needs an explicit team.
+    if latest and fixtures:
+        last = max(_local_start(doc) or current for doc in fixtures)
+        last_day = last.date()
+        if any(
+            doc.date_precision == "day" and (_local_start(doc) or current).date() == last_day
+            for doc in fixtures
+        ):
+            fixtures = [
+                doc for doc in fixtures if (_local_start(doc) or current).date() == last_day
+            ]
+        else:
+            fixtures = [doc for doc in fixtures if _local_start(doc) == last]
+    identities = {doc.match_id or doc.doc_id.split(":part")[0] for doc in fixtures}
+    if len(identities) != 1:
+        return [
+            KnowledgeDoc(
+                "match-statistics:scope",
+                "match_stats_scope",
+                "Уточнение матча для статистики",
+                "Для статистики нужно уточнить команду, соперника или дату конкретного матча. "
+                "Не выбирай произвольный протокол и не заменяй его сезонными средними.",
+                "/matches",
+            )
+        ][:limit]
+    identity = next(iter(identities))
+    fixture = fixtures[0]
+    data = [doc for doc in scoped if doc.match_id == identity and doc.kind in _GAME_STAT_KINDS]
+    metric = _requested_statistic(normalized)
+    opponent_name = fixture.opponent_name or ""
+    opponent_subjects = {
+        normalize_text(re.sub(r"\s*\([^)]*\)", "", opponent_name)).strip(),
+        *(
+            normalize_text(alias)
+            for alias in re.findall(r"\b[А-ЯЁA-Z]{2,}(?:-\d+)?\b", opponent_name)
+        ),
+    } - {""}
+    opponent_subject = any(
+        re.search(r"(?:\bу\s+|игрок\w*\s+)" + re.escape(subject) + r"(?=$|[^\w-])", normalized)
+        for subject in opponent_subjects
+    )
+    comparison_scope = (
+        "opponent"
+        if re.search(r"соперник", normalized) or opponent_subject
+        else "club"
+        if re.search(r"\bнаш|\bвгу\b|команд", normalized)
+        else "all"
+    )
+
+    def wanted_period(doc: KnowledgeDoc) -> bool:
+        if period is not None:
+            return doc.period_number == period
+        return doc.period_number is not None if period_query else doc.period_number is None
+
+    if player_query:
+        wanted = [doc for doc in data if doc.kind == "match_player_stats"]
+        wanted = [doc for doc in wanted if wanted_period(doc)]
+        if player_names:
+            wanted = [doc for doc in wanted if doc.player_name in player_names]
+        elif not comparison:
+            if any(
+                word.startswith(("игрок", "кажд", "всем", "всех"))
+                for word in _WORD_RE.findall(normalized)
+            ):
+                wanted = [
+                    doc
+                    for doc in data
+                    if doc.kind == "match_player_summary"
+                    and wanted_period(doc)
+                    and doc.statistic_metric == metric
+                    and doc.statistics_scope == f"summary_{comparison_scope}"
+                ]
+            else:
+                # A name not present in official data must not select another player.
+                wanted = []
+        if comparison and not player_names:
+            wanted = [
+                doc
+                for doc in data
+                if doc.kind == "match_points_comparison"
+                and wanted_period(doc)
+                and doc.statistics_scope == f"comparison_{comparison_scope}"
+                and doc.statistic_metric == metric
+            ]
+        if player_names and len({(doc.player_team_side, doc.player_id) for doc in wanted}) > 1:
+            return [
+                KnowledgeDoc(
+                    f"match-statistics:player-ambiguous:{identity}",
+                    "match_stats_scope",
+                    "Нужно уточнить игрока",
+                    f"В протоколе {fixture.title} найдены разные игроки с подходящими именами. "
+                    "Уточни полное имя, команду или игровой номер; не объединяй их статистику.",
+                    fixture.url,
+                )
+            ][:limit]
+    else:
+        wanted = [
+            doc
+            for doc in data
+            if doc.kind == "match_period" and (period is None or doc.period_number == period)
+        ]
+    scope = (
+        f"Матч: {fixture.title}; сезон {fixture.season}; "
+        f"дата {(_local_start(fixture) or current).date().isoformat()}. "
+    )
+    category_label = "мужской" if fixture.team_category == "men" else "женской"
+    latest_fact = (
+        f"По опубликованному календарю на {current.astimezone(_MOSCOW).date().isoformat()} "
+        f"это последний завершённый матч {category_label} "
+        "команды в выбранных условиях. "
+        if latest
+        else ""
+    )
+    if not wanted:
+        metric_label = dict(_STAT_LABELS).get(metric, metric)
+        published_periods = sorted(
+            {doc.period_number for doc in data if doc.kind == "match_period" and doc.period_number}
+        )
+        coverage = (
+            "В этом протоколе опубликованы периоды: "
+            + ", ".join(str(number) for number in published_periods)
+            + ". "
+            if published_periods
+            else ""
+        )
+        detail = (
+            f"Показатель «{metric_label}» игроков за период {period or 'из запроса'} "
+            "не опубликован "
+            "в найденном официальном протоколе."
+            if player_query and period_query
+            else f"Показатель «{metric_label}» нужного игрока за матч не опубликован "
+            "в найденном протоколе."
+            if player_query
+            else f"Счёт периода {period} не опубликован в найденном официальном протоколе."
+            if period is not None
+            else "Счета периодов не опубликованы в найденном официальном протоколе."
+        )
+        return [
+            KnowledgeDoc(
+                f"match-statistics:missing:{identity}:{period}",
+                "match_stats_scope",
+                f"Нет подтверждённого показателя: {fixture.title}",
+                scope
+                + latest_fact
+                + coverage
+                + detail
+                + " Скажи об этом коротко. Отсутствие показателя не равно нулю; "
+                "нельзя вычислять четверти или индивидуальные очки из итогового счёта "
+                "либо сезонных средних.",
+                data[0].url if data else fixture.url,
+                match_id=identity,
+                team_category=fixture.team_category,
+                season=fixture.season,
+                period_number=period,
+                starts_at=fixture.starts_at,
+            )
+        ][:limit]
+    # Do not truncate a tie/comparison into an assertion about only one leader.
+    if (comparison or not player_names and player_query) and len(wanted) > limit:
+        return [
+            KnowledgeDoc(
+                f"match-statistics:comparison-limit:{identity}:{period}",
+                "match_stats_scope",
+                "Недостаточно места для полного сравнения",
+                scope + "Полная сводка разделивших максимум не помещается в ответ. "
+                "Нельзя называть одного лидера по усечённой выборке.",
+                fixture.url,
+            )
+        ][:limit]
+    selected = sorted(wanted, key=lambda doc: (doc.period_number or 0, doc.doc_id))[:limit]
+    return (
+        [replace(doc, text=latest_fact + doc.text) for doc in selected] if latest_fact else selected
     )
 
 
@@ -942,6 +1562,8 @@ def retrieve(
         return []
     normalized = normalize_text(query)
     for alias, replacement in (
+        (r"\bq\s*([1-4])\b", r"\1 четверть"),
+        (r"\bquarter\s*([1-4])\b", r"\1 четверть"),
         (r"\bnext\s+(?:match|game)\b", "следующий матч"),
         (r"\broster\b", "состав"),
         (r"\bbasketball\b", "баскетбол"),
@@ -970,6 +1592,11 @@ def retrieve(
         (r"\bзаявк\w*\b", "состав"),
     ):
         normalized = re.sub(alias, replacement, normalized)
+    normalized = re.sub(
+        r"\b(?:ot|от)\s*([1-9])\b",
+        lambda match: f"{4 + int(match.group(1))} период",
+        normalized,
+    )
     words = _WORD_RE.findall(normalized)
     current = now or datetime.now(UTC)
     if current.tzinfo is None:
@@ -1028,7 +1655,9 @@ def retrieve(
     if navigation_target:
         found = [doc for doc in documents if doc.doc_id == f"navigation:{navigation_target}"]
         if found:
-            if navigation_target != "matches" or calendar_window is None:
+            if (navigation_target != "matches" or calendar_window is None) and not any(
+                word.startswith(("четверт", "статист", "протокол")) for word in words
+            ):
                 return found[:limit]
             # A calendar question needs dated records as well as the page link.
             navigation_documents = found
@@ -1108,6 +1737,32 @@ def retrieve(
     }
     opponent_words = set(re.findall(r"[а-яa-z0-9]+(?:-\d+)?", normalized))
     requested_opponents = {alias for alias in opponent_aliases if alias in opponent_words}
+    if has_match:
+        explicit_opponent = re.search(
+            r"(?:\bс\s+|\bпротив\s+|\bвгу\s*[—–-]\s*)([а-яa-z]+(?:-\d+)?)",
+            normalized,
+        )
+        if explicit_opponent and not explicit_opponent.group(1).startswith(
+            (
+                "наш",
+                "муж",
+                "жен",
+                "соперник",
+                "вгу",
+                "команд",
+                "учет",
+                "мяч",
+                "разниц",
+                "счет",
+                "результ",
+                "истор",
+                "архив",
+                "очк",
+                "передач",
+                "подбор",
+            )
+        ):
+            requested_opponents.add(explicit_opponent.group(1))
 
     def opponent_matches(doc: KnowledgeDoc) -> bool:
         return not requested_opponents or bool(
@@ -1156,8 +1811,69 @@ def retrieve(
     ):
         rules_query = True
 
+    query_name_tokens = _tokens(normalized)
+    player_name_matches = {
+        doc.player_name: len(_tokens(doc.player_name) & query_name_tokens)
+        for doc in documents
+        if doc.player_name
+    }
+    maximum_name_match = max(player_name_matches.values(), default=0)
+    named_players = {
+        name
+        for name, count in player_name_matches.items()
+        if count == maximum_name_match and count > 0
+    }
+    period = _requested_period(normalized)
+    period_query = any(word.startswith(("четверт", "период", "оверта")) for word in words)
+    player_terms = bool(named_players) or any(
+        word.startswith(("игрок", "кажд", "подбир", "подбор", "передач", "ассист"))
+        for word in words
+    )
+    rule_explanation = (
+        any(word.startswith(("длит", "правил")) for word in words)
+        or "что" in words
+        and "такое" in words
+        or any(word.startswith(("минут", "секунд")) for word in words)
+        and not player_terms
+    )
+    season_average = bool(re.search(r"в\s+среднем|сезонн|за\s+сезон", normalized))
+    game_statistics = (
+        period_query
+        and not rule_explanation
+        or (has_match or requested_day is not None or bool(requested_opponents))
+        and not rule_explanation
+        and not season_average
+        and (
+            bool(named_players)
+            or any(
+                word.startswith(
+                    (
+                        "статист",
+                        "протокол",
+                        "набрал",
+                        "очк",
+                        "подбор",
+                        "подбир",
+                        "передач",
+                        "результатив",
+                    )
+                )
+                for word in words
+            )
+            or "boxscore" in words
+            or "кто" in words
+            and any(word.startswith(("больш", "результатив", "лидер")) for word in words)
+        )
+    )
+    if _score_margin_query(normalized) is not None and not period_query:
+        game_statistics = False
+    if game_statistics or named_players:
+        rules_query = False
+
     def compatible(doc: KnowledgeDoc) -> bool:
-        if doc.kind in ("match", "result") and not opponent_matches(doc):
+        if (
+            doc.kind in ("match", "result") or doc.kind in _GAME_STAT_KINDS
+        ) and not opponent_matches(doc):
             return False
         if category and doc.team_category and doc.team_category != category:
             return False
@@ -1174,15 +1890,74 @@ def retrieve(
             and doc.event_year not in years
         ):
             return False
-        if requested_day and doc.kind in ("match", "result"):
+        if requested_day and (doc.kind in ("match", "result") or doc.kind in _GAME_STAT_KINDS):
             local = _local_start(doc)
             return bool(local and local.date() == requested_day)
-        if requested_month_day and doc.kind in ("match", "result"):
+        if requested_month_day and (
+            doc.kind in ("match", "result") or doc.kind in _GAME_STAT_KINDS
+        ):
             local = _local_start(doc)
             return bool(local and (local.month, local.day) == requested_month_day)
         return True
 
     scoped = [doc for doc in documents if compatible(doc)]
+    if game_statistics:
+        if calendar_window:
+            first_day, last_day = calendar_window
+            scoped = [
+                doc
+                for doc in scoped
+                if (local := _local_start(doc)) is not None
+                and first_day <= local.date() <= last_day
+            ]
+        comparison = (
+            any(
+                word in ("кто", "кого") or word.startswith(("лучш", "лидер", "топ"))
+                for word in words
+            )
+            or bool(re.search(r"\bсам\w*\s+результатив", normalized))
+        ) and any(
+            word.startswith(
+                ("очк", "набрал", "результатив", "больш", "подбир", "подбор", "передач")
+            )
+            for word in words
+        )
+        unknown_name = re.search(r"\bу\s+([а-я]+)", normalized)
+        asks_named_unknown = bool(
+            unknown_name
+            and unknown_name.group(1)
+            not in {
+                "нас",
+                "вас",
+                "меня",
+                "тебя",
+                "него",
+                "нее",
+                "них",
+                "вгу",
+                *opponent_aliases,
+            }
+            and not unknown_name.group(1).startswith("соперник")
+        )
+        player_query = (
+            player_terms
+            or comparison
+            or asks_named_unknown
+            or not period_query
+            and any(word.startswith("набрал") for word in words)
+        )
+        return _game_statistics_sources(
+            scoped,
+            normalized=normalized,
+            current=current,
+            period=period,
+            period_query=period_query,
+            player_names=named_players,
+            player_query=player_query,
+            comparison=comparison,
+            latest=any(word.startswith(("последн", "прошедш", "недавн")) for word in words),
+            limit=limit,
+        )
     if calendar_window and has_match and not rules_query:
         first_day, last_day = calendar_window
         fixtures = _unique_fixtures(
@@ -1271,7 +2046,8 @@ def retrieve(
         scoped = [
             doc
             for doc in scoped
-            if doc.kind in ("roster", "roster_player") or doc.doc_id.startswith("navigation:teams-")
+            if doc.kind in ("roster", "roster_player", "player_season_stats")
+            or doc.doc_id.startswith("navigation:teams-")
         ]
     elif rules_query:
         scoped = [doc for doc in scoped if doc.kind in ("rules", "player_roles", "viewing_tips")]
@@ -1374,6 +2150,20 @@ def retrieve(
         return [doc for doc in finished if doc.doc_id.split(":part")[0] == first_id][:limit]
 
     query_tokens = _tokens(normalized)
+    if named_players:
+        scoped = [doc for doc in scoped if doc.player_name in named_players]
+    if (
+        not game_statistics
+        and any(
+            word.startswith(("статист", "очк", "набрал", "подбор", "передач", "средн"))
+            for word in words
+        )
+        and not rules_query
+        and not has_match
+    ):
+        seasonal = [doc for doc in scoped if doc.kind == "player_season_stats"]
+        if seasonal:
+            scoped = seasonal
     if not query_tokens:
         return []
     history = history_query

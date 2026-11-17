@@ -63,6 +63,346 @@ def doc(
     )
 
 
+def game_corpus():
+    parent = replace(
+        doc(
+            "match:game",
+            "ВГТУ — ВГУ",
+            kind="match",
+            category="men",
+            discipline="5x5",
+            status="finished",
+            season="2026-2027",
+            starts_at=NOW - timedelta(days=1),
+            opponent="ВГТУ",
+            club_score=70,
+            opponent_score=60,
+            club_side="away",
+        ),
+        match_id="asb:123",
+    )
+    documents = [parent]
+    protocol = {
+        "source": "asb",
+        "external_id": "123",
+        "team": "men",
+        "season": "2026-2027",
+        "discipline": "5x5",
+        "club_side": "away",
+        "home_team_name": "ВГТУ",
+        "away_team_name": "ВГУ",
+        "home_score": 60,
+        "away_score": 70,
+        "source_url": "https://asb.sportoteka.org/api/abc/games/game?id=123",
+        "source_label": "Официальный протокол АСБ",
+        "player_periods_status": "partial",
+        "period_scores": [
+            {
+                "number": number,
+                "kind": "quarter",
+                "label": f"Q{number}",
+                "home_score": home,
+                "away_score": away,
+            }
+            for number, home, away in ((1, 18, 20), (2, 19, 17), (3, 11, 20), (4, 12, 13))
+        ],
+        "box_score": [
+            {
+                "external_player_id": player_id,
+                "full_name": name,
+                "jersey_number": jersey,
+                "team_side": side,
+                "statistics": {
+                    "points": points,
+                    "rebounds": rebounds,
+                    "assists": assists,
+                    "minutes_seconds": 1200,
+                },
+                "period_statistics": [{"period": 3, "statistics": {"points": period_points}}],
+                "birth_date": "PRIVATE-BIRTHDAY",
+                "phone": "PRIVATE-PHONE",
+            }
+            for player_id, name, jersey, side, points, rebounds, assists, period_points in (
+                ("1", "Иван Петров", "7", "away", 18, 6, 4, 4),
+                ("2", "Пётр Иванов", "8", "away", 20, 4, 2, 5),
+                ("3", "Сидор Сидоров", "9", "home", 25, 10, 3, 6),
+            )
+        ],
+    }
+    knowledge._append_game_protocol(documents, protocol)
+    return documents, protocol
+
+
+def test_official_periods_keep_home_away_orientation_and_player_data_is_public_only():
+    documents, _ = game_corpus()
+    found = knowledge.retrieve(
+        "Сколько ВГУ и ВГТУ набрали в третьей четверти последнего мужского матча?",
+        documents,
+        now=NOW,
+    )
+    assert len(found) == 1 and found[0].kind == "match_period"
+    assert "ВГТУ 11" in found[0].text and "ВГУ 20" in found[0].text
+    assert "Счёт периода (хозяева:гости): 11:20" in found[0].text
+    assert "Итог (хозяева:гости): 60:70" in found[0].text
+    assert "это последний завершённый матч мужской команды" in found[0].text
+    assert "Официальный протокол АСБ" in found[0].text
+    assert found[0].period_number == 3 and found[0].match_id == "asb:123"
+    assert found[0].url.startswith("https://asb.sportoteka.org/")
+    assert "PRIVATE" not in " ".join(item.text for item in documents)
+
+
+@pytest.mark.parametrize("period", ["третяя четверть", "третья четверть", "3-я четверть", "Q3"])
+def test_period_forms_and_typo_do_not_follow_rules_branch(period):
+    documents, _ = game_corpus()
+    documents.append(doc("rule", "Четверть длится десять минут", kind="rules"))
+    found = knowledge.retrieve(f"{period} последнего мужского матча", documents, now=NOW)
+    assert found and all(item.kind == "match_period" and item.period_number == 3 for item in found)
+
+
+def test_rule_definition_and_duration_still_retrieve_rules():
+    documents, _ = game_corpus()
+    rule = doc("rule", "Четверть длится десять минут", kind="rules")
+    documents.append(rule)
+    assert knowledge.retrieve("Сколько минут в четверти?", documents, now=NOW) == [rule]
+    assert knowledge.retrieve("Что такое четверть?", documents, now=NOW) == [rule]
+
+
+def test_named_player_period_stats_do_not_borrow_game_assists_or_minutes():
+    documents, _ = game_corpus()
+    found = knowledge.retrieve(
+        "Сколько передач у Петрова в Q3 последнего мужского матча?", documents, now=NOW
+    )
+    assert found and all(
+        item.kind == "match_player_stats" and item.period_number == 3 for item in found
+    )
+    assert all(item.player_name == "Иван Петров" for item in found)
+    assert "Не опубликовано" in " ".join(item.text for item in found)
+    assert "Передачи: 4" not in " ".join(item.text for item in found)
+    found = knowledge.retrieve(
+        "Сколько минут каждый игрок ВГУ провёл в Q3 последнего мужского матча?", documents, now=NOW
+    )
+    assert found and all(item.kind == "match_player_summary" for item in found)
+    assert all(
+        item.statistic_metric == "minutes_seconds" and "не опубликовано" in item.text
+        for item in found
+    )
+    assert "1200" not in " ".join(item.text for item in found)
+
+
+def test_match_comparisons_use_complete_group_metric_and_opponent_scope():
+    documents, _ = game_corpus()
+    club = knowledge.retrieve(
+        "Кто у ВГУ набрал больше очков в последнем мужском матче?", documents, now=NOW
+    )
+    assert club and all(item.statistics_scope == "comparison_club" for item in club)
+    assert "Пётр Иванов" in " ".join(item.text for item in club)
+    opponent = knowledge.retrieve(
+        "Кто у ВГТУ набрал больше очков в последнем мужском матче?", documents, now=NOW
+    )
+    assert opponent and all(item.statistics_scope == "comparison_opponent" for item in opponent)
+    assert "Сидор Сидоров" in " ".join(item.text for item in opponent)
+    rebounds = knowledge.retrieve(
+        "Кто лучше всех подбирал у ВГУ в последнем мужском матче?", documents, now=NOW
+    )
+    assert rebounds and all(item.statistic_metric == "rebounds" for item in rebounds)
+    assert "Иван Петров" in " ".join(item.text for item in rebounds)
+
+
+def test_collective_quarter_player_points_use_summary_without_seasonal_averages():
+    documents, _ = game_corpus()
+    found = knowledge.retrieve(
+        "Какие игроки ВГУ набирали очки в третьей четверти последнего мужского матча?",
+        documents,
+        now=NOW,
+    )
+    assert found and all(
+        item.kind == "match_player_summary" and item.period_number == 3 for item in found
+    )
+    text = " ".join(item.text for item in found)
+    assert "Иван Петров" in text and "Пётр Иванов" in text
+    assert "Сидор Сидоров" not in text
+
+
+def test_short_opponent_name_with_city_suffix_wins_over_our_team_context():
+    documents, _ = game_corpus()
+    documents[0] = replace(documents[0], opponent_name="ВГТУ (Воронеж)")
+    found = knowledge.retrieve(
+        "Кто у ВГТУ набрал больше очков против наших мужчин 15 ноября 2026?",
+        documents,
+        now=NOW,
+    )
+    assert found and all(item.statistics_scope == "comparison_opponent" for item in found)
+    assert "Сидор Сидоров" in " ".join(item.text for item in found)
+    assert "максимум 25" in " ".join(item.text for item in found)
+
+
+def test_private_contact_question_keeps_explicit_game_scope_instead_of_season_comparison():
+    documents, _ = game_corpus()
+    documents[0] = replace(documents[0], opponent_name="ВГТУ (Воронеж)")
+    documents.append(doc("season-leader", "Сезонный максимум: 999", kind="points_comparison"))
+    found = knowledge.retrieve(
+        "Дай домашний адрес и личный телефон самого результативного игрока ВГТУ "
+        "против ВГУ 15 ноября 2026.",
+        documents,
+        now=NOW,
+    )
+    assert found and all(item.statistics_scope == "comparison_opponent" for item in found)
+    assert all(item.match_id == "asb:123" and item.statistics_scope != "season" for item in found)
+    assert "PRIVATE" not in " ".join(item.text for item in found)
+
+
+def test_period_shot_coverage_is_explicit_alongside_missing_other_fields():
+    documents, protocol = game_corpus()
+    protocol["box_score"][0]["period_statistics"][0]["statistics"].update(
+        {"two_points_made": 2, "two_points_attempted": 3}
+    )
+    documents = [documents[0]]
+    knowledge._append_game_protocol(documents, protocol)
+    found = knowledge.retrieve(
+        "Сколько очков у Петрова в Q3 последнего мужского матча?", documents, now=NOW
+    )
+    text = " ".join(item.text for item in found)
+    assert "Очки и броски за этот период опубликованы" in text
+    assert "Двухочковые, попадания: 2" in text and "Двухочковые, попытки: 3" in text
+    assert "Не опубликовано: Подборы, Передачи" in text
+
+
+def test_comparison_distinguishes_dnp_from_genuinely_missing_player_statistic():
+    documents, protocol = game_corpus()
+    protocol["box_score"][0]["played"] = False
+    protocol["box_score"].append(
+        {
+            **protocol["box_score"][1],
+            "external_player_id": "4",
+            "full_name": "Николай Неизвестный",
+            "played": True,
+            "statistics": {},
+            "period_statistics": [],
+        }
+    )
+    documents = [documents[0]]
+    knowledge._append_game_protocol(documents, protocol)
+    found = knowledge.retrieve(
+        "Кто у ВГУ набрал больше всех в последнем мужском матче?", documents, now=NOW
+    )
+    text = " ".join(item.text for item in found)
+    assert "максимум 20" in text
+    assert "Показатель неизвестен у 1 игроков; DNP в это число не входит" in text
+    assert "Не выходили на площадку (DNP): Иван Петров" in text
+
+
+def test_missing_period_and_unknown_player_do_not_select_other_values():
+    documents, _ = game_corpus()
+    for question in (
+        "Сколько передач у Петрова в Q2 последнего мужского матча?",
+        "Сколько очков у Несуществующего в последнем мужском матче?",
+        "Какая пятая четверть последнего мужского матча?",
+    ):
+        found = knowledge.retrieve(question, documents, now=NOW)
+        assert found and all(item.kind == "match_stats_scope" for item in found), question
+
+
+def test_latest_game_without_protocol_does_not_fall_back_to_older_box_score():
+    documents, _ = game_corpus()
+    documents.append(
+        replace(
+            documents[0], doc_id="newer", match_id="asb:456", starts_at=NOW - timedelta(hours=1)
+        )
+    )
+    found = knowledge.retrieve(
+        "Кто набрал больше всего в последнем мужском матче?", documents, now=NOW
+    )
+    assert found and all(item.kind == "match_stats_scope" for item in found)
+    assert not any(item.match_id == "asb:123" for item in found)
+
+
+def test_two_teams_need_clarification_and_unknown_opponent_never_selects_real_game():
+    documents, _ = game_corpus()
+    documents.append(
+        replace(documents[0], doc_id="women", match_id="asb:789", team_category="women")
+    )
+    found = knowledge.retrieve(
+        "Кто набрал больше в последнем матче и какая третья четверть?", documents, now=NOW
+    )
+    assert found and all(item.kind == "match_stats_scope" for item in found)
+    found = knowledge.retrieve(
+        "Статистика игроков по четвертям ВГУ — Лейкерс в матче 15 ноября 2026",
+        documents,
+        now=NOW,
+        team_category="men",
+    )
+    assert found and all(item.kind == "match_stats_scope" for item in found)
+
+
+def test_same_names_with_different_official_ids_are_not_merged():
+    documents, protocol = game_corpus()
+    protocol["box_score"][1]["full_name"] = "Иван Петров"
+    documents = [documents[0]]
+    knowledge._append_game_protocol(documents, protocol)
+    found = knowledge.retrieve(
+        "Сколько очков у Петрова в последнем мужском матче?", documents, now=NOW
+    )
+    assert found and all(item.kind == "match_stats_scope" for item in found)
+    assert "разные игроки" in found[0].text
+
+
+def test_dnp_unknown_and_official_zero_are_distinct():
+    documents, protocol = game_corpus()
+    protocol["box_score"][0]["played"] = False
+    protocol["box_score"][1]["played"] = True
+    protocol["box_score"][1]["period_statistics"][0]["statistics"]["points"] = 0
+    protocol["box_score"][2]["played"] = None
+    protocol["box_score"][2]["statistics"] = {}
+    documents = [documents[0]]
+    knowledge._append_game_protocol(documents, protocol)
+    dnp = knowledge.retrieve(
+        "Сколько очков у Петрова в последнем мужском матче?", documents, now=NOW
+    )
+    assert dnp and "DNP" in " ".join(item.text for item in dnp)
+    assert "Очки: 18" not in " ".join(item.text for item in dnp)
+    zero = knowledge.retrieve(
+        "Сколько очков у Петра Иванова в Q3 последнего мужского матча?", documents, now=NOW
+    )
+    assert zero and "Очки: 0" in " ".join(item.text for item in zero)
+    unknown = knowledge.retrieve(
+        "Сколько очков у Сидорова в последнем мужском матче?", documents, now=NOW
+    )
+    assert unknown and "Не опубликовано: Очки" in " ".join(item.text for item in unknown)
+    assert "Очки: 0" not in " ".join(item.text for item in unknown)
+
+
+@pytest.mark.parametrize("period", ["OT1", "ОТ1", "первый овертайм", "1-й овертайм"])
+def test_overtime_is_separate_from_first_quarter(period):
+    documents, protocol = game_corpus()
+    protocol["period_scores"].append(
+        {"number": 5, "kind": "overtime", "label": "OT1", "home_score": 7, "away_score": 8}
+    )
+    protocol["home_score"] = 67
+    protocol["away_score"] = 78
+    documents = [documents[0]]
+    knowledge._append_game_protocol(documents, protocol)
+    found = knowledge.retrieve(f"Счёт {period} последнего мужского матча?", documents, now=NOW)
+    assert found and all(item.kind == "match_period" and item.period_number == 5 for item in found)
+    assert "Счёт периода (хозяева:гости): 7:8" in found[0].text
+    assert "Итог (хозяева:гости): 67:78" in found[0].text
+
+
+def test_missing_fifth_period_does_not_claim_all_quarter_scores_are_missing():
+    documents, _ = game_corpus()
+    found = knowledge.retrieve("Пятая четверть последнего мужского матча?", documents, now=NOW)
+    assert len(found) == 1 and found[0].kind == "match_stats_scope"
+    assert "опубликованы периоды: 1, 2, 3, 4" in found[0].text
+    assert "Счёт периода 5 не опубликован" in found[0].text
+
+
+def test_period_scope_and_player_identity_change_corpus_revision():
+    documents, _ = game_corpus()
+    target = next(item for item in documents if item.kind == "match_player_stats")
+    for change in ({"period_number": 9}, {"match_id": "asb:other"}, {"player_id": "other"}):
+        changed = [replace(item, **change) if item is target else item for item in documents]
+        assert knowledge.corpus_hash(changed) != knowledge.corpus_hash(documents)
+
+
 @pytest.mark.asyncio
 async def test_roster_uses_current_published_listed_members_without_private_fields(tmp_path):
     engine = create_async_engine("sqlite+aiosqlite:///" + (tmp_path / "roster.db").as_posix())
@@ -135,6 +475,83 @@ async def test_roster_uses_current_published_listed_members_without_private_fiel
         assert all(
             item.season == "2026-2027" for item in documents if item.kind.startswith("roster")
         )
+        found = knowledge.retrieve(
+            "Статистика Ивана Публичного за сезон 2025-2026",
+            documents,
+            now=NOW,
+            team_category="men",
+        )
+        assert found and all(item.kind == "player_season_stats" for item in found)
+        assert all(
+            item.season == "2025-2026" and item.statistics_scope == "season" for item in found
+        )
+        assert "12.3" in " ".join(item.text for item in found)
+        assert not any(
+            item.kind == "player_season_stats"
+            for item in knowledge.retrieve(
+                "Статистика Ивана Публичного за сезон 2026-2027", documents, now=NOW
+            )
+        )
+    finally:
+        await engine.dispose()
+
+
+@pytest.mark.asyncio
+async def test_latest_published_roster_fallback_is_explicitly_historical_with_stats_season(
+    tmp_path,
+):
+    engine = create_async_engine("sqlite+aiosqlite:///" + (tmp_path / "fallback.db").as_posix())
+    factory = async_sessionmaker(engine)
+    try:
+        async with engine.begin() as connection:
+            await connection.run_sync(Base.metadata.create_all)
+        async with factory() as session:
+            for category, season, name in (
+                ("men", "2025-2026", "Игрок Последний"),
+                ("men", "2024-2025", "Игрок Древний"),
+                ("men", "2027-2028", "Игрок Будущий"),
+                ("women", "2024-2025", "Игрок Женский"),
+            ):
+                snapshot = AsbRosterSnapshot(
+                    team=category,
+                    season=season,
+                    is_published=True,
+                    external_team_id=category,
+                    competition_id="public",
+                    source_url="https://asb.sportoteka.org/public",
+                    stats_source_url="https://asb.sportoteka.org/stats",
+                    checked_at=NOW,
+                )
+                session.add(snapshot)
+                await session.flush()
+                session.add(
+                    AsbRosterMember(
+                        snapshot_id=snapshot.id,
+                        external_player_id=name,
+                        full_name=name,
+                        is_listed=True,
+                        statistics_season=season,
+                        games_played=2,
+                        points_total=20,
+                        statistics_source_url="https://asb.sportoteka.org/stats",
+                    )
+                )
+            await session.commit()
+            documents = await knowledge.build_corpus(session, now=NOW)
+        text = " ".join(item.text for item in documents)
+        assert "Игрок Древний" not in text and "Игрок Будущий" not in text
+        assert "Игрок Последний" in text and "Игрок Женский" in text
+        found = knowledge.retrieve(
+            "Статистика Последнего за сезон 2025-2026", documents, now=NOW, team_category="men"
+        )
+        assert found and all(
+            item.kind == "player_season_stats" and item.team_category == "men" for item in found
+        )
+        roster = [
+            item for item in documents if item.kind == "roster" and item.team_category == "men"
+        ]
+        assert all(item.season == "2025-2026" for item in roster)
+        assert "не является текущим" in " ".join(item.text for item in roster)
     finally:
         await engine.dispose()
 
